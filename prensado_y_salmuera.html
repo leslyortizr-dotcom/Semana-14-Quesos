@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Pro: Prensado y Salado por Ósmosis</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --accent: #38bdf8;
+            --cheese: #fcd34d;
+            --rind: #d97706;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .app-container {
+            max-width: 1080px;
+            width: 100%;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+            border: 1px solid #334155;
+        }
+        h1 {
+            text-align: center;
+            margin: 0 0 6px 0;
+            color: #38bdf8;
+            font-size: 25px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+        .stage-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 12px 22px;
+            border-radius: 10px;
+            border: 2px solid #334155;
+            background: #0f172a;
+            color: #cbd5e1;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: #0284c7;
+            border-color: #38bdf8;
+            color: white;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+        }
+        .preset-bar {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .preset-btn {
+            border: 1px solid #475569;
+            background: #334155;
+            color: #f8fafc;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .preset-btn:hover { background: #475569; }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 840px) {
+            .dashboard { grid-template-columns: 1fr; }
+        }
+        .controls-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 13.5px;
+            margin-bottom: 6px;
+            color: #cbd5e1;
+        }
+        input[type="range"] { width: 100%; cursor: pointer; accent-color: var(--accent); }
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        .metrics {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #334155;
+            font-size: 13px;
+        }
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed #334155;
+        }
+        .metric-row:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
+
+        .canvas-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .canvas-wrapper {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 3px solid #334155;
+            background: #091326;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 400px;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: center;
+            font-size: 12px;
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; color: #cbd5e1; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+        .info-panel {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 650px) {
+            .info-panel { grid-template-columns: 1fr; }
+        }
+        .info-box {
+            padding: 15px;
+            border-radius: 10px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-left: 5px solid var(--accent);
+            font-size: 13.5px;
+            line-height: 1.45;
+        }
+        .info-box h3 { margin: 0 0 6px 0; font-size: 15px; color: #38bdf8; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; background: #334155; color: #f8fafc; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; border: 1px solid #475569; margin-bottom: 14px; transition: 0.2s;">⬅ Volver al Menú Principal</a>
+    <h1>⚖️ Laboratorio Pro: Prensado Mecánico y Salado por Ósmosis</h1>
+    <div class="subtitle">Simulación de compactación en molde e intercambio iónico/osmótico en tina de salmuera</div>
+
+    <!-- Pestañas de Etapa -->
+    <div class="stage-tabs">
+        <button id="tab-press" class="tab-btn active" onclick="switchStage('press')">
+            1️⃣ Etapa A: Prensado Mecánico en Molde
+        </button>
+        <button id="tab-brine" class="tab-btn" onclick="switchStage('brine')">
+            2️⃣ Etapa B: Salado por Ósmosis en Salmuera
+        </button>
+    </div>
+
+    <!-- Barra de Escenarios Rápidos -->
+    <div class="preset-bar" id="preset-bar-press">
+        <button class="preset-btn" onclick="setPressPreset(10)">🪶 Sin Prensa / Autoprensado (Queso Fresco)</button>
+        <button class="preset-btn" onclick="setPressPreset(55)">✅ Prensado Gradual Óptimo (Manchego / Gouda)</button>
+        <button class="preset-btn" onclick="setPressPreset(95)" style="border-color:#ef4444; color:#fca5a5;">⚠️ Defecto: Sobre-prensado Brusco (Suero Atrapado)</button>
+    </div>
+
+    <div class="preset-bar" id="preset-bar-brine" style="display:none;">
+        <button class="preset-btn" onclick="setBrinePreset(8, 12)">💧 Salmuera Débil (8% NaCl - Defecto de Corteza Blanda)</button>
+        <button class="preset-btn" onclick="setBrinePreset(20, 12)">✅ Salmuera Estándar Industrial (20% NaCl / ~19° Baumé)</button>
+        <button class="preset-btn" onclick="setBrinePreset(26, 20)">🧂 Salmuera Saturada (26% NaCl - Deshidratación Intensa)</button>
+    </div>
+
+    <div class="dashboard">
+        <!-- Controles Dinámicos -->
+        <div class="controls-card">
+            <!-- Controles de Prensado -->
+            <div id="controls-press">
+                <div class="control-group">
+                    <label>
+                        <span>Presión del Pistón Neumático:</span>
+                        <span id="press-val" style="color:#38bdf8; font-size:15px;">55 kPa</span>
+                    </label>
+                    <input type="range" id="press-slider" min="0" max="100" step="5" value="55" oninput="updatePressParams()">
+                    <div class="scale-labels">
+                        <span>0 kPa (Gravedad)</span>
+                        <span>55 kPa (Ideal)</span>
+                        <span>100 kPa (Excesiva)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles de Salmuera -->
+            <div id="controls-brine" style="display:none;">
+                <div class="control-group" style="margin-bottom:14px;">
+                    <label>
+                        <span>Concentración Salmuera (% NaCl):</span>
+                        <span id="salt-val" style="color:#38bdf8; font-size:15px;">20%</span>
+                    </label>
+                    <input type="range" id="salt-slider" min="0" max="26" step="1" value="20" oninput="updateBrineParams()">
+                    <div class="scale-labels">
+                        <span>0% (Agua dulce)</span>
+                        <span>20% (Óptima)</span>
+                        <span>26% (Saturada)</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        <span>Temperatura de Salmuera:</span>
+                        <span id="btemp-val" style="color:#fcd34d;">12 °C</span>
+                    </label>
+                    <input type="range" id="btemp-slider" min="4" max="25" step="1" value="12" oninput="updateBrineParams()">
+                    <div class="scale-labels">
+                        <span>4 °C (Lenta)</span>
+                        <span>12 °C (Estándar)</span>
+                        <span>25 °C (Rápida/Riesgo)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lecturas de Ingeniería en Vivo -->
+            <div class="metrics">
+                <div class="metric-row">
+                    <span id="m1-label">Espacios de Aire (Ojos Mecánicos):</span>
+                    <strong id="m1-val" style="color:#fcd34d;">18%</strong>
+                </div>
+                <div class="metric-row">
+                    <span id="m2-label">Fusión de Granos de Cuajada:</span>
+                    <strong id="m2-val" style="color:#10b981;">Óptima (Masa Cerrada)</strong>
+                </div>
+                <div class="metric-row">
+                    <span id="m3-label">Drenaje de Suero Libre:</span>
+                    <strong id="m3-val" style="color:#38bdf8;">Continuo</strong>
+                </div>
+                <div class="metric-row">
+                    <span id="m4-label">Actividad de Agua (a_w):</span>
+                    <strong id="m4-val">0.985</strong>
+                </div>
+            </div>
+
+            <button class="preset-btn" style="width:100%; padding:10px; background:#0284c7; border:none;" onclick="resetCurrentStage()">
+                🔄 Reiniciar Proceso de la Etapa Actual
+            </button>
+        </div>
+
+        <!-- Lienzo de Simulación -->
+        <div class="canvas-area">
+            <div class="canvas-wrapper">
+                <canvas id="simCanvas" width="680" height="400"></canvas>
+            </div>
+            <div class="legend" id="legend-bar"></div>
+        </div>
+    </div>
+
+    <!-- Explicación Científica -->
+    <div class="info-panel">
+        <div class="info-box">
+            <h3 id="box1-title">🔬 Fenómeno Físico-Químico</h3>
+            <div id="box1-desc"></div>
+        </div>
+        <div class="info-box" style="border-left-color: #f59e0b;">
+            <h3 id="box2-title" style="color:#fcd34d;">🧀 Control de Calidad en Planta</h3>
+            <div id="box2-desc"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('simCanvas');
+const ctx = canvas.getContext('2d');
+
+let currentStage = 'press'; // 'press' o 'brine'
+
+// Variables Etapa 1: Prensado
+let pressure = 55;
+let pistonY = 60;
+let targetPistonY = 140;
+let wheyDrops = [];
+let trappedWhey = [];
+
+// Variables Etapa 2: Salmuera (Ósmosis)
+let saltConc = 20; // % NaCl
+let brineTemp = 12; // °C
+let rindThickness = 2; // Grosor de corteza formada (px)
+let ionsIn = []; // Iones Na+ Cl- entrando al queso
+let waterOut = []; // Moléculas H2O saliendo a la salmuera
+
+function switchStage(stage) {
+    currentStage = stage;
+    document.getElementById('tab-press').className = 'tab-btn' + (stage === 'press' ? ' active' : '');
+    document.getElementById('tab-brine').className = 'tab-btn' + (stage === 'brine' ? ' active' : '');
+
+    document.getElementById('controls-press').style.display = stage === 'press' ? 'block' : 'none';
+    document.getElementById('controls-brine').style.display = stage === 'brine' ? 'block' : 'none';
+
+    document.getElementById('preset-bar-press').style.display = stage === 'press' ? 'flex' : 'none';
+    document.getElementById('preset-bar-brine').style.display = stage === 'brine' ? 'flex' : 'none';
+
+    if (stage === 'press') {
+        initPressStage();
+    } else {
+        initBrineStage();
+    }
+}
+
+function setPressPreset(val) {
+    document.getElementById('press-slider').value = val;
+    initPressStage();
+}
+
+function setBrinePreset(salt, temp) {
+    document.getElementById('salt-slider').value = salt;
+    document.getElementById('btemp-slider').value = temp;
+    initBrineStage();
+}
+
+function resetCurrentStage() {
+    if (currentStage === 'press') initPressStage();
+    else initBrineStage();
+}
+
+/* ================= ETAPA 1: PRENSADO MECÁNICO ================= */
+function initPressStage() {
+    pistonY = 65;
+    wheyDrops = [];
+    trappedWhey = [];
+    for (let i = 0; i < 25; i++) {
+        trappedWhey.push({
+            rx: (Math.random() - 0.5) * 200,
+            ry: Math.random() * 140
+        });
+    }
+    updatePressParams();
+}
+
+function updatePressParams() {
+    pressure = parseInt(document.getElementById('press-slider').value);
+    document.getElementById('press-val').innerText = pressure + ' kPa';
+    targetPistonY = 75 + (pressure / 100) * 95;
+
+    document.getElementById('legend-bar').innerHTML = `
+        <div class="legend-item"><span class="dot" style="background:#fcd34d;"></span> Granos de Cuajada</div>
+        <div class="legend-item"><span class="dot" style="background:#0f172a; border:1px solid #64748b;"></span> Huecos de Aire (Ojos Mecánicos)</div>
+        <div class="legend-item"><span class="dot" style="background:#38bdf8;"></span> Suero Expulsado / Atrapado</div>
+        <div class="legend-item"><span class="dot" style="background:#94a3b8; border-radius:2px;"></span> Molde Microperforado</div>
+    `;
+
+    const m1 = document.getElementById('m1-val');
+    const m2 = document.getElementById('m2-val');
+    const m3 = document.getElementById('m3-val');
+    const m4 = document.getElementById('m4-val');
+
+    document.getElementById('m1-label').innerText = 'Espacios de Aire (Ojos Mecánicos):';
+    document.getElementById('m2-label').innerText = 'Fusión de Granos de Cuajada:';
+    document.getElementById('m3-label').innerText = 'Drenaje de Suero Libre:';
+    document.getElementById('m4-label').innerText = 'Integridad de Corteza:';
+
+    if (pressure < 25) {
+        m1.innerText = 'Alto (Textura Abierta)';
+        m1.style.color = '#f59e0b';
+        m2.innerText = 'Parcial / Desmoronable';
+        m2.style.color = '#f59e0b';
+        m3.innerText = 'Por gravedad (Lento)';
+        m4.innerText = 'Sin corteza cerrada';
+        document.getElementById('box1-desc').innerHTML = '<strong>Autoprensado o baja presión:</strong> Los granos de cuajada mantienen su forma redondeada dejando cavidades angulares entre ellos (conocidas como <em>ojos mecánicos</em>).';
+        document.getElementById('box2-desc').innerHTML = 'Ideal para <strong>Queso Fresco, Ranchero o Panela</strong> (que se desmoronan fácilmente), pero inaceptable para quesos madurados que requieren una pasta cerrada.';
+    } else if (pressure <= 75) {
+        m1.innerText = '< 2% (Pasta Cerrada)';
+        m1.style.color = '#10b981';
+        m2.innerText = 'Completa y Uniforme';
+        m2.style.color = '#10b981';
+        m3.innerText = 'Óptimo por microperforaciones';
+        m4.innerText = 'Corteza Lisa y Permeable';
+        document.getElementById('box1-desc').innerHTML = '<strong>Deformación plástica gradual:</strong> La presión moderada deforma los granos de cuajada cálidos hasta fusionarlos en una masa continua mientras los canales capilares siguen abiertos para que salga el suero.';
+        document.getElementById('box2-desc').innerHTML = '<strong>¡Estándar de Oro!</strong> Así se prensan quesos como <strong>Manchego, Chihuahua, Gouda y Cheddar</strong>, logrando una textura firme, sin grietas ni bolsas de suero.';
+    } else {
+        m1.innerText = '0% en periferia / Suero central';
+        m1.style.color = '#ef4444';
+        m2.innerText = 'Sellado prematuro exterior';
+        m2.style.color = '#ef4444';
+        m3.innerText = 'BLOQUEADO (Corteza Impermeable)';
+        m3.style.color = '#ef4444';
+        m4.innerText = 'Defecto de Suero Atrapado';
+        document.getElementById('box1-desc').innerHTML = '<strong>¡Defecto por Sobre-prensado Brusco!</strong> Al aplicar demasiada presión desde el inicio, los granos de la orilla se aplastan formando una capa impermeable que <strong>encierra el suero en el centro del queso</strong>.';
+        document.getElementById('box2-desc').innerHTML = 'El suero atrapado en el corazón del queso seguirá fermentando durante la maduración, provocando <strong>centro ácido, mal olor y grietas internas</strong>.';
+    }
+}
+
+function drawPressStage() {
+    // Movimiento suave del pistón
+    if (pistonY < targetPistonY) {
+        pistonY += 0.6;
+        // Expulsar chorros de suero por los lados del molde mientras baja (si no está bloqueado por sobrepresión)
+        if (pressure <= 75 || pistonY < 115) {
+            if (Math.random() < 0.6) {
+                let side = Math.random() < 0.5 ? -1 : 1;
+                wheyDrops.push({
+                    x: canvas.width / 2 + side * 145,
+                    y: pistonY + 30 + Math.random() * (330 - pistonY - 40),
+                    vx: side * (2 + Math.random() * 2.5),
+                    vy: -0.5 + Math.random() * 1.5,
+                    alpha: 1
+                });
+            }
+        }
+    } else if (pistonY > targetPistonY) {
+        pistonY -= 1.2;
+    }
+
+    let cx = canvas.width / 2;
+    let moldTop = 70;
+    let moldBottom = 335;
+    let moldW = 280;
+
+    // 1. Vástago y Pistón Neumático
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(cx - 22, 0, 44, pistonY);
+    ctx.fillStyle = '#94a3b8';
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 2;
+    ctx.fillRect(cx - moldW/2 + 6, pistonY - 18, moldW - 12, 18);
+    ctx.strokeRect(cx - moldW/2 + 6, pistonY - 18, moldW - 12, 18);
+
+    // Vectores de fuerza (flechas rojas/azules sobre el pistón)
+    if (pressure > 0) {
+        ctx.fillStyle = pressure > 75 ? '#ef4444' : '#38bdf8';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`⬇ Fuerza Aplicada: ${pressure} kPa ⬇`, cx, pistonY - 26);
+    }
+
+    // 2. Interior del queso (Granos deformándose según el pistón)
+    let cheeseH = moldBottom - pistonY;
+    let compression = (pistonY - 75) / 95; // 0.0 a 1.0
+
+    // Fondo oscuro del molde (huecos de aire entre granos cuando hay poca presión)
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(cx - moldW/2 + 6, pistonY, moldW - 12, cheeseH);
+
+    // Si hay sobrepresión (>75 kPa), dibujar corteza exterior gruesa e impermeable
+    if (pressure > 75 && compression > 0.5) {
+        ctx.strokeStyle = '#d97706';
+        ctx.lineWidth = 10;
+        ctx.strokeRect(cx - moldW/2 + 11, pistonY + 5, moldW - 22, cheeseH - 10);
+    }
+
+    // Dibujar cuadrícula de granos de cuajada que pasan de esféricos (con huecos) a cuadrados fusionados
+    let rows = 6;
+    let cols = 8;
+    let cellW = (moldW - 16) / cols;
+    let cellH = cheeseH / rows;
+
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            let gx = (cx - moldW/2 + 8) + c * cellW;
+            let gy = pistonY + r * cellH;
+
+            // Entre más presión, menor es el borde redondeado y el espacio vacío
+            let gap = Math.max(0, (1 - compression * 1.25) * 3.5);
+            let cornerRadius = Math.max(1, (1 - compression * 1.15) * 12);
+
+            ctx.fillStyle = '#fcd34d';
+            ctx.strokeStyle = 'rgba(217, 119, 6, 0.35)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(gx + gap, gy + gap, cellW - gap*2, cellH - gap*2, cornerRadius);
+            ctx.fill();
+            ctx.stroke();
+        }
+    }
+
+    // Si hay sobrepresión (>75 kPa), mostrar bolsas de suero atrapadas en el centro
+    if (pressure > 75 && compression > 0.5) {
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
+        trappedWhey.forEach(w => {
+            ctx.beginPath();
+            ctx.arc(cx + w.rx * 0.65, pistonY + cheeseH/2 + (w.ry - 70) * 0.45, 5, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.fillStyle = '#0284c7';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText('💧 ¡Suero ácido atrapado en el centro!', cx, pistonY + cheeseH/2);
+    }
+
+    // 3. Paredes del Molde de Acero Inoxidable Microperforado
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 8;
+    ctx.setLineDash([10, 6]); // Orificios de drenaje del molde
+    ctx.strokeRect(cx - moldW/2, moldTop, moldW, moldBottom - moldTop);
+    ctx.setLineDash([]);
+
+    // Base sólida de la mesa de prensado
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(cx - 190, moldBottom, 380, 14);
+
+    // 4. Gotas de suero saliendo por los orificios laterales
+    for (let i = wheyDrops.length - 1; i >= 0; i--) {
+        let d = wheyDrops[i];
+        d.x += d.vx;
+        d.y += d.vy;
+        d.vy += 0.15; // Gravedad
+        d.alpha -= 0.02;
+        if (d.alpha <= 0) {
+            wheyDrops.splice(i, 1);
+            continue;
+        }
+        ctx.fillStyle = `rgba(56, 189, 248, ${d.alpha})`;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+/* ================= ETAPA 2: SALADO POR ÓSMOSIS EN SALMUERA ================= */
+function initBrineStage() {
+    rindThickness = 2;
+    ionsIn = [];
+    waterOut = [];
+    updateBrineParams();
+}
+
+function updateBrineParams() {
+    saltConc = parseInt(document.getElementById('salt-slider').value);
+    brineTemp = parseInt(document.getElementById('btemp-slider').value);
+
+    document.getElementById('salt-val').innerText = saltConc + '%';
+    document.getElementById('btemp-val').innerText = brineTemp + ' °C';
+
+    document.getElementById('legend-bar').innerHTML = `
+        <div class="legend-item"><span class="dot" style="background:#ef4444;"></span> Iones Sodio y Cloro (Na⁺ Cl⁻ entrando)</div>
+        <div class="legend-item"><span class="dot" style="background:#38bdf8;"></span> Agua (H₂O saliendo por Ósmosis)</div>
+        <div class="legend-item"><span class="dot" style="background:#d97706;"></span> Corteza Deshidratada Formada</div>
+    `;
+
+    document.getElementById('m1-label').innerText = 'Gradiente Osmótico:';
+    document.getElementById('m2-label').innerText = 'Formación de Corteza:';
+    document.getElementById('m3-label').innerText = 'Flujo Neto (Agua vs Sal):';
+    document.getElementById('m4-label').innerText = 'Actividad de Agua (a_w) en Corteza:';
+
+    const m1 = document.getElementById('m1-val');
+    const m2 = document.getElementById('m2-val');
+    const m3 = document.getElementById('m3-val');
+    const m4 = document.getElementById('m4-val');
+
+    let aw = (0.990 - (saltConc / 26) * 0.065).toFixed(3);
+    m4.innerText = aw;
+
+    if (saltConc < 12) {
+        m1.innerText = 'Bajo (Poca fuerza osmótica)';
+        m1.style.color = '#f59e0b';
+        m2.innerText = 'Débil / Corteza blanda y babosa';
+        m2.style.color = '#ef4444';
+        m3.innerText = 'Lento intercambio';
+        document.getElementById('box1-desc').innerHTML = '<strong>Salmuera Hipotónica / Débil (<12% NaCl):</strong> A baja concentración de sal, las proteínas de caseína se solubilizan en el agua salada en lugar de encogerse, creando una superficie gelatinosa o babosa.';
+        document.getElementById('box2-desc').innerHTML = '⚠️ <strong>Riesgo Microbiológico:</strong> La actividad de agua ($a_w$) no baja lo suficiente, permitiendo el crecimiento de bacterias indeseables y hongos defectuosos en la corteza.';
+    } else if (saltConc <= 22) {
+        m1.innerText = 'Óptimo (~19° Baumé)';
+        m1.style.color = '#10b981';
+        m2.innerText = 'Corteza Firme y Flexible';
+        m2.style.color = '#10b981';
+        m3.innerText = 'Salen 2g H₂O por cada 1g NaCl';
+        document.getElementById('box1-desc').innerHTML = `<strong>Doble Transferencia (Difusión + Ósmosis):</strong> Los iones <strong>Na⁺ y Cl⁻ (rojos)</strong> penetran hacia la matriz del queso por diferencia de concentración, mientras el <strong>agua libre (azul)</strong> sale hacia la salmuera para equilibrar la presión osmótica.`;
+        document.getElementById('box2-desc').innerHTML = `<strong>Salmuera Industrial Ideal (18% - 22% NaCl a 12 °C):</strong> Deshidrata uniformemente los primeros milímetros del queso, formando una corteza protectora que evita que el queso se deforme en la cava.`;
+    } else {
+        m1.innerText = 'Extremo (Saturación 26%)';
+        m1.style.color = '#38bdf8';
+        m2.innerText = 'Corteza Dura y Quebradiza';
+        m2.style.color = '#f59e0b';
+        m3.innerText = 'Choque osmótico superficial';
+        document.getElementById('box1-desc').innerHTML = '<strong>Salmuera Saturada (26% NaCl):</strong> La salida de agua de la superficie es tan violenta que contrae los poros de la corteza rápidamente, frenando la difusión de sal hacia el centro del queso.';
+        document.getElementById('box2-desc').innerHTML = 'Útil en quesos muy duros (como Parmesano o Cotija), pero en quesos semiduros puede causar <strong>cuarteo de la corteza</strong> por resequedad excesiva.';
+    }
+}
+
+function drawBrineStage() {
+    // 1. Fondo de la Tina de Salmuera
+    ctx.fillStyle = '#0c4a6e';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Nivel de agua de la salmuera
+    ctx.fillStyle = '#075985';
+    ctx.fillRect(0, 45, canvas.width, canvas.height - 45);
+
+    // 2. Rueda de Queso sumergida en el centro
+    let cx = canvas.width / 2;
+    let cy = canvas.height / 2 + 15;
+    let w = 310;
+    let h = 170;
+
+    // Crecimiento progresivo del grosor de la corteza según % de sal y temperatura
+    let maxRind = (saltConc / 26) * 26;
+    if (rindThickness < maxRind) {
+        rindThickness += 0.03 * (saltConc / 20) * (brineTemp / 12);
+    } else if (rindThickness > maxRind) {
+        rindThickness -= 0.1;
+    }
+
+    // Dibujar la Corteza exterior (Naranja oscuro deshidratado)
+    ctx.fillStyle = '#d97706';
+    ctx.beginPath();
+    ctx.roundRect(cx - w/2, cy - h/2, w, h, 20);
+    ctx.fill();
+
+    // Dibujar el Interior tierno del queso (Amarillo claro)
+    let r = Math.max(2, rindThickness);
+    ctx.fillStyle = '#fef08a';
+    ctx.beginPath();
+    ctx.roundRect(cx - w/2 + r, cy - h/2 + r, w - r*2, h - r*2, Math.max(6, 20 - r));
+    ctx.fill();
+
+    // Etiquetas centrales dentro del queso
+    ctx.fillStyle = '#854d0e';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('INTERIOR DEL QUESO (Alta Humedad / 0% Sal inicial)', cx, cy - 6);
+    ctx.font = '12px sans-serif';
+    ctx.fillText(`Grosor de Corteza Salada: ${(rindThickness * 0.4).toFixed(1)} mm`, cx, cy + 16);
+
+    // 3. Simulación de partículas (Iones Na+/Cl- entrando y Moléculas H2O saliendo)
+    let rate = (saltConc / 20) * (brineTemp / 12);
+
+    if (saltConc > 0 && Math.random() < 0.45 * rate) {
+        // Nace un ion de sal (rojo) en la salmuera dirigiéndose hacia adentro de la corteza
+        let side = Math.random() < 0.5 ? -1 : 1;
+        let startX = cx + side * (w/2 + 45);
+        let startY = cy + (Math.random() - 0.5) * (h - 30);
+        ionsIn.push({
+            x: startX,
+            y: startY,
+            vx: -side * (1.2 + Math.random() * 0.8) * (brineTemp / 12),
+            targetDepth: cx + side * (w/2 - r - Math.random() * 25),
+            side: side,
+            alpha: 1
+        });
+
+        // Por cada ion de sal que entra, salen 2 moléculas de agua (azul) por ósmosis
+        for (let k = 0; k < 2; k++) {
+            waterOut.push({
+                x: cx + side * (w/2 - r),
+                y: cy + (Math.random() - 0.5) * (h - 30),
+                vx: side * (1.5 + Math.random() * 1.2) * (brineTemp / 12),
+                vy: (Math.random() - 0.5) * 0.8,
+                alpha: 1
+            });
+        }
+    }
+
+    // Dibujar Iones Na+ Cl- entrando al queso (Rojos)
+    for (let i = ionsIn.length - 1; i >= 0; i--) {
+        let p = ionsIn[i];
+        p.x += p.vx;
+        if ((p.side === 1 && p.x <= p.targetDepth) || (p.side === -1 && p.x >= p.targetDepth)) {
+            p.alpha -= 0.04;
+        }
+        if (p.alpha <= 0) {
+            ionsIn.splice(i, 1);
+            continue;
+        }
+        ctx.fillStyle = `rgba(239, 68, 68, ${p.alpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Dibujar Moléculas H2O saliendo hacia la salmuera (Azules)
+    for (let i = waterOut.length - 1; i >= 0; i--) {
+        let wPart = waterOut[i];
+        wPart.x += wPart.vx;
+        wPart.y += wPart.vy;
+        wPart.alpha -= 0.018;
+        if (wPart.alpha <= 0) {
+            waterOut.splice(i, 1);
+            continue;
+        }
+        ctx.fillStyle = `rgba(56, 189, 248, ${wPart.alpha})`;
+        ctx.beginPath();
+        ctx.arc(wPart.x, wPart.y, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Indicadores visuales de flujo en los bordes del queso
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('🔴 Na⁺ Cl⁻ (Difusión hacia adentro) ➔', cx - w/2 - 95, cy - 35);
+    ctx.fillStyle = '#7dd3fc';
+    ctx.fillText('⬅ 🔵 H₂O (Ósmosis hacia afuera)', cx - w/2 - 95, cy + 45);
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (currentStage === 'press') {
+        drawPressStage();
+    } else {
+        drawBrineStage();
+    }
+
+    requestAnimationFrame(animate);
+}
+
+initPressStage();
+animate();
+</script>
+
+</body>
+</html>

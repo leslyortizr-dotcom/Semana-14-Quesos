@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCADA Lácteo: Planta Quesera Virtual (1,000 L)</title>
+    <style>
+        :root {
+            --bg: #0b1120;
+            --panel: #1e293b;
+            --card: #0f172a;
+            --border: #334155;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --ok: #10b981;
+            --warn: #f59e0b;
+            --err: #ef4444;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+        }
+        .scada-container {
+            max-width: 1240px;
+            width: 100%;
+            background: var(--panel);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header-title h1 {
+            margin: 0;
+            font-size: 22px;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-title span {
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .target-selector {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .target-btn {
+            background: var(--card);
+            color: #cbd5e1;
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .target-btn.active {
+            background: #0284c7;
+            color: white;
+            border-color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+        }
+        .btn-auto {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-auto:hover { filter: brightness(1.1); }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr 340px;
+            gap: 16px;
+        }
+        @media (max-width: 1100px) {
+            .main-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 760px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        .column-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 13px;
+        }
+        .section-tag {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--accent);
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 4px;
+        }
+
+        .param-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .param-row label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+        .param-val {
+            color: #fcd34d;
+            font-weight: 700;
+        }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+            accent-color: var(--accent);
+            height: 6px;
+        }
+        select, .toggle-group button {
+            background: #1e293b;
+            color: white;
+            border: 1px solid var(--border);
+            padding: 7px 10px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .toggle-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+        .toggle-group button.active {
+            background: #0284c7;
+            border-color: #38bdf8;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .kpi-box {
+            background: #1e293b;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+        .kpi-label {
+            font-size: 11.5px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .kpi-number {
+            font-size: 22px;
+            font-weight: 800;
+            color: #fcd34d;
+        }
+        .kpi-sub {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        canvas#plantCanvas {
+            width: 100%;
+            height: 290px;
+            background: #070d19;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            display: block;
+        }
+
+        .status-badge {
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13.5px;
+            text-align: center;
+        }
+        .badge-ok { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--ok); color: #34d399; }
+        .badge-warn { background: rgba(245, 158, 11, 0.15); border: 1px solid var(--warn); color: #fbbf24; }
+        .badge-err { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--err); color: #f87171; }
+
+        .audit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 12.5px;
+            max-height: 210px;
+            overflow-y: auto;
+        }
+        .audit-item {
+            padding: 9px 11px;
+            border-radius: 6px;
+            background: #1e293b;
+            border-left: 4px solid var(--accent);
+            line-height: 1.4;
+        }
+        .formula-card {
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #cbd5e1;
+            border: 1px dashed #475569;
+            line-height: 1.45;
+        }
+        .math-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 8px 0;
+            font-family: 'Cambria Math', 'Times New Roman', serif;
+            font-size: 14.5px;
+            background: #0f172a;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+        }
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .fraction-top {
+            border-bottom: 1.5px solid #94a3b8;
+            padding: 0 6px 3px 6px;
+            color: #38bdf8;
+        }
+        .fraction-bottom {
+            padding-top: 3px;
+            color: #34d399;
+        }
+    </style>
+</head>
+<body>
+
+<div class="scada-container">
+    <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; background: #334155; color: #f8fafc; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; border: 1px solid #475569; margin-bottom: 14px; transition: 0.2s;">⬅ Volver al Menú Principal</a>
+    <div class="header-bar">
+        <div class="header-title">
+            <h1>🏭 PLANTA QUESERA VIRTUAL — LOTE BASE: 1,000 LITROS</h1>
+            <span>Simulador de Balance de Materia, Rendimiento (Van Slyke) y Control de Calidad</span>
+        </div>
+        <div class="target-selector">
+            <span style="font-size:12.5px; color:#94a3b8; font-weight:600;">Orden de Producción (Meta):</span>
+            <button id="target-panela" class="target-btn active" onclick="setTarget('panela')">🧀 Queso Panela</button>
+            <button id="target-oaxaca" class="target-btn" onclick="setTarget('oaxaca')">🧵 Queso Oaxaca</button>
+            <button id="target-manchego" class="target-btn" onclick="setTarget('manchego')">🧀 Manchego / Chihuahua</button>
+            <button id="target-parmesano" class="target-btn" onclick="setTarget('parmesano')">👑 Parmesano / Cotija</button>
+            <button class="btn-auto" onclick="loadIdealRecipe()">✨ Cargar Parámetros Ideales</button>
+        </div>
+    </div>
+
+    <div class="main-grid">
+        <!-- COLUMNA 1: CONTROLES -->
+        <div class="column-card">
+            <div class="section-tag">⚙️ Parámetros de Proceso en Tina</div>
+
+            <div class="param-row">
+                <label>
+                    <span>1. Grasa en Leche Estandarizada (G):</span>
+                    <span class="param-val" id="lbl-fat">3.4 %</span>
+                </label>
+                <input type="range" id="inp-fat" min="1.5" max="4.5" step="0.1" value="3.4" oninput="recalcPlant()">
+            </div>
+
+            <div class="param-row">
+                <label><span>2. Pasteurización (HTST 72°C / 15s):</span></label>
+                <div class="toggle-group">
+                    <button id="past-raw" onclick="setPasteurization('raw')">Cruda</button>
+                    <button id="past-htst" class="active" onclick="setPasteurization('htst')">HTST (72°C)</button>
+                    <button id="past-over" onclick="setPasteurization('over')">Sobrecalentada (>85°C)</button>
+                </div>
+            </div>
+
+            <div class="param-row">
+                <label>
+                    <span>3. pH al Corte / Hilado (Acidificación):</span>
+                    <span class="param-val" id="lbl-ph">6.50</span>
+                </label>
+                <input type="range" id="inp-ph" min="4.6" max="6.7" step="0.1" value="6.5" oninput="recalcPlant()">
+            </div>
+
+            <div class="param-row">
+                <label><span>4. Adición de Cloruro de Calcio (CaCl₂):</span></label>
+                <select id="inp-cacl" onchange="recalcPlant()">
+                    <option value="yes">Sí (20 g / 100 L) - Firmeza óptima</option>
+                    <option value="no">No añadido (Riesgo de cuajada frágil)</option>
+                </select>
+            </div>
+
+            <div class="param-row">
+                <label><span>5. Calibre de Corte con la Lira:</span></label>
+                <div class="toggle-group">
+                    <button id="cut-large" class="active" onclick="setCut('large')">Grande (2 cm)</button>
+                    <button id="cut-med" onclick="setCut('med')">Mediano (1 cm)</button>
+                    <button id="cut-small" onclick="setCut('small')">Arroz (3 mm)</button>
+                </div>
+            </div>
+
+            <div class="param-row">
+                <label>
+                    <span>6. Temperatura de Cocción del Grano:</span>
+                    <span class="param-val" id="lbl-cook">34 °C</span>
+                </label>
+                <input type="range" id="inp-cook" min="30" max="55" step="1" value="34" oninput="recalcPlant()">
+            </div>
+
+            <div class="param-row">
+                <label>
+                    <span>7. Presión de Prensado / Moldeo:</span>
+                    <span class="param-val" id="lbl-press">10 kPa</span>
+                </label>
+                <input type="range" id="inp-press" min="0" max="90" step="5" value="10" oninput="recalcPlant()">
+            </div>
+        </div>
+
+        <!-- COLUMNA 2: VISUALIZACIÓN Y BALANCE -->
+        <div class="column-card">
+            <div class="section-tag">📊 Balance de Materia y Rendimiento (1,000 L Leche = 1,032 kg)</div>
+
+            <div class="kpi-grid">
+                <div class="kpi-box">
+                    <div class="kpi-label">RENDIMIENTO QUESERO</div>
+                    <div class="kpi-number" id="kpi-yield">138.4 kg</div>
+                    <div class="kpi-sub" id="kpi-liters-per-kg">7.2 L de leche por kg de queso</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-label">LACTOSUERO DRENADO</div>
+                    <div class="kpi-number" id="kpi-whey" style="color:#38bdf8;">893.6 kg</div>
+                    <div class="kpi-sub" id="kpi-whey-pct">86.6% del volumen inicial</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-label">HUMEDAD DEL QUESO FINAL (H)</div>
+                    <div class="kpi-number" id="kpi-moisture" style="color:#34d399;">58.0 %</div>
+                    <div class="kpi-sub" id="kpi-dm">Extracto Seco Total (EST): 42.0%</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-label">TEXTURA / PASTA OBTENIDA</div>
+                    <div class="kpi-number" id="kpi-texture" style="font-size:17px; color:#f8fafc;">Pasta Blanda Fresca</div>
+                    <div class="kpi-sub" id="kpi-fdm">Grasa en Extracto Seco: 45%</div>
+                </div>
+            </div>
+
+            <canvas id="plantCanvas" width="460" height="290"></canvas>
+        </div>
+
+        <!-- COLUMNA 3: AUDITORÍA Y ECUACIÓN CORREGIDA -->
+        <div class="column-card">
+            <div class="section-tag">🔍 Dictamen de Calidad (vs. Ficha Técnica)</div>
+
+            <div id="quality-badge" class="status-badge badge-ok">
+                ✅ LOTE APROBADO — GRADO INDUSTRIAL A
+            </div>
+
+            <div class="audit-list" id="audit-log"></div>
+
+            <!-- ECUACIÓN FORMATEADA NATIVAMENTE CON HTML/CSS -->
+            <div class="formula-card">
+                <strong>📐 Ecuación de Rendimiento (Van Slyke):</strong>
+                <div class="math-box">
+                    <span style="font-weight:bold; color:#fcd34d; font-style:italic;">R</span>
+                    <span>=</span>
+                    <div class="fraction">
+                        <span class="fraction-top" id="eq-top">
+                            [ 0.93 &middot; <i>G</i> + (<i>C</i> &minus; 0.1) ] &middot; 1.09
+                        </span>
+                        <span class="fraction-bottom" id="eq-bottom">
+                            1 &minus; (<i>H</i> / 100)
+                        </span>
+                    </div>
+                    <span>=</span>
+                    <strong id="eq-result" style="color:#fcd34d;">13.4%</strong>
+                </div>
+                <small>Donde <b>G</b> = % Grasa, <b>C</b> = % Caseína (2.52%), <b>1.09</b> = retención de sales/suero y <b>H</b> = % Humedad final controlada por la sinéresis.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('plantCanvas');
+const ctx = canvas.getContext('2d');
+
+let targetCheese = 'panela';
+let pastMode = 'htst';
+let cutMode = 'large';
+
+let simMoisture = 58;
+let simYield = 138;
+let simGrains = [];
+
+const RECIPES = {
+    panela: {
+        name: 'Queso Panela (Fresco / Alta Humedad)',
+        fat: 3.4, past: 'htst', ph: 6.5, cacl: 'yes', cut: 'large', cook: 34, press: 10,
+        minMoist: 53, maxMoist: 62, minPh: 6.3, maxPh: 6.7
+    },
+    oaxaca: {
+        name: 'Queso Oaxaca / Mozzarella (Pasta Hilada)',
+        fat: 3.2, past: 'htst', ph: 5.3, cacl: 'yes', cut: 'med', cook: 38, press: 5,
+        minMoist: 46, maxMoist: 52, minPh: 5.1, maxPh: 5.5
+    },
+    manchego: {
+        name: 'Queso Manchego / Chihuahua (Pasta Semidura Prensada)',
+        fat: 3.6, past: 'htst', ph: 6.2, cacl: 'yes', cut: 'med', cook: 39, press: 55,
+        minMoist: 41, maxMoist: 47, minPh: 6.0, maxPh: 6.5
+    },
+    parmesano: {
+        name: 'Queso Parmesano / Cotija (Pasta Dura Cocida)',
+        fat: 2.6, past: 'raw', ph: 6.1, cacl: 'yes', cut: 'small', cook: 52, press: 80,
+        minMoist: 30, maxMoist: 37, minPh: 5.8, maxPh: 6.4
+    }
+};
+
+function initGrains() {
+    simGrains = [];
+    for (let i = 0; i < 28; i++) {
+        simGrains.push({
+            x: 45 + Math.random() * 170,
+            y: 80 + Math.random() * 140,
+            vx: (Math.random() - 0.5) * 1.4,
+            vy: (Math.random() - 0.5) * 1.4
+        });
+    }
+}
+
+function setTarget(type) {
+    targetCheese = type;
+    document.querySelectorAll('.target-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('target-' + type).classList.add('active');
+    recalcPlant();
+}
+
+function setPasteurization(mode) {
+    pastMode = mode;
+    document.querySelectorAll('#past-raw, #past-htst, #past-over').forEach(b => b.classList.remove('active'));
+    document.getElementById('past-' + mode).classList.add('active');
+    recalcPlant();
+}
+
+function setCut(mode) {
+    cutMode = mode;
+    document.querySelectorAll('#cut-large, #cut-med, #cut-small').forEach(b => b.classList.remove('active'));
+    document.getElementById('cut-' + mode).classList.add('active');
+    recalcPlant();
+}
+
+function loadIdealRecipe() {
+    let r = RECIPES[targetCheese];
+    document.getElementById('inp-fat').value = r.fat;
+    setPasteurization(r.past);
+    document.getElementById('inp-ph').value = r.ph;
+    document.getElementById('inp-cacl').value = r.cacl;
+    setCut(r.cut);
+    document.getElementById('inp-cook').value = r.cook;
+    document.getElementById('inp-press').value = r.press;
+    recalcPlant();
+}
+
+function recalcPlant() {
+    let fat = parseFloat(document.getElementById('inp-fat').value);
+    let ph = parseFloat(document.getElementById('inp-ph').value);
+    let cacl = document.getElementById('inp-cacl').value;
+    let cook = parseInt(document.getElementById('inp-cook').value);
+    let press = parseInt(document.getElementById('inp-press').value);
+
+    document.getElementById('lbl-fat').innerText = fat.toFixed(1) + ' %';
+    document.getElementById('lbl-ph').innerText = ph.toFixed(2);
+    document.getElementById('lbl-cook').innerText = cook + ' °C';
+    document.getElementById('lbl-press').innerText = press + ' kPa';
+
+    let baseMoisture = 61.0;
+    if (cutMode === 'med') baseMoisture = 53.0;
+    if (cutMode === 'small') baseMoisture = 45.0;
+
+    let cookDrop = (cook - 30) * 0.42;
+    let pressDrop = (press / 90) * 8.5;
+    let phDrop = (6.6 - ph) * 2.2;
+    let overPastBonus = (pastMode === 'over') ? 5.5 : 0;
+
+    let finalMoisture = Math.min(68.0, Math.max(31.0, baseMoisture - cookDrop - pressDrop - phDrop + overPastBonus));
+    simMoisture = finalMoisture;
+
+    let casein = 2.52;
+    let fatRecovery = (cacl === 'yes' && pastMode !== 'over') ? 0.93 : 0.84;
+    let solidsRetention = (pastMode === 'over') ? 1.13 : 1.09;
+
+    let yieldPct = ((fatRecovery * fat + (casein - 0.1)) * solidsRetention) / (1 - (finalMoisture / 100));
+    let totalCheeseKg = (1032 * (yieldPct / 100));
+    let totalWheyKg = 1032 - totalCheeseKg;
+    let litersPerKg = 1000 / totalCheeseKg;
+
+    simYield = totalCheeseKg;
+
+    // Actualizar ecuación visual con los datos en tiempo real
+    document.getElementById('eq-top').innerHTML = `[ ${fatRecovery} &middot; <b>${fat.toFixed(1)}</b> + (2.52 &minus; 0.1) ] &middot; ${solidsRetention}`;
+    document.getElementById('eq-bottom').innerHTML = `1 &minus; (<b>${finalMoisture.toFixed(1)}</b> / 100)`;
+    document.getElementById('eq-result').innerText = `${yieldPct.toFixed(1)}%`;
+
+    document.getElementById('kpi-yield').innerText = totalCheeseKg.toFixed(1) + ' kg';
+    document.getElementById('kpi-liters-per-kg').innerText = `${litersPerKg.toFixed(1)} L de leche por 1 kg de queso`;
+    document.getElementById('kpi-whey').innerText = totalWheyKg.toFixed(1) + ' kg';
+    document.getElementById('kpi-whey-pct').innerText = `${((totalWheyKg / 1032) * 100).toFixed(1)}% convertido en suero`;
+    document.getElementById('kpi-moisture').innerText = finalMoisture.toFixed(1) + ' %';
+    let est = 100 - finalMoisture;
+    document.getElementById('kpi-dm').innerText = `Extracto Seco Total (EST): ${est.toFixed(1)}%`;
+
+    let fdm = Math.round(((fat * fatRecovery) / (yieldPct * (est / 100))) * 100);
+    document.getElementById('kpi-fdm').innerText = `Grasa en Extracto Seco (GES): ~${fdm}%`;
+
+    let texEl = document.getElementById('kpi-texture');
+    if (finalMoisture >= 53) texEl.innerText = 'Pasta Blanda / Fresca';
+    else if (finalMoisture >= 41) texEl.innerText = 'Pasta Semidura / Firme';
+    else texEl.innerText = 'Pasta Dura / Añejable';
+
+    runQualityAudit(fat, ph, cacl, cook, press, finalMoisture);
+}
+
+function runQualityAudit(fat, ph, cacl, cook, press, moisture) {
+    let target = RECIPES[targetCheese];
+    let logs = [];
+    let errors = 0;
+    let warnings = 0;
+
+    if (pastMode === 'over') {
+        errors++;
+        logs.push({ color: '#ef4444', text: '❌ <b>Sobrecalentamiento (>85 °C):</b> La β-lactoglobulina del suero se unió a la κ-caseína, bloqueando la acción del cuajo. Cuajada débil que no desuera.' });
+    } else if (pastMode === 'raw' && targetCheese !== 'parmesano') {
+        warnings++;
+        logs.push({ color: '#f59e0b', text: '⚠️ <b>Riesgo Inocuidad (NOM-243):</b> Leche cruda sin pasteurizar en un queso de corta maduración.' });
+    }
+
+    if (cacl === 'no' && pastMode === 'htst') {
+        warnings++;
+        logs.push({ color: '#f59e0b', text: '⚠️ <b>Sin CaCl₂:</b> La pasteurización insolubiliza parte del calcio; al no reponerlo se pierde un ~6% de grasa y finos en el suero.' });
+    }
+
+    if (targetCheese === 'oaxaca') {
+        if (ph > 5.5) {
+            errors++;
+            logs.push({ color: '#ef4444', text: `❌ <b>pH demasiado alto (${ph}):</b> Para hilar Queso Oaxaca el pH debe estar entre 5.1 y 5.4. A pH ${ph} la cuajada se rompe y no forma hebras.` });
+        } else if (ph < 5.0) {
+            errors++;
+            logs.push({ color: '#ef4444', text: `❌ <b>Sobre-acidificación (pH ${ph}):</b> Exceso de desmineralización; la pasta se disuelve en el agua de hilado.` });
+        } else {
+            logs.push({ color: '#10b981', text: '✅ <b>Punto de Hilado Exacto:</b> pH ideal (5.2 - 5.4) para desmineralizar parcialmente la micela y formar hebras.' });
+        }
+    } else {
+        if (ph < target.minPh) {
+            warnings++;
+            logs.push({ color: '#f59e0b', text: `⚠️ <b>Cuajada demasiado ácida (pH ${ph}):</b> Para ${target.name} se recomienda cortar arriba de pH ${target.minPh} para evitar textura quebradiza.` });
+        }
+    }
+
+    if (moisture > target.maxMoist) {
+        errors++;
+        logs.push({ color: '#ef4444', text: `❌ <b>Exceso de Humedad (${moisture.toFixed(1)}%):</b> Meta para ${target.name}: ${target.minMoist}-${target.maxMoist}%. Corta el grano más pequeño, sube la temp. de cocción o aumenta el prensado.` });
+    } else if (moisture < target.minMoist) {
+        errors++;
+        logs.push({ color: '#ef4444', text: `❌ <b>Queso demasiado seco (${moisture.toFixed(1)}%):</b> Meta: ${target.minMoist}-${target.maxMoist}%. Redujiste demasiado el rendimiento por exceso de sinéresis.` });
+    } else {
+        logs.push({ color: '#10b981', text: `✅ <b>Humedad en Especificación (${moisture.toFixed(1)}%):</b> Dentro del rango óptimo (${target.minMoist}% - ${target.maxMoist}%) para ${target.name}.` });
+    }
+
+    const badge = document.getElementById('quality-badge');
+    if (errors === 0 && warnings === 0) {
+        badge.className = 'status-badge badge-ok';
+        badge.innerText = `✅ LOTE APROBADO: ${target.name.toUpperCase()}`;
+    } else if (errors === 0) {
+        badge.className = 'status-badge badge-warn';
+        badge.innerText = `⚠️ LOTE ACONDICIONADO (${warnings} Observaciones)`;
+    } else {
+        badge.className = 'status-badge badge-err';
+        badge.innerText = `❌ LOTE FUERA DE ESPECIFICACIÓN (${errors} Errores Críticos)`;
+    }
+
+    const logContainer = document.getElementById('audit-log');
+    logContainer.innerHTML = logs.map(l => `<div class="audit-item" style="border-left-color:${l.color};">${l.text}</div>`).join('');
+}
+
+function animatePlant() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 4;
+    ctx.fillStyle = '#0c4a6e';
+    ctx.beginPath();
+    ctx.roundRect(25, 55, 200, 185, 12);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(132, 204, 22, 0.25)';
+    ctx.fillRect(29, 70, 192, 166);
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('TINA DE PROCESO (1,000 L)', 125, 42);
+
+    let gSize = cutMode === 'large' ? 14 : (cutMode === 'med' ? 9 : 5);
+    ctx.fillStyle = '#fef08a';
+    simGrains.forEach(g => {
+        g.x += g.vx;
+        g.y += g.vy;
+        if (g.x < 40 || g.x > 210) g.vx *= -1;
+        if (g.y < 80 || g.y > 225) g.vy *= -1;
+        ctx.beginPath();
+        ctx.roundRect(g.x - gSize/2, g.y - gSize/2, gSize, gSize, 2);
+        ctx.fill();
+    });
+
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(225, 150);
+    ctx.lineTo(275, 150);
+    ctx.stroke();
+
+    let cx = 355;
+    let cy = 155;
+    let wheelW = 120 + (simYield - 90) * 0.45;
+    let wheelH = 75 + (simMoisture - 30) * 0.8;
+
+    ctx.fillStyle = '#fcd34d';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('QUESO TERMINADO', cx, 42);
+
+    ctx.fillStyle = simMoisture > 52 ? '#fef9c3' : (simMoisture > 40 ? '#fde047' : '#eab308');
+    ctx.strokeStyle = '#ca8a04';
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+    if (targetCheese === 'oaxaca') {
+        ctx.arc(cx, cy, wheelH * 0.65, 0, Math.PI * 2);
+    } else {
+        ctx.roundRect(cx - wheelW/2, cy - wheelH/2, wheelW, wheelH, 12);
+    }
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#713f12';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillText(`${simYield.toFixed(1)} kg`, cx, cy);
+    ctx.font = '11px sans-serif';
+    ctx.fillText(`${simMoisture.toFixed(1)}% Humedad`, cx, cy + 16);
+
+    requestAnimationFrame(animatePlant);
+}
+
+initGrains();
+loadIdealRecipe();
+animatePlant();
+</script>
+
+</body>
+</html>

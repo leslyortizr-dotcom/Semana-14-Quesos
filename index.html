@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Virtual de Tecnología de Quesos - CECyTE</title>
+    <style>
+        :root {
+            --bg: #0b1120;
+            --panel: #1e293b;
+            --card: #0f172a;
+            --border: #334155;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --gold: #fcd34d;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1040px;
+            width: 100%;
+            background: var(--panel);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+        h1 { margin: 0 0 8px 0; color: var(--gold); font-size: 24px; }
+        p.subtitle { color: var(--muted); margin: 0; font-size: 14px; }
+        .grid-sims {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+        .sim-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .sim-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+        .sim-card h3 { margin: 0 0 8px 0; color: var(--accent); font-size: 15.5px; line-height: 1.35; }
+        .sim-card p { color: var(--muted); font-size: 12.5px; line-height: 1.45; margin: 0 0 16px 0; }
+        .sim-btn {
+            background: #0284c7;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            padding: 9px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .sim-btn:hover { background: #0369a1; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🧀 Laboratorio Virtual de Tecnología de Quesos</h1>
+        <p class="subtitle">CECyTE Guanajuato • Módulo II: Procesamiento de Leche y Derivados Lácteos</p>
+    </header>
+
+    <div class="grid-sims">
+        <!-- Tarjeta 1 -->
+        <div class="sim-card">
+            <div>
+                <h3>Coagulación de la leche para elaborar queso SEMANA 14</h3>
+                <p>Estabilidad coloidal de la caseína, acción hidrolítica del cuajo (quimosina) y formación de la cuajada por puentes de calcio.</p>
+            </div>
+            <a href="coagulacion.html" class="sim-btn">Abrir Simulador ➔</a>
+        </div>
+
+        <!-- Tarjeta 2 -->
+        <div class="sim-card">
+            <div>
+                <h3>Coagulación Ácida vs. Enzimática (El efecto del pH) SEMANA 14</h3>
+                <p>Desmineralización del calcio micelar según el pH y contraste estructural entre geles ácidos, enzimáticos y de pasta hilada.</p>
+            </div>
+            <a href="acida_vs_enzimatica.html" class="sim-btn">Abrir Simulador ➔</a>
+        </div>
+
+        <!-- Tarjeta 3 -->
+        <div class="sim-card">
+            <div>
+                <h3>Fermentación Láctica (Microbiología en acción) SEMANA 14</h3>
+                <p>Cinética y metabolismo de cultivos lácticos mesófilos y termófilos consumiendo lactosa y generando la curva de acidificación.</p>
+            </div>
+            <a href="fermentacion_lactica.html" class="sim-btn">Abrir Simulador ➔</a>
+        </div>
+
+        <!-- Tarjeta 4 -->
+        <div class="sim-card">
+            <div>
+                <h3>Corte de la Cuajada y Sinéresis (Expulsión del Suero) SEMANA 14</h3>
+                <p>Control del calibre de corte con la lira, temperatura de cocción y agitación para regular la humedad del grano de cuajada.</p>
+            </div>
+            <a href="corte_y_sineresis.html" class="sim-btn">Abrir Simulador ➔</a>
+        </div>
+
+        <!-- Tarjeta 5 -->
+        <div class="sim-card">
+            <div>
+                <h3>Prensado y Salado por Ósmosis (Salmuera) SEMANA 14</h3>
+                <p>Compactación en molde perforado, deformación de granos e intercambio osmótico de iones Na⁺/Cl⁻ en salmuera.</p>
+            </div>
+            <a href="prensado_y_salmuera.html" class="sim-btn">Abrir Simulador ➔</a>
+        </div>
+
+        <!-- Tarjeta 6 -->
+        <div class="sim-card">
+            <div>
+                <h3>Planta Quesera Virtual SEMANA 14</h3>
+                <p>Consola SCADA para un lote de 1,000 L de leche: balance de materia en tiempo real con la ecuación de Van Slyke y auditoría de calidad.</p>
+            </div>
+            <a href="planta_quesera_virtual.html" class="sim-btn">Abrir Simulador ➔</a>
+        </div>
+
+        <!-- Tarjeta 7 -->
+        <div class="sim-card" style="grid-column: 1 / -1; background: #111827;">
+            <div>
+                <h3 style="color:#fcd34d;">Plano Interactivo de Distribución de Planta (Plant Layout) por Áreas Operativas SEMANA 14</h3>
+                <p>Distribución arquitectónica e industrial de 8 áreas operativas, flujos de tuberías sanitarias, puntos críticos de control (PCC) y zonificación BPM.</p>
+            </div>
+            <a href="planta_quesera_areas.html" class="sim-btn" style="background:#059669;">Explorar Plano Industrial ➔</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

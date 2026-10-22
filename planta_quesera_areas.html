@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layout Industrial: Planta Quesera por Áreas</title>
+    <style>
+        :root {
+            --bg: #090e17;
+            --panel: #111827;
+            --card: #1f2937;
+            --border: #374151;
+            --text: #f9fafb;
+            --muted: #9ca3af;
+            --accent: #38bdf8;
+            --gold: #fbbf24;
+            --green: #10b981;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+        }
+        .app-wrapper {
+            max-width: 1280px;
+            width: 100%;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.65);
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .title-block h1 {
+            margin: 0;
+            font-size: 22px;
+            color: var(--accent);
+        }
+        .title-block p {
+            margin: 3px 0 0 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .tool-btn, select {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tool-btn:hover { border-color: var(--accent); }
+        .tool-btn.active {
+            background: #0284c7;
+            border-color: #38bdf8;
+            color: white;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 18px;
+        }
+        @media (max-width: 1024px) {
+            .layout-grid { grid-template-columns: 1fr; }
+        }
+
+        .map-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .canvas-box {
+            position: relative;
+            background: #060a11;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        canvas#layoutCanvas {
+            display: block;
+            width: 100%;
+            height: 540px;
+            cursor: pointer;
+        }
+        .legend-bar {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: var(--card);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            border: 1px solid var(--border);
+        }
+        .legend-group {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+        /* Panel Lateral de Inspección de Área */
+        .inspector-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .zone-header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+        .zone-badge {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        .zone-header h2 {
+            margin: 0;
+            font-size: 19px;
+            color: var(--gold);
+        }
+        .info-section {
+            background: #111827;
+            border: 1px solid #283548;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .info-section h4 {
+            margin: 0 0 6px 0;
+            font-size: 12.5px;
+            text-transform: uppercase;
+            color: var(--accent);
+            letter-spacing: 0.5px;
+        }
+        .info-section ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .info-section li { margin-bottom: 4px; }
+        .flow-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .flow-stat {
+            background: #090e17;
+            border: 1px solid var(--border);
+            padding: 8px 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .flow-stat span {
+            display: block;
+            font-size: 11px;
+            color: var(--muted);
+        }
+        .flow-stat strong {
+            font-size: 15px;
+            color: var(--green);
+        }
+        .area-nav {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+        .nav-pill {
+            background: #111827;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .nav-pill.active {
+            background: var(--accent);
+            color: #090e17;
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+    <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; background: #334155; color: #f8fafc; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; border: 1px solid #475569; margin-bottom: 14px; transition: 0.2s;">⬅ Volver al Menú Principal</a>
+    <!-- Barra Superior -->
+    <div class="top-bar">
+        <div class="title-block">
+            <h1>🗺️ LAYOUT INTERACTIVO DE PLANTA QUESERA POR ÁREAS</h1>
+            <p>Haz clic en cualquier sala del plano para inspeccionar sus equipos, flujos de tubería, controles de calidad y normas sanitarias</p>
+        </div>
+        <div class="toolbar">
+            <label style="font-size:13px; color:#9ca3af; font-weight:600;">Capacidad Instalada:</label>
+            <select id="capacity-select" onchange="updateCapacity()">
+                <option value="1000">Planta Piloto / Taller (1,000 L/día)</option>
+                <option value="5000" selected>Planta PyME Industrial (5,000 L/día)</option>
+                <option value="20000">Planta Gran Escala (20,000 L/día)</option>
+            </select>
+            <button id="btn-hygiene" class="tool-btn" onclick="toggleHygieneZones()">
+                🛡️ Ver Zonificación Sanitaria (BPM)
+            </button>
+        </div>
+    </div>
+
+    <div class="layout-grid">
+        <!-- Plano de la Planta (Canvas) -->
+        <div class="map-container">
+            <div class="canvas-box">
+                <canvas id="layoutCanvas" width="800" height="540"></canvas>
+            </div>
+            <div class="legend-bar">
+                <div class="legend-group">
+                    <strong>Flujo en Tuberías:</strong>
+                    <div class="legend-item"><span class="dot" style="background:#ffffff;"></span> Leche Cruda / Pasteurizada</div>
+                    <div class="legend-item"><span class="dot" style="background:#fde047;"></span> Cuajada + Suero</div>
+                    <div class="legend-item"><span class="dot" style="background:#84cc16;"></span> Lactosuero Drenado</div>
+                    <div class="legend-item"><span class="dot" style="background:#38bdf8;"></span> Solución CIP / Servicios</div>
+                </div>
+                <div class="legend-group">
+                    <strong>Higiene:</strong>
+                    <div class="legend-item"><span class="dot" style="background:#ef4444;"></span> Zona Gris (Recepción)</div>
+                    <div class="legend-item"><span class="dot" style="background:#f59e0b;"></span> Zona Intermedia</div>
+                    <div class="legend-item"><span class="dot" style="background:#10b981;"></span> Zona Blanca (Inocua)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Inspector Técnico del Área Seleccionada -->
+        <div class="inspector-card">
+            <div class="area-nav" id="quick-nav"></div>
+
+            <div class="zone-header">
+                <span id="ins-badge" class="zone-badge">ZONA GRIS — EXTERIOR</span>
+                <h2 id="ins-title">1. Recepción y Enfriamiento</h2>
+            </div>
+
+            <div class="flow-box">
+                <div class="flow-stat">
+                    <span id="stat1-lbl">Flujo de Entrada</span>
+                    <strong id="stat1-val">5,000 L/día</strong>
+                </div>
+                <div class="flow-stat">
+                    <span id="stat2-lbl">Condición Operativa</span>
+                    <strong id="stat2-val" style="color:#38bdf8;">4.0 °C</strong>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h4>🔧 Equipos Principales en esta Área</h4>
+                <ul id="ins-equip"></ul>
+            </div>
+
+            <div class="info-section">
+                <h4>🔬 Control de Proceso y Laboratorio (PCC)</h4>
+                <ul id="ins-control"></ul>
+            </div>
+
+            <div class="info-section" style="border-left: 3px solid var(--gold);">
+                <h4>📐 Diseño Sanitario e Ingeniería (NOM-251 / NOM-243)</h4>
+                <div id="ins-design"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('layoutCanvas');
+const ctx = canvas.getContext('2d');
+
+let dailyLiters = 5000;
+let showHygiene = false;
+let selectedAreaId = 1;
+let particles = [];
+
+// Definición de las 8 Áreas de la Planta Quesera (Coordenadas en el Plano)
+const PLANT_AREAS = [
+    {
+        id: 1,
+        code: "ÁREA 1",
+        name: "1. Recepción y Almacenamiento de Leche Cruda",
+        short: "1. Recepción",
+        x: 30, y: 40, w: 220, h: 145,
+        hygiene: "ZONA GRIS (SUCIA / ACCESO EXTERNO)",
+        hygieneColor: "#ef4444",
+        roomColor: "#1e293b",
+        temp: "4 °C ± 1 °C",
+        flowFactor: 1.0,
+        flowUnit: "L de Leche Cruda",
+        equipment: [
+            "Báscula camionera o medidor de flujo másico con desaireador (elimina burbujas de aire).",
+            "Filtro de línea en acero inoxidable (malla para retener paja o impurezas físicas).",
+            "Enfriador de placas para bajar la leche inmediatamente a < 4 °C.",
+            "Silo vertical isotérmico con agitación lenta (evita separación de nata)."
+        ],
+        controls: [
+            "Temperatura de llegada de la pipa (máx. 4 - 6 °C).",
+            "Muestreo automático en línea antes de descargar al silo.",
+            "Lavado externo e interno de cisterna en bahía."
+        ],
+        design: "Andén techado con pendiente del 2% hacia drenaje. Separado físicamente del interior de la planta para evitar entrada de polvo, gases de combustión e insectos."
+    },
+    {
+        id: 2,
+        code: "ÁREA 2",
+        name: "2. Laboratorio de Control de Calidad y Fisicoquímico",
+        short: "2. Laboratorio",
+        x: 30, y: 215, w: 220, h: 135,
+        hygiene: "ZONA INTERMEDIA (SOPORTE TÉCNICO)",
+        hygieneColor: "#f59e0b",
+        roomColor: "#1e293b",
+        temp: "20 °C (Climatizado)",
+        flowFactor: 0.001,
+        flowUnit: "Muestras Analizadas",
+        equipment: [
+            "Analizador ultrasónico de leche (grasa, proteína, SNG), lactodensímetro y crioscopio.",
+            "Incubadora rápida para prueba de inhibidores / antibióticos (Beta-lactámicos).",
+            "Acidímetro Dornic, potenciómetro digital de pH y centrífuga Gerber."
+        ],
+        controls: [
+            "Acidez titulable: 13 a 17 °Dornic (1.3 - 1.7 g/L de ácido láctico).",
+            "Punto crioscópico: -0.530 a -0.560 °H (detecta adulteración con agua).",
+            "Prueba de alcohol (72% v/v) negativa y CERO residuos de antibióticos (vital para que crezcan los cultivos lácticos)."
+        ],
+        design: "Ubicado junto al andén de recepción con ventanilla pasamuestras para liberar o rechazar la pipa en menos de 15 minutos antes de descargar."
+    },
+    {
+        id: 3,
+        code: "ÁREA 3",
+        name: "3. Sala de Estandarización y Pasteurización HTST",
+        short: "3. Pasteurización",
+        x: 280, y: 40, w: 230, h: 145,
+        hygiene: "ZONA INTERMEDIA DE PROCESO",
+        hygieneColor: "#f59e0b",
+        roomColor: "#1e293b",
+        temp: "72 °C (15 seg) ➔ Salida a 32 °C",
+        flowFactor: 1.0,
+        flowUnit: "L Leche Estandarizada",
+        equipment: [
+            "Descremadora / Estandarizadora centrífuga de platos (ajusta relación Caseína/Grasa ~0.70).",
+            "Pasteurizador HTST de placas (Secciones de regeneración 90%, calentamiento, tubo de retención de 15 s y enfriamiento).",
+            "Válvula diversora de flujo (FDV): regresa la leche si no alcanza los 72 °C."
+        ],
+        controls: [
+            "PCC 1 (Punto Crítico de Control): Temperatura ≥ 72.0 °C durante 15 segundos continuos.",
+            "Prueba de Fosfatasa Alcalina: Negativa (confirma destrucción de patógenos).",
+            "Temperatura de salida ajustada a 32 °C lista para entrar a las tinas queseras."
+        ],
+        design: "Tuberías de acero inoxidable AISI 316L con soldadura sanitaria orbital. Ahorro energético del 85-90% por intercambio de calor leche fría / leche caliente."
+    },
+    {
+        id: 4,
+        code: "ÁREA 4",
+        name: "4. Sala de Elaboración (Tinas Queseras / Coagulación)",
+        short: "4. Tinas Queseras",
+        x: 280, y: 215, w: 230, h: 155,
+        hygiene: "ZONA BLANCA (ALTA HIGIENE - PRESIÓN POSITIVA)",
+        hygieneColor: "#10b981",
+        roomColor: "#172554",
+        temp: "32 °C a 53 °C (En chaqueta de vapor)",
+        flowFactor: 1.0,
+        flowUnit: "L en Coagulación y Corte",
+        equipment: [
+            "Tinas queseras cerradas o abiertas de doble camisa (calentamiento por vapor/agua caliente).",
+            "Juego de liras planetarias de acero inoxidable y palas agitadoras reversibles.",
+            "Dosificadores sanitarios para CaCl₂ (20g/100L), cultivo láctico (BAL) y cuajo."
+        ],
+        controls: [
+            "Control de curva de acidificación (pH desde 6.6 hasta el punto de corte).",
+            "Prueba del corte limpio de la cuajada antes de activar las liras.",
+            "Rampa térmica de cocción (1 °C cada 3 minutos) para controlar la sinéresis sin 'encamisar' el grano."
+        ],
+        design: "Corazón de la planta. Requiere aire filtrado HEPA con sobrepresión positiva para evitar entrada de bacteriófagos (virus que atacan al cultivo láctico), pisos epóxicos con curva sanitaria y coladeras con sello hidráulico."
+    },
+    {
+        id: 5,
+        code: "ÁREA 5",
+        name: "5. Sala de Desuerado, Moldeo, Prensado / Hilado",
+        short: "5. Moldeo / Prensa",
+        x: 540, y: 40, w: 230, h: 155,
+        hygiene: "ZONA BLANCA (ALTA HIGIENE)",
+        hygieneColor: "#10b981",
+        roomColor: "#172554",
+        temp: "22 °C Ambiente / 78 °C en Hiladora",
+        flowFactor: 0.115,
+        flowUnit: "kg de Cuajada Moldeada",
+        equipment: [
+            "Mesa desueradora o tambor rotatorio separador de finos de caseína.",
+            "Moldes microperforados de polietileno de alta densidad (sin telas) y túnel de prensado neumático.",
+            "Línea paralela de Pasta Hilada: Paila de amasado e hilado en caliente (78 °C) para Queso Oaxaca / Mozzarella."
+        ],
+        controls: [
+            "Programa de prensado escalonado (inicia a 20 kPa y sube a 60 kPa) para evitar atrapar suero.",
+            "Control de pH al final del prensado (pH 5.2 - 5.3).",
+            "Verificación de cierre de corteza sin ojos mecánicos."
+        ],
+        design: "Conexión directa por gravedad o bomba helicoidal (bajo cizallamiento) desde las tinas. Drenaje independiente de acero inoxidable para recolectar el suero dulce."
+    },
+    {
+        id: 6,
+        code: "ÁREA 6",
+        name: "6. Sala de Salado por Inmersión (Salmuera)",
+        short: "6. Salmuera",
+        x: 540, y: 225, w: 230, h: 145,
+        hygiene: "ZONA BLANCA FRÍA",
+        hygieneColor: "#10b981",
+        roomColor: "#172554",
+        temp: "10 °C a 12 °C",
+        flowFactor: 0.11,
+        flowUnit: "kg Queso en Ósmosis",
+        equipment: [
+            "Piletas de salmuera en concreto recubierto en epóxico grado alimenticio o fibra de vidrio/acero AISI 316.",
+            "Jaulas sumergibles multinivel e intercambiador de calor de titanio para mantener 12 °C.",
+            "Filtro de tierra de diatomeas o microfiltración para limpiar la salmuera."
+        ],
+        controls: [
+            "Concentración salina: 18% a 22% NaCl (18 - 20 °Baumé).",
+            "pH de la salmuera igual al pH del queso (5.2 - 5.3) y 0.2% de Calcio para evitar corteza babosa.",
+            "Tiempo de inmersión según calibre del queso (ej. 6 a 24 horas)."
+        ],
+        design: "Ambiente refrigerado con materiales resistentes a la corrosión por cloruros (prohibido acero 304 en contacto directo prolongado; se usa AISI 316L o polímeros)."
+    },
+    {
+        id: 7,
+        code: "ÁREA 7",
+        name: "7. Cava de Maduración, Empaque al Vacío y Despacho",
+        short: "7. Cava y Empaque",
+        x: 540, y: 395, w: 230, h: 115,
+        hygiene: "ZONA BLANCA / PRODUCTO TERMINADO",
+        hygieneColor: "#10b981",
+        roomColor: "#1e293b",
+        temp: "10 - 12 °C (Maduración) / 4 °C (Conservación)",
+        flowFactor: 0.105,
+        flowUnit: "kg de Queso Terminado",
+        equipment: [
+            "Estanterías de maduración con control automatizado de Humedad Relativa (80% - 85% HR).",
+            "Campana de empaque al vacío o termoformadora con atmósfera modificada.",
+            "Detector de metales, etiquetadora de lote/caducidad y cámara fría de despacho (4 °C)."
+        ],
+        controls: [
+            "Volteo periódico de ruedas de queso, plastificado (coating) o cepillado de corteza.",
+            "Control de proteólisis y lipólisis durante los días/meses de cava.",
+            "Integridad del sello al vacío y cadena de frío (< 4 °C en embarque)."
+        ],
+        design: "Separación estricta entre la cava de maduración (donde hay flora fúngica/bacteriana propia de afinado) y la sala de corte/empaque al vacío."
+    },
+    {
+        id: 8,
+        code: "ÁREA 8",
+        name: "8. Planta de Lactosuero, Requesón y Central CIP",
+        short: "8. Suero y CIP",
+        x: 30, y: 395, w: 480, h: 115,
+        hygiene: "ZONA GRIS / SERVICIOS INDUSTRIALES",
+        hygieneColor: "#ef4444",
+        roomColor: "#1e293b",
+        temp: "88 °C (Requesón) / 75 °C (Sosa CIP)",
+        flowFactor: 0.885,
+        flowUnit: "L de Suero Recuperado",
+        equipment: [
+            "Tanque colector de lactosuero, tamiz vibratorio y desnatadora de suero (recupera crema de suero).",
+            "Marmita de precipitación térmica (90 °C + ácido) para elaborar Requesón / Ricotta o planta de Ultrafiltración (WPC).",
+            "Central CIP (Clean-in-Place) de 4 tanques: Enjuague, Sosa Cáustica (NaOH 1.5%), Ácido Nítrico (HNO₃ 1%) y Sanitizante."
+        ],
+        controls: [
+            "PROHIBIDO verter lactosuero al drenaje (altísima DBO₅ > 35,000 mg/L contaminante).",
+            "Conductividad, temperatura y caudal turbulento (> 1.5 m/s) en el lavado CIP de tuberías."
+        ],
+        design: "Economía circular en la planta: recupera el 88% del volumen inicial que sale como suero para transformarlo en Requesón, bebidas fermentadas o proteína en polvo."
+    }
+];
+
+// Tuberías de conexión entre áreas para animar el flujo
+const PIPES = [
+    { from: 1, to: 2, color: "#ffffff", label: "Muestra" },
+    { from: 1, to: 3, color: "#ffffff", label: "Leche Cruda 4°C" },
+    { from: 3, to: 4, color: "#ffffff", label: "Leche Past. 32°C" },
+    { from: 4, to: 5, color: "#fde047", label: "Cuajada + Suero" },
+    { from: 5, to: 6, color: "#fbbf24", label: "Quesos Prensados" },
+    { from: 6, to: 7, color: "#f59e0b", label: "Quesos Salados" },
+    { from: 5, to: 8, color: "#84cc16", label: "Drenaje de Suero (88%)" }
+];
+
+function initNavPills() {
+    const nav = document.getElementById('quick-nav');
+    nav.innerHTML = PLANT_AREAS.map(a =>
+        `<button id="pill-${a.id}" class="nav-pill ${a.id === selectedAreaId ? 'active' : ''}" onclick="selectArea(${a.id})">${a.short}</button>`
+    ).join('');
+}
+
+function initParticles() {
+    particles = [];
+    PIPES.forEach((p, idx) => {
+        for (let i = 0; i < 4; i++) {
+            particles.push({
+                pipeIndex: idx,
+                progress: i * 0.25
+            });
+        }
+    });
+}
+
+function toggleHygieneZones() {
+    showHygiene = !showHygiene;
+    const btn = document.getElementById('btn-hygiene');
+    btn.classList.toggle('active', showHygiene);
+}
+
+function updateCapacity() {
+    dailyLiters = parseInt(document.getElementById('capacity-select').value);
+    selectArea(selectedAreaId);
+}
+
+function selectArea(id) {
+    selectedAreaId = id;
+    document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+    document.getElementById('pill-' + id).classList.add('active');
+
+    const area = PLANT_AREAS.find(a => a.id === id);
+    const badge = document.getElementById('ins-badge');
+    badge.innerText = area.hygiene;
+    badge.style.backgroundColor = area.hygieneColor + '25';
+    badge.style.color = area.hygieneColor;
+    badge.style.border = `1px solid ${area.hygieneColor}`;
+
+    document.getElementById('ins-title').innerText = area.name;
+
+    let flowVal = Math.round(dailyLiters * area.flowFactor);
+    if (area.id === 2) flowVal = Math.max(2, Math.round(dailyLiters / 2500)) + " pipas/día";
+    else flowVal = flowVal.toLocaleString() + " " + area.flowUnit;
+
+    document.getElementById('stat1-lbl').innerText = "Balance de Flujo Diario";
+    document.getElementById('stat1-val').innerText = flowVal;
+    document.getElementById('stat2-val').innerText = area.temp;
+
+    document.getElementById('ins-equip').innerHTML = area.equipment.map(e => `<li>${e}</li>`).join('');
+    document.getElementById('ins-control').innerHTML = area.controls.map(c => `<li>${c}</li>`).join('');
+    document.getElementById('ins-design').innerHTML = area.design;
+}
+
+// Detectar clic sobre las salas en el plano
+canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+
+    for (let area of PLANT_AREAS) {
+        if (mx >= area.x && mx <= area.x + area.w && my >= area.y && my <= area.y + area.h) {
+            selectArea(area.id);
+            break;
+        }
+    }
+});
+
+function getCenter(areaId) {
+    const a = PLANT_AREAS.find(x => x.id === areaId);
+    return { x: a.x + a.w / 2, y: a.y + a.h / 2 };
+}
+
+function drawEquipmentIcons(area) {
+    ctx.save();
+    ctx.translate(area.x, area.y);
+    ctx.strokeStyle = "rgba(255,255,255,0.28)";
+    ctx.fillStyle = "rgba(255,255,255,0.08)";
+    ctx.lineWidth = 1.5;
+
+    if (area.id === 1) {
+        // Silos verticales
+        ctx.beginPath();
+        ctx.arc(55, 95, 24, 0, Math.PI * 2);
+        ctx.arc(115, 95, 24, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "10px sans-serif";
+        ctx.fillText("Silo 1", 42, 98);
+        ctx.fillText("Silo 2", 102, 98);
+    } else if (area.id === 3) {
+        // Intercambiador de placas y centrífuga
+        ctx.fillRect(35, 75, 65, 40);
+        ctx.strokeRect(35, 75, 65, 40);
+        ctx.beginPath();
+        ctx.arc(155, 95, 22, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "10px sans-serif";
+        ctx.fillText("HTST Placas", 38, 98);
+        ctx.fillText("Centrífuga", 132, 98);
+    } else if (area.id === 4) {
+        // Tinas Queseras Doble O
+        ctx.beginPath();
+        ctx.roundRect(30, 75, 75, 50, 20);
+        ctx.roundRect(120, 75, 75, 50, 20);
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#fde047";
+        ctx.font = "10px sans-serif";
+        ctx.fillText("Tina 1 (Cuajada)", 32, 103);
+        ctx.fillText("Tina 2 (Liras)", 126, 103);
+    } else if (area.id === 5) {
+        // Prensas neumáticas y Mesa
+        ctx.fillRect(30, 80, 85, 42);
+        ctx.strokeRect(30, 80, 85, 42);
+        ctx.fillRect(130, 80, 70, 42);
+        ctx.strokeRect(130, 80, 70, 42);
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "10px sans-serif";
+        ctx.fillText("Prensa Neum.", 40, 105);
+        ctx.fillText("Hiladora 78°C", 134, 105);
+    } else if (area.id === 6) {
+        // Pileta de salmuera azul
+        ctx.fillStyle = "rgba(14, 165, 233, 0.25)";
+        ctx.fillRect(30, 72, 170, 52);
+        ctx.strokeRect(30, 72, 170, 52);
+        ctx.fillStyle = "#7dd3fc";
+        ctx.font = "10px sans-serif";
+        ctx.fillText("Piletas Salmuera 20% NaCl (12°C)", 42, 102);
+    } else if (area.id === 7) {
+        // Racks de maduración
+        for (let r = 0; r < 3; r++) {
+            ctx.fillRect(35 + r * 58, 65, 45, 32);
+            ctx.strokeRect(35 + r * 58, 65, 45, 32);
+        }
+    } else if (area.id === 8) {
+        // Tanques CIP y Suero
+        for (let t = 0; t < 4; t++) {
+            ctx.beginPath();
+            ctx.arc(80 + t * 85, 78, 20, 0, Math.PI * 2);
+            ctx.fill(); ctx.stroke();
+        }
+    }
+    ctx.restore();
+}
+
+function animateLayout() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Cuadrícula arquitectónica de fondo
+    ctx.strokeStyle = "#111827";
+    ctx.lineWidth = 1;
+    for (let x = 0; x < canvas.width; x += 40) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += 40) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+
+    // 2. Dibujar cada Sala / Área de la Planta
+    PLANT_AREAS.forEach(area => {
+        let isSelected = (area.id === selectedAreaId);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(area.x, area.y, area.w, area.h, 10);
+
+        if (showHygiene) {
+            ctx.fillStyle = area.hygieneColor + "33";
+        } else {
+            ctx.fillStyle = area.roomColor;
+        }
+        ctx.fill();
+
+        ctx.lineWidth = isSelected ? 3.5 : 1.8;
+        ctx.strokeStyle = isSelected ? "#fbbf24" : (showHygiene ? area.hygieneColor : "#475569");
+        ctx.stroke();
+
+        // Encabezado de la sala
+        ctx.fillStyle = isSelected ? "#fbbf24" : "#38bdf8";
+        ctx.font = "bold 12px sans-serif";
+        ctx.fillText(area.code, area.x + 12, area.y + 22);
+
+        ctx.fillStyle = "#f8fafc";
+        ctx.font = "bold 12.5px sans-serif";
+        ctx.fillText(area.short.substring(3), area.x + 70, area.y + 22);
+
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "11px sans-serif";
+        ctx.fillText(`Temp: ${area.temp}`, area.x + 12, area.y + 42);
+
+        ctx.restore();
+
+        drawEquipmentIcons(area);
+    });
+
+    // 3. Dibujar Tuberías de Proceso entre Salas
+    PIPES.forEach(pipe => {
+        let p1 = getCenter(pipe.from);
+        let p2 = getCenter(pipe.to);
+
+        ctx.strokeStyle = "rgba(148, 163, 184, 0.35)";
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+    });
+
+    // 4. Animar Partículas de Flujo en las Tuberías
+    particles.forEach(pt => {
+        pt.progress += 0.005;
+        if (pt.progress > 1) pt.progress = 0;
+
+        let pipe = PIPES[pt.pipeIndex];
+        let p1 = getCenter(pipe.from);
+        let p2 = getCenter(pipe.to);
+
+        let px = p1.x + (p2.x - p1.x) * pt.progress;
+        let py = p1.y + (p2.y - p1.y) * pt.progress;
+
+        ctx.fillStyle = pipe.color;
+        ctx.beginPath();
+        ctx.arc(px, py, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    requestAnimationFrame(animateLayout);
+}
+
+initNavPills();
+initParticles();
+selectArea(1);
+animateLayout();
+</script>
+
+</body>
+</html>

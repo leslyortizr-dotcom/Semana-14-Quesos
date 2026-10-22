@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador: Corte de Cuajada y Sinéresis</title>
+    <style>
+        :root {
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --primary: #d97706;
+            --whey: #ecfccb;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .app-container {
+            max-width: 1020px;
+            width: 100%;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        h1 {
+            text-align: center;
+            margin: 0 0 6px 0;
+            color: #92400e;
+            font-size: 24px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+        .recipes-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13.5px;
+            transition: all 0.2s;
+        }
+        .btn-soft { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .btn-semi { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+        .btn-hard { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .btn-reset { background: #e2e8f0; color: #334155; }
+        .btn:hover { transform: translateY(-1px); filter: brightness(0.96); }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 800px) {
+            .dashboard { grid-template-columns: 1fr; }
+        }
+        .controls-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        .cut-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+        .cut-btn {
+            padding: 8px 4px;
+            border: 2px solid #cbd5e1;
+            background: white;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+        .cut-btn.active {
+            border-color: #d97706;
+            background: #fffbeb;
+            color: #b45309;
+        }
+        .action-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: #0284c7;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .action-btn:hover { background: #0369a1; }
+        .action-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        input[type="range"] { width: 100%; cursor: pointer; }
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        .metrics {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            font-size: 13px;
+        }
+        .metric-row { margin-bottom: 12px; }
+        .metric-row:last-child { margin-bottom: 0; }
+        .progress-bg {
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .progress-fill { height: 100%; transition: width 0.2s; }
+
+        .canvas-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .canvas-wrapper {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 3px solid #cbd5e1;
+            background: #ecfccb; /* Color del suero verde-amarillento */
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 390px;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            font-size: 12px;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .box-icon { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+        .info-panel {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 650px) {
+            .info-panel { grid-template-columns: 1fr; }
+        }
+        .info-box {
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border-left: 5px solid #d97706;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+        .info-box h3 { margin: 0 0 6px 0; font-size: 16px; color: #92400e; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; background: #334155; color: #f8fafc; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; border: 1px solid #475569; margin-bottom: 14px; transition: 0.2s;">⬅ Volver al Menú Principal</a>
+    <h1>🔪 Simulador: Corte de la Cuajada y Sinéresis</h1>
+    <div class="subtitle">Descubre cómo el tamaño del corte con la lira, la temperatura de cocción y la agitación controlan la humedad del queso</div>
+
+    <!-- Recetas Rápidas -->
+    <div class="recipes-bar">
+        <button class="btn btn-soft" onclick="loadRecipe('soft')">🧀 Receta Queso Blando (Panela / Brie)</button>
+        <button class="btn btn-semi" onclick="loadRecipe('semi')">🧀 Receta Semiduro (Manchego / Gouda)</button>
+        <button class="btn btn-hard" onclick="loadRecipe('hard')">🧀 Receta Queso Duro (Parmesano / Cotija)</button>
+        <button class="btn btn-reset" onclick="resetVat()">🔄 Nueva Tina Sin Cortar</button>
+    </div>
+
+    <div class="dashboard">
+        <!-- Controles -->
+        <div class="controls-card">
+            <div class="control-group">
+                <label>1. Tamaño de Corte (Calibre de la Lira):</label>
+                <div class="cut-buttons">
+                    <button id="size-large" class="cut-btn active" onclick="selectCutSize('large')">
+                        Grande (2 cm)<br><small>Tipo Nuez</small>
+                    </button>
+                    <button id="size-medium" class="cut-btn" onclick="selectCutSize('medium')">
+                        Mediano (1 cm)<br><small>Tipo Maíz</small>
+                    </button>
+                    <button id="size-small" class="cut-btn" onclick="selectCutSize('small')">
+                        Pequeño (3 mm)<br><small>Tipo Arroz</small>
+                    </button>
+                </div>
+            </div>
+
+            <button id="btn-cut" class="action-btn" onclick="performCut()">
+                🔪 Cortar Cuajada con la Lira
+            </button>
+
+            <div class="control-group">
+                <label>
+                    <span>2. Temperatura de Cocción:</span>
+                    <span id="temp-label" style="color:#dc2626;">32 °C</span>
+                </label>
+                <input type="range" id="temp-slider" min="30" max="55" step="1" value="32" oninput="updateParams()">
+                <div class="scale-labels">
+                    <span>30 °C (Sin cocción)</span>
+                    <span>40 °C (Media)</span>
+                    <span>55 °C (Pasta cocida)</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>
+                    <span>3. Velocidad de Agitación:</span>
+                    <span id="stir-label" style="color:#0284c7;">Reposo</span>
+                </label>
+                <input type="range" id="stir-slider" min="0" max="3" step="1" value="0" oninput="updateParams()">
+                <div class="scale-labels">
+                    <span>0 (Reposo)</span>
+                    <span>1 (Suave)</span>
+                    <span>2 (Media)</span>
+                    <span>3 (Intensa)</span>
+                </div>
+            </div>
+
+            <!-- Métricas en Vivo -->
+            <div class="metrics">
+                <div class="metric-row">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>Humedad dentro del Grano:</span>
+                        <strong id="moisture-val" style="color:#0284c7;">87.0%</strong>
+                    </div>
+                    <div class="progress-bg">
+                        <div id="moisture-bar" class="progress-fill" style="width:87%; background:#0284c7;"></div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>Suero Expulsado a la Tina:</span>
+                        <strong id="whey-val" style="color:#65a30d;">0%</strong>
+                    </div>
+                    <div class="progress-bg">
+                        <div id="whey-bar" class="progress-fill" style="width:0%; background:#84cc16;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tina de Quesería (Canvas) -->
+        <div class="canvas-area">
+            <div class="canvas-wrapper">
+                <canvas id="vatCanvas" width="660" height="390"></canvas>
+            </div>
+            <div class="legend">
+                <div class="legend-item"><span class="box-icon" style="background:#fffbeb; border:2px solid #f59e0b;"></span> Grano de Cuajada Húmedo</div>
+                <div class="legend-item"><span class="box-icon" style="background:#fde047; border:2px solid #ca8a04;"></span> Grano Seco y Compacto</div>
+                <div class="legend-item"><span class="box-icon" style="background:#38bdf8; border-radius:50%;"></span> Gotas de Suero Expulsadas</div>
+                <div class="legend-item"><span class="box-icon" style="background:#ecfccb; border:1px solid #84cc16;"></span> Suero Libre en la Tina</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Explicación Dinámica -->
+    <div class="info-panel">
+        <div class="info-box">
+            <h3>🔬 ¿Qué está pasando con la Sinéresis?</h3>
+            <div id="syneresis-desc">
+                La cuajada está intacta formando un solo bloque gelatinoso con <strong>87% de agua</strong> atrapada en su red de caseína. Elige el calibre de la lira y pulsa <strong>"Cortar Cuajada"</strong> para iniciar el desuerado.
+            </div>
+        </div>
+        <div class="info-box" style="border-left-color: #0284c7;">
+            <h3>🧀 Tipo de Queso Resultante</h3>
+            <div id="cheese-result">
+                <strong>Estado actual:</strong> Gel de cuajada sin cortar.<br>
+                Sin el corte, el suero tarda horas en salir solo de la superficie.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('vatCanvas');
+const ctx = canvas.getContext('2d');
+
+let cutSize = 'large'; // 'large', 'medium', 'small'
+let isCut = false;
+let liraProgress = -1; // Animación de las cuchillas pasando
+let temp = 32;
+let stirLevel = 0;
+let stirrerAngle = 0;
+
+let grains = [];
+let wheyDrops = [];
+let moisture = 87.0; // % de humedad inicial del gel
+
+class CurdGrain {
+    constructor(x, y, size) {
+        this.x = x;
+        this.y = y;
+        this.initialSize = size;
+        this.currentSize = size;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.angle = Math.random() * Math.PI * 2;
+        this.vAngle = (Math.random() - 0.5) * 0.02;
+    }
+
+    update(shrinkRatio) {
+        // El tamaño del cubo disminuye conforme expulsa suero
+        this.currentSize = this.initialSize * shrinkRatio;
+
+        if (stirLevel > 0) {
+            // Corriente circular provocada por las palas agitadoras
+            let dx = this.x - canvas.width / 2;
+            let dy = this.y - canvas.height / 2;
+            let dist = Math.hypot(dx, dy) + 1;
+
+            // Fuerza tangencial de giro + turbulencia térmica
+            let speed = stirLevel * 0.85 + (temp - 30) * 0.02;
+            this.vx += (-dy / dist) * 0.08 * speed + (Math.random() - 0.5) * 0.3 * stirLevel;
+            this.vy += (dx / dist) * 0.08 * speed + (Math.random() - 0.5) * 0.3 * stirLevel;
+            this.vx *= 0.94;
+            this.vy *= 0.94;
+            this.angle += this.vAngle * stirLevel;
+        } else {
+            // Si no hay agitación, los granos más densos sedimentan al fondo de la tina
+            this.vy += 0.06;
+            this.vx *= 0.92;
+            this.vy *= 0.90;
+        }
+
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Rebote en las paredes de la tina
+        let half = this.currentSize / 2;
+        if (this.x - half < 12) { this.x = 12 + half; this.vx *= -0.7; }
+        if (this.x + half > canvas.width - 12) { this.x = canvas.width - 12 - half; this.vx *= -0.7; }
+        if (this.y - half < 12) { this.y = 12 + half; this.vy *= -0.7; }
+        if (this.y + half > canvas.height - 12) { this.y = canvas.height - 12 - half; this.vy *= -0.5; }
+    }
+
+    draw(dryness) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+
+        // El color pasa de blanco marfil (húmedo) a amarillo mantequilla (seco/concentrado)
+        let r = Math.round(255 - dryness * 5);
+        let g = Math.round(251 - dryness * 28);
+        let b = Math.round(235 - dryness * 145);
+
+        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+        ctx.strokeStyle = dryness > 0.5 ? '#ca8a04' : '#f59e0b';
+        ctx.lineWidth = 1.8;
+
+        let s = this.currentSize;
+        ctx.beginPath();
+        ctx.roundRect(-s / 2, -s / 2, s, s, Math.max(3, s * 0.18));
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+    }
+}
+
+function selectCutSize(size) {
+    cutSize = size;
+    document.querySelectorAll('.cut-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('size-' + size).classList.add('active');
+    if (isCut) {
+        performCut(); // Recortar inmediatamente si el usuario cambia el tamaño
+    }
+}
+
+function performCut() {
+    isCut = true;
+    liraProgress = 0; // Inicia el barrido visual de la lira
+    moisture = 85.0;
+    wheyDrops = [];
+    grains = [];
+
+    let boxSize = 48;
+    if (cutSize === 'medium') boxSize = 30;
+    if (cutSize === 'small') boxSize = 18;
+
+    let padding = 28;
+    for (let x = padding + boxSize/2; x < canvas.width - padding; x += boxSize + 6) {
+        for (let y = padding + boxSize/2; y < canvas.height - padding; y += boxSize + 6) {
+            grains.push(new CurdGrain(x, y, boxSize));
+        }
+    }
+
+    document.getElementById('btn-cut').innerText = '✅ Cuajada Cortada (En Desuerado)';
+    updateParams();
+}
+
+function resetVat() {
+    isCut = false;
+    liraProgress = -1;
+    moisture = 87.0;
+    grains = [];
+    wheyDrops = [];
+    document.getElementById('temp-slider').value = 32;
+    document.getElementById('stir-slider').value = 0;
+    document.getElementById('btn-cut').innerText = '🔪 Cortar Cuajada con la Lira';
+    updateParams();
+}
+
+function loadRecipe(type) {
+    if (type === 'soft') {
+        selectCutSize('large');
+        document.getElementById('temp-slider').value = 32;
+        document.getElementById('stir-slider').value = 1;
+    } else if (type === 'semi') {
+        selectCutSize('medium');
+        document.getElementById('temp-slider').value = 39;
+        document.getElementById('stir-slider').value = 2;
+    } else if (type === 'hard') {
+        selectCutSize('small');
+        document.getElementById('temp-slider').value = 53;
+        document.getElementById('stir-slider').value = 3;
+    }
+    performCut();
+    updateParams();
+}
+
+function updateParams() {
+    temp = parseInt(document.getElementById('temp-slider').value);
+    stirLevel = parseInt(document.getElementById('stir-slider').value);
+
+    document.getElementById('temp-label').innerText = temp + ' °C';
+    const stirNames = ['Reposo (Sedimentando)', 'Suave', 'Media', 'Intensa'];
+    document.getElementById('stir-label').innerText = stirNames[stirLevel];
+}
+
+function updateSyneresisPhysics() {
+    if (!isCut) return;
+
+    // Humedad mínima alcanzable según el tamaño de grano, temperatura y agitación
+    let baseTarget = 72; // Grano grande
+    if (cutSize === 'medium') baseTarget = 63;
+    if (cutSize === 'small') baseTarget = 55;
+
+    // El calor contrae las proteínas (sinéresis térmica) y baja más la humedad
+    let tempEffect = (temp - 30) * 0.42;
+    // La agitación evita que los granos se peguen y ayuda a expulsar suero por choque
+    let stirEffect = stirLevel * 1.8;
+
+    let minMoisture = Math.max(46.0, baseTarget - tempEffect - stirEffect);
+
+    if (moisture > minMoisture) {
+        let rate = 0.045 * (1 + (temp - 30) * 0.05 + stirLevel * 0.35);
+        moisture = Math.max(minMoisture, moisture - rate);
+
+        // Generar gotas azules de suero saliendo de los granos
+        if (Math.random() < 0.65 && grains.length > 0) {
+            let randomGrain = grains[Math.floor(Math.random() * grains.length)];
+            wheyDrops.push({
+                x: randomGrain.x,
+                y: randomGrain.y,
+                vx: (Math.random() - 0.5) * 3,
+                vy: -1 - Math.random() * 2,
+                alpha: 1.0
+            });
+        }
+    }
+
+    // Actualizar indicadores en pantalla
+    document.getElementById('moisture-val').innerText = moisture.toFixed(1) + '%';
+    document.getElementById('moisture-bar').style.width = moisture + '%';
+
+    let wheyExpelled = Math.min(100, Math.round(((87 - moisture) / (87 - 46)) * 100));
+    document.getElementById('whey-val').innerText = wheyExpelled + '%';
+    document.getElementById('whey-bar').style.width = wheyExpelled + '%';
+
+    // Actualizar explicación científica y tipo de queso
+    const synDesc = document.getElementById('syneresis-desc');
+    const cheeseRes = document.getElementById('cheese-result');
+
+    let areaText = cutSize === 'large' ? 'baja superficie de salida (grano grande)' :
+                   cutSize === 'medium' ? 'superficie intermedia (grano tamaño maíz)' :
+                   'altísima área superficial (grano fino tipo arroz)';
+
+    synDesc.innerHTML = `Con <strong>${areaText}</strong> y cocción a <strong>${temp} °C</strong>, la red de caseína se contrae expulsando suero. ${
+        stirLevel === 0 ? '⚠️ <em>Al estar en reposo, los granos caen al fondo y pueden volver a pegarse entre sí.</em>' : ''
+    }`;
+
+    if (moisture >= 65) {
+        cheeseRes.innerHTML = '🧀 <strong>Queso de Pasta Blanda / Alta Humedad (>65%):</strong><br>Ideal para <strong>Queso Panela, Queso Fresco, Brie o Camembert</strong>. El grano conserva mucha agua, dando una textura suave, tierna y de corta vida de anaquel.';
+    } else if (moisture >= 54) {
+        cheeseRes.innerHTML = '🧀 <strong>Queso de Pasta Semidura (54% - 64%):</strong><br>Ideal para <strong>Queso Manchego, Gouda, Chihuahua o Cheddar</strong>. Equilibrio perfecto entre firmeza para el prensado y suavidad al paladar.';
+    } else {
+        cheeseRes.innerHTML = '🧀 <strong>Queso de Pasta Dura / Cocida (<54%):</strong><br>Ideal para <strong>Parmesano (Parmigiano-Reggiano), Grana Padano o Cotija Añejo</strong>. El grano pequeño + alta temperatura dejaron un grano muy seco y denso que puede madurar durante años.';
+    }
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!isCut) {
+        // Dibujar bloque único de cuajada intacta antes del corte
+        ctx.fillStyle = '#fffbeb';
+        ctx.strokeStyle = '#fde68a';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.roundRect(18, 18, canvas.width - 36, canvas.height - 36, 12);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#b45309';
+        ctx.font = 'bold 18px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Bloque de Cuajada Intacta (87% Agua / Suero atrapado)', canvas.width / 2, canvas.height / 2);
+        ctx.font = '14px sans-serif';
+        ctx.fillText('Pulsa el botón azul "Cortar Cuajada con la Lira" para dividir el gel', canvas.width / 2, canvas.height / 2 + 26);
+    } else {
+        updateSyneresisPhysics();
+
+        // Proporción de encogimiento del grano según el suero perdido
+        let dryness = (87 - moisture) / (87 - 46); // 0.0 a 1.0
+        let shrinkRatio = 1 - dryness * 0.36;
+
+        // Dibujar todos los granos de cuajada
+        grains.forEach(g => {
+            g.update(shrinkRatio);
+            g.draw(dryness);
+        });
+
+        // Dibujar gotas de suero expulsadas
+        for (let i = wheyDrops.length - 1; i >= 0; i--) {
+            let d = wheyDrops[i];
+            d.x += d.vx;
+            d.y += d.vy;
+            d.alpha -= 0.025;
+            if (d.alpha <= 0) {
+                wheyDrops.splice(i, 1);
+                continue;
+            }
+            ctx.fillStyle = `rgba(14, 165, 233, ${d.alpha})`;
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, 3.2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Dibujar aspas del agitador en el centro si está activo
+        if (stirLevel > 0) {
+            stirrerAngle += 0.025 * stirLevel;
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(stirrerAngle);
+            ctx.strokeStyle = 'rgba(71, 85, 105, 0.35)';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.moveTo(-90, 0);
+            ctx.lineTo(90, 0);
+            ctx.moveTo(0, -90);
+            ctx.lineTo(0, 90);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Animación de las cuchillas de la lira pasando recién hecho el corte
+        if (liraProgress >= 0 && liraProgress <= canvas.width) {
+            liraProgress += 18;
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(liraProgress, 0);
+            ctx.lineTo(liraProgress, canvas.height);
+            ctx.stroke();
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+
+</body>
+</html>

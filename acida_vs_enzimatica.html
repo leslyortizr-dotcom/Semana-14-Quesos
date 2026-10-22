@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio: Coagulación Ácida vs. Enzimática</title>
+    <style>
+        :root {
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --accent: #0284c7;
+            --acid: #ef4444;
+            --enzyme: #8b5cf6;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .app-container {
+            max-width: 1000px;
+            width: 100%;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        h1 {
+            text-align: center;
+            margin: 0 0 6px 0;
+            color: #0f172a;
+            font-size: 24px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .preset-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn-milk { background: #e2e8f0; color: #334155; }
+        .btn-enzyme { background: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; }
+        .btn-acid { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+        .btn-mixed { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .btn:hover { transform: translateY(-1px); filter: brightness(0.96); }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 780px) {
+            .dashboard { grid-template-columns: 1fr; }
+        }
+        .controls-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        .ph-scale {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #ef4444 0%, #eab308 50%, #3b82f6 100%);
+            margin-top: 4px;
+        }
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        .toggle-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #8b5cf6;
+            background: white;
+            color: #6d28d9;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .toggle-btn.active {
+            background: #8b5cf6;
+            color: white;
+        }
+        .metrics {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            font-size: 13px;
+        }
+        .metric-row {
+            margin-bottom: 10px;
+        }
+        .metric-row:last-child { margin-bottom: 0; }
+        .progress-bg {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+        .canvas-area {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .canvas-wrapper {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 3px solid #cbd5e1;
+            background: #fffbeb;
+            transition: background 1s ease;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 390px;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: center;
+            font-size: 12px;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+        .analysis-panel {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 650px) {
+            .analysis-panel { grid-template-columns: 1fr; }
+        }
+        .info-box {
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border-left: 5px solid #0284c7;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+        .info-box h3 { margin: 0 0 6px 0; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; background: #334155; color: #f8fafc; text-decoration: none; padding:     8px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; border: 1px solid #475569; margin-bottom: 14px; transition: 0.2s;">⬅ Volver al Menú Principal</a>
+    <h1>🔬 Simulador: Coagulación Ácida vs. Enzimática</h1>
+    <div class="subtitle">Explora cómo el pH y el cuajo alteran la estructura microscópica de la caseína, el calcio y el tipo de queso resultante</div>
+
+    <!-- Botones de Escenarios Rápidos -->
+    <div class="preset-bar">
+        <button class="btn btn-milk" onclick="applyPreset(6.7, 32, false)">🥛 Leche Fresca (pH 6.7)</button>
+        <button class="btn btn-enzyme" onclick="applyPreset(6.6, 35, true)">🧀 Coagulación Enzimática (Cuajo, pH 6.6)</button>
+        <button class="btn btn-acid" onclick="applyPreset(4.6, 35, false)">🍋 Coagulación Ácida (pH 4.6 Isoeléctrico)</button>
+        <button class="btn btn-mixed" onclick="applyPreset(5.3, 38, true)">🍕 Coagulación Mixta (Pasta Hilada, pH 5.3)</button>
+    </div>
+
+    <div class="dashboard">
+        <!-- Panel de Controles -->
+        <div class="controls-card">
+            <div class="control-group">
+                <label>
+                    <span>Acidez (pH de la leche):</span>
+                    <span id="ph-val" style="color:#0284c7; font-size:16px;">6.7</span>
+                </label>
+                <input type="range" id="ph-slider" min="4.0" max="6.7" step="0.1" value="6.7" oninput="updateControls()">
+                <div class="ph-scale"></div>
+                <div class="scale-labels">
+                    <span>4.0 (Muy Ácido)</span>
+                    <span>4.6 (Isoeléctrico)</span>
+                    <span>6.7 (Fresco)</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>
+                    <span>Temperatura:</span>
+                    <span id="temp-val">32 °C</span>
+                </label>
+                <input type="range" id="temp-slider" min="15" max="45" step="1" value="32" oninput="updateControls()">
+                <div class="scale-labels">
+                    <span>15 °C (Lenta)</span>
+                    <span>35 °C (Óptima)</span>
+                    <span>45 °C (Rápida)</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <button id="rennet-btn" class="toggle-btn" onclick="toggleRennet()">
+                    🧪 Añadir Cuajo (Quimosina): NO
+                </button>
+            </div>
+
+            <!-- Indicadores Bioquímicos en Tiempo Real -->
+            <div class="metrics">
+                <div class="metric-row">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>Carga Negativa (Repulsión):</span>
+                        <strong id="charge-text">100%</strong>
+                    </div>
+                    <div class="progress-bg">
+                        <div id="charge-bar" class="progress-fill" style="width:100%; background:#ef4444;"></div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>Calcio dentro de la Micela:</span>
+                        <strong id="calcium-text">100%</strong>
+                    </div>
+                    <div class="progress-bg">
+                        <div id="calcium-bar" class="progress-fill" style="width:100%; background:#3b82f6;"></div>
+                    </div>
+                </div>
+
+                <div class="metric-row">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>Firmeza / Elasticidad del Gel:</span>
+                        <strong id="gel-text">Líquido</strong>
+                    </div>
+                    <div class="progress-bg">
+                        <div id="gel-bar" class="progress-fill" style="width:0%; background:#10b981;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lienzo de Animación -->
+        <div class="canvas-area">
+            <div class="canvas-wrapper" id="canvas-wrap">
+                <canvas id="simCanvas" width="660" height="390"></canvas>
+            </div>
+            <div class="legend">
+                <div class="legend-item"><span class="dot" style="background:#f8fafc; border:2px solid #64748b;"></span> Micela de Caseína</div>
+                <div class="legend-item"><span class="dot" style="background:#ef4444; height:3px; border-radius:0;"></span> Kappa-caseína</div>
+                <div class="legend-item"><span class="dot" style="background:#3b82f6;"></span> Fosfato de Calcio (Ca²⁺)</div>
+                <div class="legend-item"><span class="dot" style="background:#f59e0b;"></span> Protones Ácidos (H⁺)</div>
+                <div class="legend-item"><span class="dot" style="background:#8b5cf6;"></span> Enzima Quimosina (Cuajo)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Explicación Dinámica -->
+    <div class="analysis-panel">
+        <div class="info-box" id="mechanism-box">
+            <h3>🔬 ¿Qué ocurre a nivel microscópico?</h3>
+            <div id="mechanism-text"></div>
+        </div>
+        <div class="info-box" id="cheese-box" style="border-left-color: #f59e0b;">
+            <h3>🧀 Resultado Quesero y Textura</h3>
+            <div id="cheese-text"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('simCanvas');
+const ctx = canvas.getContext('2d');
+const canvasWrap = document.getElementById('canvas-wrap');
+
+let pH = 6.7;
+let temp = 32;
+let hasRennet = false;
+
+let micelles = [];
+let protons = [];
+let enzymes = [];
+let serumCalciums = [];
+let cutHairs = [];
+
+const NUM_MICELLES = 20;
+
+class Micelle {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2;
+        this.radius = 22;
+        this.hairsCut = false;
+        this.hairCount = 12;
+        this.internalCalcium = 6; // Puntos azules de calcio adentro
+    }
+
+    update() {
+        const speedFactor = temp / 30;
+
+        // Cuánto calcio interno debe tener según el pH (a pH 4.6 se pierde casi todo al suero)
+        let targetCalcium = Math.round(Math.max(0, (pH - 4.5) / (6.7 - 4.5)) * 6);
+        if (this.internalCalcium > targetCalcium && Math.random() < 0.08) {
+            this.internalCalcium--;
+            serumCalciums.push({
+                x: this.x + (Math.random() - 0.5) * 15,
+                y: this.y + (Math.random() - 0.5) * 15,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2
+            });
+        } else if (this.internalCalcium < targetCalcium && serumCalciums.length > 0 && Math.random() < 0.08) {
+            this.internalCalcium++;
+            serumCalciums.pop();
+        }
+
+        // Si ya coaguló (por ácido pH <= 4.9 o por cuajo sin pelos)
+        let isAcidCoagulated = pH <= 4.9;
+        let isEnzymeCoagulated = this.hairCount <= 2;
+
+        if (isEnzymeCoagulated) {
+            // Coagulación enzimática: atracción fuerte hacia el centro/fondo (red compacta)
+            this.vx += (canvas.width / 2 - this.x) * 0.0018;
+            this.vy += (canvas.height * 0.6 - this.y) * 0.0025;
+            this.vx *= 0.90;
+            this.vy *= 0.90;
+        } else if (isAcidCoagulated) {
+            // Coagulación ácida: floculación abierta (racimos porosos sin compactarse tanto)
+            this.vx *= 0.88;
+            this.vy *= 0.88;
+            this.vy += 0.02; // Ligera precipitación
+        } else {
+            // Movimiento browniano normal
+            if (Math.hypot(this.vx, this.vy) < 1.2 * speedFactor) {
+                this.vx += (Math.random() - 0.5) * 0.4 * speedFactor;
+                this.vy += (Math.random() - 0.5) * 0.4 * speedFactor;
+            }
+        }
+
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Bordes
+        if (this.x - this.radius < 10) { this.x = this.radius + 10; this.vx *= -1; }
+        if (this.x + this.radius > canvas.width - 10) { this.x = canvas.width - this.radius - 10; this.vx *= -1; }
+        if (this.y - this.radius < 10) { this.y = this.radius + 10; this.vy *= -1; }
+        if (this.y + this.radius > canvas.height - 10) { this.y = canvas.height - this.radius - 10; this.vy *= -1; }
+    }
+
+    draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        // Longitud de los pelos depende del pH (a pH 4.6 se colapsan/encogen contra la micela)
+        let phExtension = Math.max(0.15, (pH - 4.4) / (6.7 - 4.4));
+        let hairLen = 10 * phExtension;
+
+        if (this.hairCount > 0) {
+            ctx.strokeStyle = pH <= 4.9 ? '#f97316' : '#ef4444';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < this.hairCount; i++) {
+                let angle = (i * 2 * Math.PI) / 12;
+                let x1 = Math.cos(angle) * this.radius;
+                let y1 = Math.sin(angle) * this.radius;
+                // Si el pH es ácido, los pelos se doblan/aplastan sobre la superficie
+                let bend = (1 - phExtension) * 0.6;
+                let x2 = Math.cos(angle + bend) * (this.radius + hairLen);
+                let y2 = Math.sin(angle + bend) * (this.radius + hairLen);
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+
+                // Mostrar carga negativa (-) solo cuando el pH es alto
+                if (pH > 5.4 && i % 4 === 0) {
+                    ctx.fillStyle = '#dc2626';
+                    ctx.font = 'bold 11px sans-serif';
+                    ctx.fillText('-', x2 - 3, y2 + 3);
+                }
+            }
+        }
+
+        // Cuerpo de la micela (más porosa/transparente si perdió calcio por ácido)
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.internalCalcium <= 2 ? 'rgba(241, 245, 249, 0.82)' : '#f8fafc';
+        ctx.fill();
+        ctx.strokeStyle = this.internalCalcium <= 2 ? '#cbd5e1' : '#64748b';
+        ctx.lineWidth = this.internalCalcium <= 2 ? 1.5 : 2.5;
+        ctx.stroke();
+
+        // Dibujar Fosfato de Calcio Coloidal (CCP) DENTRO de la micela
+        ctx.fillStyle = '#3b82f6';
+        for (let c = 0; c < this.internalCalcium; c++) {
+            let caAngle = (c * 2 * Math.PI) / 6;
+            let cx = Math.cos(caAngle) * 10;
+            let cy = Math.sin(caAngle) * 10;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 3.2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.restore();
+    }
+}
+
+function initSim() {
+    micelles = [];
+    serumCalciums = [];
+    cutHairs = [];
+    for (let i = 0; i < NUM_MICELLES; i++) {
+        micelles.push(new Micelle(
+            50 + Math.random() * (canvas.width - 100),
+            50 + Math.random() * (canvas.height - 100)
+        ));
+    }
+    // Calcio libre base en el suero
+    for (let i = 0; i < 12; i++) {
+        serumCalciums.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: (Math.random() - 0.5) * 1.5
+        });
+    }
+    updateControls();
+}
+
+function toggleRennet() {
+    hasRennet = !hasRennet;
+    const btn = document.getElementById('rennet-btn');
+    if (hasRennet) {
+        btn.classList.add('active');
+        btn.innerText = '🧪 Añadir Cuajo (Quimosina): SÍ (Activo)';
+        enzymes = [];
+        for (let i = 0; i < 7; i++) {
+            enzymes.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 4,
+                vy: (Math.random() - 0.5) * 4
+            });
+        }
+    } else {
+        btn.classList.remove('active');
+        btn.innerText = '🧪 Añadir Cuajo (Quimosina): NO';
+        enzymes = [];
+        cutHairs = [];
+        micelles.forEach(m => m.hairCount = 12);
+    }
+    updateControls();
+}
+
+function applyPreset(targetPH, targetTemp, rennetState) {
+    document.getElementById('ph-slider').value = targetPH;
+    document.getElementById('temp-slider').value = targetTemp;
+    if (hasRennet !== rennetState) {
+        toggleRennet();
+    }
+    if (!rennetState) {
+        micelles.forEach(m => m.hairCount = 12);
+    }
+    updateControls();
+}
+
+function updateControls() {
+    pH = parseFloat(document.getElementById('ph-slider').value);
+    temp = parseInt(document.getElementById('temp-slider').value);
+
+    document.getElementById('ph-val').innerText = pH.toFixed(1);
+    document.getElementById('temp-val').innerText = temp + ' °C';
+
+    // Ajustar cantidad de protones H+ visuales según el pH
+    let targetProtons = Math.round((6.7 - pH) * 28);
+    while (protons.length < targetProtons) {
+        protons.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 3,
+            vy: (Math.random() - 0.5) * 3
+        });
+    }
+    while (protons.length > targetProtons) {
+        protons.pop();
+    }
+
+    // Cálculo de barras de estado
+    let chargePct = Math.round(Math.max(0, (pH - 4.6) / (6.7 - 4.6)) * 100);
+    if (hasRennet) chargePct = Math.min(chargePct, 20);
+    document.getElementById('charge-text').innerText = chargePct + '%';
+    document.getElementById('charge-bar').style.width = chargePct + '%';
+
+    let calcPct = Math.round(Math.max(5, (pH - 4.5) / (6.7 - 4.5)) * 100);
+    document.getElementById('calcium-text').innerText = calcPct + '%';
+    document.getElementById('calcium-bar').style.width = calcPct + '%';
+
+    // Textos explicativos dinámicos
+    const mechText = document.getElementById('mechanism-text');
+    const cheeseText = document.getElementById('cheese-text');
+    const gelText = document.getElementById('gel-text');
+    const gelBar = document.getElementById('gel-bar');
+
+    if (!hasRennet && pH > 5.2) {
+        canvasWrap.style.background = '#fffbeb';
+        gelText.innerText = 'Líquido (Estable)';
+        gelBar.style.width = '5%';
+        mechText.innerHTML = 'Las micelas tienen sus pelos de <strong>kappa-caseína</strong> extendidos con carga negativa (-). Además, el <strong>fosfato de calcio (puntos azules)</strong> permanece dentro de las micelas dándoles firmeza. Las micelas se repelen.';
+        cheeseText.innerHTML = '<strong>Estado: Leche líquida.</strong> A este pH sin cuajo no hay coagulación. Si estás entre pH 6.0 y 5.3, la leche apenas se está acidificando pero aún no cuaja.';
+    } 
+    else if (!hasRennet && pH <= 5.2) {
+        canvasWrap.style.background = '#fefce8';
+        gelText.innerText = 'Gel Ácido (Frágil)';
+        gelBar.style.width = '40%';
+        gelBar.style.background = '#f59e0b';
+        mechText.innerHTML = '<strong>Coagulación Ácida (Punto Isoeléctrico ~4.6):</strong> Los protones ácidos (<strong>H⁺</strong> naranjas) neutralizan la carga negativa de la kappa-caseína (los pelos se aplastan sin cortarse). Todo el <strong>calcio interno se disuelve y escapa al suero</strong>.';
+        cheeseText.innerHTML = '<strong>Quesos Ácidos (Cottage, Queso Crema, Requesón, Paneer):</strong> Como las micelas perdieron su calcio interno, se unen solo por enlaces hidrofóbicos débiles. El coágulo es <strong>frágil, poroso, no elástico</strong> y no se funde en hebras.';
+    } 
+    else if (hasRennet && pH >= 6.0) {
+        canvasWrap.style.background = '#f7fee7';
+        gelText.innerText = 'Gel Enzimático (Muy Firme)';
+        gelBar.style.width = '95%';
+        gelBar.style.background = '#10b981';
+        mechText.innerHTML = '<strong>Coagulación Enzimática Pura:</strong> La enzima <strong>quimosina</strong> corta los pelos de kappa-caseína. Como el pH es alto, las micelas <strong>conservan el 100% de su calcio interno</strong> y se unen con fuertes <strong>puentes de calcio (líneas azules)</strong>.';
+        cheeseText.innerHTML = '<strong>Quesos Madurados / Prensados (Manchego, Gouda, Cheddar, Chihuahua):</strong> La red de caseína + calcio es <strong>firme, elástica e impermeable</strong>. Retiene mucha grasa y calcio, permitiendo cortar la cuajada en cubos y prensarla.';
+    } 
+    else {
+        canvasWrap.style.background = '#ecfccb';
+        gelText.innerText = 'Gel Mixto / Pasta Hilada';
+        gelBar.style.width = '70%';
+        gelBar.style.background = '#3b82f6';
+        mechText.innerHTML = '<strong>Coagulación Mixta (Ácido + Cuajo):</strong> El pH ligeramente ácido acelera muchísimo a la enzima quimosina. Parte del calcio interno ha salido al suero (desmineralización parcial), dejando una red flexible.';
+        cheeseText.innerHTML = '<strong>Quesos de Pasta Hilada (Oaxaca, Mozzarella, Asadero):</strong> A pH ~5.2 - 5.4 las micelas tienen la cantidad exacta de calcio para que, al meter la cuajada en agua caliente, las proteínas resbalen y se estiren formando <strong>hebras</strong>.';
+    }
+}
+
+function handleInteractions() {
+    for (let i = 0; i < micelles.length; i++) {
+        for (let j = i + 1; j < micelles.length; j++) {
+            let m1 = micelles[i];
+            let m2 = micelles[j];
+            let dx = m2.x - m1.x;
+            let dy = m2.y - m1.y;
+            let dist = Math.hypot(dx, dy);
+
+            let isAcidCoag = pH <= 4.9;
+            let isEnzCoag = (m1.hairCount <= 3 && m2.hairCount <= 3);
+
+            let minDist = (!isAcidCoag && !isEnzCoag) ? m1.radius + m2.radius + 14 : m1.radius + m2.radius + 2;
+
+            if (dist < minDist && dist > 0) {
+                let angle = Math.atan2(dy, dx);
+                if (!isAcidCoag && !isEnzCoag) {
+                    // Repulsión electrostática
+                    let repulse = 0.7;
+                    m1.vx -= Math.cos(angle) * repulse;
+                    m1.vy -= Math.sin(angle) * repulse;
+                    m2.vx += Math.cos(angle) * repulse;
+                    m2.vy += Math.sin(angle) * repulse;
+                } else {
+                    // Colisión suave en el gel
+                    let overlap = minDist - dist;
+                    m1.x -= Math.cos(angle) * overlap * 0.4;
+                    m1.y -= Math.sin(angle) * overlap * 0.4;
+                    m2.x += Math.cos(angle) * overlap * 0.4;
+                    m2.y += Math.sin(angle) * overlap * 0.4;
+                }
+            }
+
+            // Dibujar enlaces entre micelas cercanas cuando hay coagulación
+            if (isEnzCoag && dist < 85 && pH > 5.0) {
+                // Puentes de calcio fuertes (Azules gruesos)
+                ctx.strokeStyle = 'rgba(59, 130, 246, 0.65)';
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(m1.x, m1.y);
+                ctx.lineTo(m2.x, m2.y);
+                ctx.stroke();
+            } else if (isAcidCoag && dist < 78) {
+                // Enlaces hidrofóbicos débiles/porosos (Línea punteada naranja)
+                ctx.strokeStyle = 'rgba(249, 115, 22, 0.55)';
+                ctx.lineWidth = 2.5;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(m1.x, m1.y);
+                ctx.lineTo(m2.x, m2.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+    }
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Calcio libre en el suero (azul)
+    serumCalciums.forEach(c => {
+        c.x += c.vx;
+        c.y += c.vy;
+        if (c.x < 0 || c.x > canvas.width) c.vx *= -1;
+        if (c.y < 0 || c.y > canvas.height) c.vy *= -1;
+        ctx.fillStyle = '#3b82f6';
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    // 2. Protones H+ de ácido láctico/cítrico (naranja)
+    protons.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    // 3. Interacciones y enlaces de la red
+    handleInteractions();
+
+    // 4. Micelas de caseína
+    micelles.forEach(m => {
+        m.update();
+        m.draw();
+    });
+
+    // 5. Enzimas Quimosina (si se añadió cuajo)
+    if (hasRennet) {
+        // La quimosina trabaja más rápido si el pH es ligeramente ácido y a ~35-40°C
+        let enzymeActivity = (temp / 32) * (1 + (6.7 - pH) * 0.6);
+        enzymes.forEach(e => {
+            e.x += e.vx * (temp / 32);
+            e.y += e.vy * (temp / 32);
+            if (e.x < 10 || e.x > canvas.width - 10) e.vx *= -1;
+            if (e.y < 10 || e.y > canvas.height - 10) e.vy *= -1;
+
+            // Cortar kappa-caseína
+            micelles.forEach(m => {
+                if (Math.hypot(m.x - e.x, m.y - e.y) < m.radius + 12 && m.hairCount > 0) {
+                    if (Math.random() < 0.35 * enzymeActivity) {
+                        m.hairCount--;
+                    }
+                }
+            });
+
+            // Dibujar Pac-Man morado
+            ctx.save();
+            ctx.translate(e.x, e.y);
+            ctx.fillStyle = '#8b5cf6';
+            ctx.beginPath();
+            ctx.arc(0, 0, 9, 0.2 * Math.PI, 1.8 * Math.PI);
+            ctx.lineTo(0, 0);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        });
+    }
+
+    requestAnimationFrame(animate);
+}
+
+initSim();
+animate();
+</script>
+
+</body>
+</html>
