@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Planta virtual de lácteos · Semana 14 | Quesos y Leches Fermentadas</title>
+<style>
+:root{
+  --navy:#18384f;--blue:#287da5;--pale:#edf5f8;--line:#d3e2e9;--ink:#203d50;--muted:#627b8b;
+  --green:#4c9879;--gold:#e9ca79;
+  --c-fresco:#15803d;--c-hilado:#d97706;--c-yogurt:#7e22ce;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#eef4f7;color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+header{background:linear-gradient(110deg,#18384f,#286e91);color:white;padding:20px clamp(16px,4vw,40px);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header h1{margin:0 0 4px;font-size:clamp(22px,3vw,30px)}
+header p{margin:0;color:#dcecf4;font-size:14px}
+.back-link{background:rgba(255,255,255,.14);color:#fff;text-decoration:none;padding:8px 14px;border-radius:9px;font-weight:700;font-size:13px;border:1px solid rgba(255,255,255,.28);transition:.2s}
+.back-link:hover{background:rgba(255,255,255,.25)}
+
+main{max-width:1280px;margin:auto;padding:18px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,.9fr);gap:16px}
+.panel{background:white;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 5px 18px #193e5510}
+.head{padding:13px 17px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.head h2{margin:0;font-size:17px}
+.pill{font-size:12px;background:#e8f3f7;color:#28617e;padding:4px 10px;border-radius:30px;font-weight:700}
+
+/* Barra de Leyenda de Caudales */
+.flow-bar{padding:10px 16px;background:#f8fbfd;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.legend-group{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:12px;font-weight:700}
+.leg-item{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;background:#fff;border:1px solid var(--line)}
+.leg-dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+.toggle-all-btn{font-size:12px;padding:5px 11px;border-radius:8px;border:1px solid #b5cedb;background:#fff;color:var(--ink);font-weight:700;cursor:pointer;transition:.2s}
+.toggle-all-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+.select{padding:16px;border-bottom:1px solid var(--line);background:#fafcfd}
+.select label{font-weight:700;display:block;margin-bottom:7px;font-size:13.5px}
+select{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;font:inherit;font-weight:600;color:var(--ink);background:white;cursor:pointer}
+
+.map{padding:12px;background:#f2f7fa}
+.plant{width:100%;height:auto;display:block}
+.plant .room{fill:#f9fbfd;stroke:#b9ced9;stroke-width:2}
+
+/* Tuberías Base y Animación de Flujo Continuo */
+.pipe-casing{fill:none;stroke:#dce7ed;stroke-width:11;stroke-linecap:round;stroke-linejoin:round}
+.pipe-core{fill:none;stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round;opacity:.15;transition:opacity .3s,stroke-width .3s}
+.pipe-flow{fill:none;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:10 12;animation:flowMove 1.1s linear infinite;opacity:0;transition:opacity .3s}
+.pipe-flow.fast{animation-duration:.65s}
+
+.route-active .pipe-core{opacity:.38}
+.route-active .pipe-flow{opacity:.95}
+.segment-hot.pipe-core{opacity:.88 !important;stroke-width:7px}
+.segment-hot.pipe-flow{opacity:1 !important;stroke-width:5.5px;stroke-dasharray:8 10;filter:drop-shadow(0 0 4px rgba(0,0,0,.22))}
+
+@keyframes flowMove{
+  to{stroke-dashoffset:-44}
+}
+
+/* Salas / Áreas de Proceso */
+.plant .zone{fill:#e7f0f4;stroke:#789eb1;stroke-width:2;transition:all .25s}
+.plant .zone.in-route{fill:#ffffff;stroke:#47778f;stroke-width:2.2}
+.plant .zone.dimmed{opacity:.36;fill:#e2e8ec}
+.plant .zone.hot{fill:#fff3cd !important;stroke:#c28a17 !important;stroke-width:3.2 !important;filter:drop-shadow(0 3px 8px rgba(217,119,6,.32))}
+.plant .zone.done{fill:#eaf7ef;stroke:#4b9878}
+.plant text{font:700 11.5px system-ui;fill:#1e3f52;pointer-events:none}
+.plant .sub{font:600 9.8px system-ui;fill:#486575}
+.plant .bypass-tag{font:700 9.5px system-ui;fill:#627b8b}
+
+.note{padding:10px 14px;background:#fff8e5;color:#6b5a2f;font-size:12px;border-top:1px solid #f2e4bd;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.right{display:flex;flex-direction:column;gap:16px}
+.progress{padding:14px 17px}
+.progressrow{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:8px;font-weight:600}
+.bar{height:9px;background:#e5edf1;border-radius:99px;overflow:hidden}
+.bar span{display:block;height:100%;width:0;background:var(--blue);transition:width .3s}
+
+.lesson{padding:18px}
+.lesson .eyebrow{color:var(--blue);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.lesson h2{margin:5px 0 8px;font-size:22px}
+.lesson p{margin:8px 0}
+.equipment{margin:12px 0;padding:11px 13px;border-radius:10px;background:#f1f7f9;border-left:4px solid var(--blue)}
+.equipment strong{display:block;font-size:11.5px;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+.route-note{margin-top:10px;padding:9px 12px;border-radius:8px;font-size:12.5px;font-weight:600;background:#f8fafc;border:1px solid var(--line)}
+
+.question{border-top:1px solid var(--line);padding:15px 18px;background:#fcfdfe}
+.question h3{font-size:15px;margin:0 0 10px}
+.choices{display:grid;gap:8px}
+.choice{background:white;border:1px solid var(--line);padding:10px 12px;border-radius:10px;text-align:left;cursor:pointer;color:var(--ink);font:inherit;transition:.15s}
+.choice:hover:not(:disabled){background:#f1f8fb;border-color:#94bdd0}
+.choice.correct{border-color:#4b9878;background:#eaf7ef;font-weight:600}
+.choice.wrong{border-color:#c76d63;background:#fff0ed}
+.feedback{min-height:44px;margin-top:10px;padding:10px 12px;border-radius:9px;background:#f3f7f9;color:var(--muted);font-size:13px}
+.feedback.good{background:#eaf7ef;color:#286344;border:1px solid #b7e1c9}
+.feedback.bad{background:#fff0ed;color:#91473f;border:1px solid #f1c4be}
+
+.nav{display:flex;justify-content:space-between;gap:10px;padding:14px 18px;border-top:1px solid var(--line);background:#fff}
+button.action{padding:9px 14px;border:1px solid #c6dce6;border-radius:9px;background:#edf6fa;color:#225c79;font-weight:700;cursor:pointer;transition:.2s}
+button.primary{background:#236d94;color:#fff;border-color:#236d94}
+button.primary:hover:not(:disabled){background:#1b5778}
+button:disabled{opacity:.45;cursor:not-allowed}
+
+.summary{padding:18px}
+.summary h2{font-size:20px;margin:6px 0 8px}
+.summary li{margin:5px 0}
+.badge{display:inline-block;padding:4px 9px;border-radius:20px;background:#eaf7ef;color:#286344;font-size:12px;font-weight:700}
+
+@media(max-width:900px){main{grid-template-columns:1fr}.right{display:flex}}
+@media(max-width:520px){main{padding:9px}.head{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Planta virtual de lácteos · Semana 14</h1>
+    <p>Recorrido guiado con flujo continuo · Queso Fresco, Queso de Pasta Hilada y Leches Fermentadas (Yogurt).</p>
+  </div>
+  <a href="index.html" class="back-link">⬅ Volver al Menú</a>
+</header>
+
+<main>
+<section class="panel">
+  <div class="head">
+    <h2>Mapa de flujo e ingeniería de planta (Semana 14)</h2>
+    <span class="pill" id="mapTag">Ruta seleccionada: Queso Fresco</span>
+  </div>
+
+  <!-- Barra de Leyenda de Caudales por Color -->
+  <div class="flow-bar">
+    <div class="legend-group">
+      <span class="leg-item"><span class="leg-dot" style="background:var(--c-fresco)"></span> Caudal Queso Fresco (Vía Moldeo/Prensado)</span>
+      <span class="leg-item"><span class="leg-dot" style="background:var(--c-hilado)"></span> Caudal Pasta Hilada (Vía Fundido 72 °C)</span>
+      <span class="leg-item"><span class="leg-dot" style="background:var(--c-yogurt)"></span> Caudal Yogurt (Vía Incubación 43 °C)</span>
+    </div>
+    <button type="button" class="toggle-all-btn" id="toggleAllFlows">👁️ Ver los 3 caudales a la vez</button>
+  </div>
+
+  <div class="map">
+    <svg class="plant" viewBox="0 0 720 490" aria-label="Esquema de planta de quesos y fermentados con tuberías independientes">
+      <rect class="room" x="10" y="10" width="700" height="470" rx="14"/>
+
+      <!-- ==================== SISTEMA DE TUBERÍAS DEDICADAS POR PRODUCTO ==================== -->
+      <!-- 1. RUTA QUESO FRESCO (Verde #15803d): 0 -> 1 -> 2 -> 3 (Tina Cuajada) -> 4 (Moldeo y Prensado) -> Baja directo a 7 (Envasado) y 8 (Calidad) SIN pasar por Pasta Hilada (5) ni Yogurt (6) -->
+      <g id="pipes-fresco" class="route-group">
+        <path class="pipe-casing" d="M 155 68 H 190 M 320 68 H 355 M 500 68 H 535 M 605 125 V 150 H 115 V 180 M 115 275 V 330 M 325 365 H 375"/>
+
+        <path class="pipe-core" stroke="var(--c-fresco)" data-seg="fresco-0" d="M 155 68 H 190"/>
+        <path class="pipe-flow" stroke="#bbf7d0" data-seg="fresco-0" d="M 155 68 H 190"/>
+
+        <path class="pipe-core" stroke="var(--c-fresco)" data-seg="fresco-1" d="M 320 68 H 355"/>
+        <path class="pipe-flow" stroke="#bbf7d0" data-seg="fresco-1" d="M 320 68 H 355"/>
+
+        <path class="pipe-core" stroke="var(--c-fresco)" data-seg="fresco-2" d="M 500 68 H 535"/>
+        <path class="pipe-flow" stroke="#bbf7d0" data-seg="fresco-2" d="M 500 68 H 535"/>
+
+        <!-- De Tina de Coagulación (3) a Moldeo y Prensado (4) -->
+        <path class="pipe-core" stroke="var(--c-fresco)" data-seg="fresco-3" d="M 605 125 V 150 H 115 V 180"/>
+        <path class="pipe-flow fast" stroke="#bbf7d0" data-seg="fresco-3" d="M 605 125 V 150 H 115 V 180"/>
+
+        <!-- De Moldeo y Prensado (4) directo a Envasado y Cámara (7) sin tocar Hilado ni Yogurt -->
+        <path class="pipe-core" stroke="var(--c-fresco)" data-seg="fresco-4" d="M 115 275 V 330"/>
+        <path class="pipe-flow" stroke="#bbf7d0" data-seg="fresco-4" d="M 115 275 V 330"/>
+
+        <path class="pipe-core" stroke="var(--c-fresco)" data-seg="fresco-5" d="M 325 365 H 375"/>
+        <path class="pipe-flow" stroke="#bbf7d0" data-seg="fresco-5" d="M 325 365 H 375"/>
+      </g>
+
+      <!-- 2. RUTA QUESO PASTA HILADA / OAXACA (Ámbar #d97706): 0 -> 1 -> 2 -> 3 (Tina Cuajada y Acidificación) -> 5 (Fundido e Hilado) -> Baja directo a 7 (Envasado) y 8 (Calidad) SIN pasar por Prensado (4) ni Yogurt (6) -->
+      <g id="pipes-hilado" class="route-group">
+        <path class="pipe-casing" d="M 155 82 H 190 M 320 82 H 355 M 500 82 H 535 M 635 125 V 162 H 355 V 180 M 355 275 V 302 H 200 V 330 M 325 380 H 375"/>
+
+        <path class="pipe-core" stroke="var(--c-hilado)" data-seg="hilado-0" d="M 155 82 H 190"/>
+        <path class="pipe-flow" stroke="#fef08a" data-seg="hilado-0" d="M 155 82 H 190"/>
+
+        <path class="pipe-core" stroke="var(--c-hilado)" data-seg="hilado-1" d="M 320 82 H 355"/>
+        <path class="pipe-flow" stroke="#fef08a" data-seg="hilado-1" d="M 320 82 H 355"/>
+
+        <path class="pipe-core" stroke="var(--c-hilado)" data-seg="hilado-2" d="M 500 82 H 535"/>
+        <path class="pipe-flow" stroke="#fef08a" data-seg="hilado-2" d="M 500 82 H 535"/>
+
+        <!-- De Tina/Acidificación (3) directo a Fundido e Hilado (5) -->
+        <path class="pipe-core" stroke="var(--c-hilado)" data-seg="hilado-3" d="M 635 125 V 162 H 355 V 180"/>
+        <path class="pipe-flow fast" stroke="#fef08a" data-seg="hilado-3" d="M 635 125 V 162 H 355 V 180"/>
+
+        <!-- De Pasta Hilada (5) directo a Envasado (7) sin tocar Prensado ni Yogurt -->
+        <path class="pipe-core" stroke="var(--c-hilado)" data-seg="hilado-4" d="M 355 275 V 302 H 200 V 330"/>
+        <path class="pipe-flow fast" stroke="#fef08a" data-seg="hilado-4" d="M 355 275 V 302 H 200 V 330"/>
+
+        <path class="pipe-core" stroke="var(--c-hilado)" data-seg="hilado-5" d="M 325 380 H 375"/>
+        <path class="pipe-flow" stroke="#fef08a" data-seg="hilado-5" d="M 325 380 H 375"/>
+      </g>
+
+      <!-- 3. RUTA YOGURT / LECHES FERMENTADAS (Violeta #7e22ce): 0 -> 1 -> 2 (Tratamiento Térmico Fuerte) -> Baja directo a 6 (Inoculación e Incubación de Yogurt) -> Baja a 7 (Envasado) y 8 (Calidad) SIN tocar ninguna sala de Quesos (3, 4 ni 5) -->
+      <g id="pipes-yogurt" class="route-group">
+        <path class="pipe-casing" d="M 155 96 H 190 M 320 96 H 355 M 445 125 V 140 H 590 V 180 M 590 275 V 314 H 275 V 330 M 325 395 H 375"/>
+
+        <path class="pipe-core" stroke="var(--c-yogurt)" data-seg="yogurt-0" d="M 155 96 H 190"/>
+        <path class="pipe-flow" stroke="#e9d5ff" data-seg="yogurt-0" d="M 155 96 H 190"/>
+
+        <path class="pipe-core" stroke="var(--c-yogurt)" data-seg="yogurt-1" d="M 320 96 H 355"/>
+        <path class="pipe-flow" stroke="#e9d5ff" data-seg="yogurt-1" d="M 320 96 H 355"/>
+
+        <!-- De Pasteurizador/Homogeneizador (2) directo a Fermentación de Yogurt (6) SIN entrar a Tinas Queseras -->
+        <path class="pipe-core" stroke="var(--c-yogurt)" data-seg="yogurt-2" d="M 445 125 V 140 H 590 V 180"/>
+        <path class="pipe-flow fast" stroke="#e9d5ff" data-seg="yogurt-2" d="M 445 125 V 140 H 590 V 180"/>
+
+        <!-- De Yogurt (6) directo a Envasado y Refrigeración (7) -->
+        <path class="pipe-core" stroke="var(--c-yogurt)" data-seg="yogurt-3" d="M 590 275 V 314 H 275 V 330"/>
+        <path class="pipe-flow fast" stroke="#e9d5ff" data-seg="yogurt-3" d="M 590 275 V 314 H 275 V 330"/>
+
+        <path class="pipe-core" stroke="var(--c-yogurt)" data-seg="yogurt-4" d="M 325 395 H 375"/>
+        <path class="pipe-flow" stroke="#e9d5ff" data-seg="yogurt-4" d="M 325 395 H 375"/>
+      </g>
+
+      <!-- Etiquetas de colectores dedicados -->
+      <text class="bypass-tag" x="108" y="308" text-anchor="end">Queso Fresco ➔</text>
+      <text class="bypass-tag" x="348" y="296" text-anchor="end">Pasta Hilada ➔ Envasado</text>
+      <text class="bypass-tag" x="582" y="309" text-anchor="end">Línea Yogurt ➔ Envasado</text>
+
+      <!-- ==================== 9 SALAS / ZONAS DE LA PLANTA (SEMANA 14) ==================== -->
+      <g id="mapNodes">
+        <!-- 0: Recepción -->
+        <g data-key="0">
+          <rect class="zone" x="25" y="35" width="130" height="90" rx="9"/>
+          <text x="90" y="55" text-anchor="middle">1. Recepción</text>
+          <rect x="58" y="66" width="64" height="34" rx="6" fill="#c9e0e9" stroke="#47778f"/>
+          <text class="sub" x="90" y="114" text-anchor="middle">Control Leche Cruda</text>
+        </g>
+
+        <!-- 1: Estandarización -->
+        <g data-key="1">
+          <rect class="zone" x="190" y="35" width="130" height="90" rx="9"/>
+          <text x="255" y="55" text-anchor="middle">2. Estandarización</text>
+          <path d="M233 68h44l-6 30h-32z" fill="#c9e0e9" stroke="#47778f"/>
+          <text class="sub" x="255" y="114" text-anchor="middle">Relación Grasa / SNG</text>
+        </g>
+
+        <!-- 2: Tratamiento Térmico -->
+        <g data-key="2">
+          <rect class="zone" x="355" y="35" width="145" height="90" rx="9"/>
+          <text x="427" y="55" text-anchor="middle">3. Pasteurización</text>
+          <rect x="379" y="68" width="96" height="30" rx="5" fill="#c9e0e9" stroke="#47778f"/>
+          <text class="sub" x="427" y="114" text-anchor="middle">HTST / Homogeneiz.</text>
+        </g>
+
+        <!-- 3: Tina de Coagulación y Desuerado (Exclusiva Quesos) -->
+        <g data-key="3">
+          <rect class="zone" x="535" y="35" width="155" height="90" rx="9"/>
+          <text x="612" y="55" text-anchor="middle">4. Coagulación</text>
+          <rect x="565" y="68" width="95" height="30" rx="6" fill="#dcfce7" stroke="#15803d"/>
+          <text class="sub" x="612" y="114" text-anchor="middle">Cuajo, Corte y Desuerado</text>
+        </g>
+
+        <!-- 4: Moldeo y Prensado (Exclusiva Queso Fresco / Prensado) -->
+        <g data-key="4">
+          <rect class="zone" x="25" y="180" width="195" height="95" rx="9"/>
+          <text x="122" y="200" text-anchor="middle">5. Moldeo y Prensado</text>
+          <rect x="48" y="213" width="65" height="30" rx="5" fill="#bbf7d0" stroke="#15803d"/>
+          <rect x="130" y="213" width="65" height="30" rx="5" fill="#bbf7d0" stroke="#15803d"/>
+          <text class="sub" x="80" y="258" text-anchor="middle">Salado Masa</text>
+          <text class="sub" x="162" y="258" text-anchor="middle">Prensas</text>
+        </g>
+
+        <!-- 5: Fundido, Hilado y Salmuera (Exclusiva Queso Oaxaca / Pasta Hilada) -->
+        <g data-key="5">
+          <rect class="zone" x="245" y="180" width="220" height="95" rx="9"/>
+          <text x="355" y="200" text-anchor="middle">6. Pasta Hilada (Oaxaca)</text>
+          <rect x="265" y="213" width="80" height="30" rx="5" fill="#fde68a" stroke="#b45309"/>
+          <rect x="365" y="213" width="80" height="30" rx="5" fill="#bae6fd" stroke="#0284c7"/>
+          <text class="sub" x="305" y="258" text-anchor="middle">Fundido 72 °C</text>
+          <text class="sub" x="405" y="258" text-anchor="middle">Agua Fría / Sal</text>
+        </g>
+
+        <!-- 6: Fermentación de Yogurt (Exclusiva Leches Fermentadas) -->
+        <g data-key="6">
+          <rect class="zone" x="490" y="180" width="200" height="95" rx="9"/>
+          <text x="590" y="200" text-anchor="middle">7. Línea Yogurt</text>
+          <rect x="510" y="213" width="72" height="30" rx="5" fill="#f3e8ff" stroke="#7e22ce"/>
+          <rect x="598" y="213" width="72" height="30" rx="5" fill="#e0e7ff" stroke="#4338ca"/>
+          <text class="sub" x="546" y="258" text-anchor="middle">Incub. 43 °C</text>
+          <text class="sub" x="634" y="258" text-anchor="middle">Batido / Frío</text>
+        </g>
+
+        <!-- 7: Envasado y Almacenamiento en Frío -->
+        <g data-key="7">
+          <rect class="zone" x="25" y="330" width="300" height="100" rx="9"/>
+          <text x="175" y="352" text-anchor="middle">8. Envasado y Cámara Fría (2–6 °C)</text>
+          <rect x="70" y="364" width="70" height="32" rx="5" fill="#c9e0e9" stroke="#47778f"/>
+          <rect x="195" y="364" width="70" height="32" rx="5" fill="#c9e0e9" stroke="#47778f"/>
+          <text class="sub" x="105" y="412" text-anchor="middle">Empaque / Vacío</text>
+          <text class="sub" x="230" y="412" text-anchor="middle">Refrigeración</text>
+        </g>
+
+        <!-- 8: Control de Calidad y Liberación -->
+        <g data-key="8">
+          <rect class="zone" x="375" y="330" width="315" height="100" rx="9"/>
+          <text x="532" y="352" text-anchor="middle">9. Control de Calidad y Normatividad</text>
+          <rect x="425" y="364" width="80" height="32" rx="5" fill="#c9e0e9" stroke="#47778f"/>
+          <rect x="555" y="364" width="80" height="32" rx="5" fill="#c9e0e9" stroke="#47778f"/>
+          <text class="sub" x="465" y="412" text-anchor="middle">pH, Acidez y Rend.</text>
+          <text class="sub" x="595" y="412" text-anchor="middle">NOM-243 Liberación</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <div class="note">
+    <span><strong>Nota de flujo:</strong> Cada derivado sigue su tubería exclusiva (ej. el Yogurt va directo del Pasteurizador a los Tanques de Incubación sin pasar por las tinas de cuajada ni prensas queseras).</span>
+    <span>Flujo continuo animado</span>
+  </div>
+
+  <div class="progress">
+    <div class="progressrow">
+      <span id="progressText">Selecciona un producto y pulsa Comenzar</span>
+      <span id="percent">0 %</span>
+    </div>
+    <div class="bar"><span id="bar"></span></div>
+  </div>
+</section>
+
+<div class="right">
+  <section class="panel">
+    <div class="head">
+      <h2 id="lessonTitle">Elige una línea para comenzar</h2>
+      <span class="pill" id="productPill">Recorrido guiado</span>
+    </div>
+
+    <div class="select">
+      <label for="product">Producto de la Semana 14 que vas a elaborar:</label>
+      <select id="product">
+        <option value="fresco">🧀 Queso Fresco / Panela (Flujo Verde · Vía Cuajada y Prensado)</option>
+        <option value="hilado">🧶 Queso Oaxaca / Pasta Hilada (Flujo Ámbar · Vía Acidificación y Fundido)</option>
+        <option value="yogurt">🍶 Yogurt Batido / Fermentado (Flujo Violeta · Vía Cultivos Lácticos 43 °C)</option>
+      </select>
+    </div>
+
+    <div class="lesson" id="lesson">
+      <p>Selecciona el producto arriba para ver su ruta exclusiva de tuberías en el mapa y pulsa <strong>“Comenzar recorrido”</strong>.</p>
+    </div>
+
+    <div class="question" id="question" hidden>
+      <h3 id="qTitle">Comprueba lo aprendido</h3>
+      <div class="choices" id="choices"></div>
+      <div class="feedback" id="feedback">Elige una respuesta.</div>
+    </div>
+
+    <div class="nav">
+      <button class="action" id="prev" disabled>← Anterior</button><button class="action primary" id="start">Comenzar recorrido</button><button class="action primary" id="next" disabled>Siguiente →</button>
+    </div>
+  </section>
+
+  <section class="panel" id="summaryPanel" hidden>
+    <div class="summary">
+      <span class="badge">Recorrido completado</span>
+      <h2 id="summaryTitle">¡Buen trabajo!</h2>
+      <p id="summaryText"></p>
+      <h3>Resumen de la ruta recorrida</h3>
+      <ol id="summaryList"></ol>
+      <button class="action primary" id="restart">Repetir recorrido</button>
+    </div>
+  </section>
+</div>
+</main>
+
+<script>
+const content = {
+  fresco: {
+    color: "var(--c-fresco)",
+    name: "Queso Fresco",
+    activeZones: [0, 1, 2, 3, 4, 7, 8],
+    bypassNote: "Observa la tubería verde: la cuajada pasa del Área 4 (Coagulación) al Área 5 (Moldeo y Prensado) y de ahí baja directo al Área 8 (Envasado), sin entrar a Pasta Hilada (6) ni a Yogurt (7).",
+    title: "Elaboración de Queso Fresco",
+    intro: "Acompaña la coagulación enzimática de la leche, el corte de la cuajada, el desuerado y el moldeo.",
+    steps: [
+      {
+        zone: 0, seg: null,
+        title: "Recepción y control de leche cruda",
+        body: "Se verifica acidez titulable (14–17 °D), pH (6.6–6.8), densidad, temperatura (≤ 4 °C) y ausencia absoluta de antibióticos.",
+        equipment: "Tanque de recepción, filtro sanitario y laboratorio de plataforma",
+        question: "¿Por qué es crítico verificar la ausencia de antibióticos en la leche destinada a quesería y fermentados?",
+        options: ["Porque inhiben los cultivos lácticos y afectan la aptitud del proceso", "Para cambiar el color del envase", "Para congelar la leche en el camión"],
+        correct: 0,
+        feedback: "Los residuos de antibióticos representan un riesgo sanitario e inhiben las bacterias lácticas."
+      },
+      {
+        zone: 1, seg: "fresco-0",
+        title: "Filtración y estandarización de la relación grasa/proteína",
+        body: "La leche se clarifica y se estandariza la relación entre grasa butírica y caseína para lograr un rendimiento y textura constantes.",
+        equipment: "Clarificadora centrífuga y tanque de estandarización",
+        question: "¿Qué componente proteico de la leche forma la red estructural del queso al coagular?",
+        options: ["La caseína (micelas de caseína)", "La lactosa disuelta", "Únicamente las vitaminas hidrosolubles"],
+        correct: 0,
+        feedback: "Las micelas de caseína se agregan para formar el gel o cuajada que retiene grasa y humedad."
+      },
+      {
+        zone: 2, seg: "fresco-1",
+        title: "Pasteurización HTST y adición de cloruro de calcio",
+        body: "La leche se pasteuriza a 72 °C por 15 s (o 63 °C por 30 min), se enfría a 32–35 °C y se adiciona CaCl₂ (0.01–0.02%) para restituir el calcio iónico.",
+        equipment: "Pasteurizador de placas HTST y dosificador de CaCl₂",
+        question: "¿Cuál es la función tecnológica de agregar cloruro de calcio (CaCl₂) después de pasteurizar?",
+        options: ["Restituir el calcio soluble para mejorar la firmeza del coágulo y reducir pérdidas en el suero", "Esterilizar el empaque final", "Hacer que el queso funda a 90 °C"],
+        correct: 0,
+        feedback: "El tratamiento térmico insolubiliza parte del calcio; el CaCl₂ restaura los puentes de calcio entre micelas."
+      },
+      {
+        zone: 3, seg: "fresco-2",
+        title: "Coagulación enzimática, corte de la cuajada y desuerado",
+        body: "En la tina quesera a 32–35 °C actúa el cuajo (quimosina) durante 30–45 min hidrolizando la κ-caseína. Luego se corta la cuajada con liras, se agita suavemente y se drena el lactosuero (sinéresis).",
+        equipment: "Tina quesera encamisada, liras de corte y válvula de desuerado",
+        question: "¿Qué fenómeno físico ocurre tras cortar la cuajada y agitar suavemente en la tina?",
+        options: ["La sinéresis (contracción del gel y expulsión controlada del lactosuero)", "La incorporación de 80% de aire", "La sublimación del hielo"],
+        correct: 0,
+        feedback: "El corte aumenta el área superficial de los cubos de cuajada favoreciendo la salida del suero (sinéresis)."
+      },
+      {
+        zone: 4, seg: "fresco-3",
+        title: "Salado, moldeo y prensado",
+        body: "Observa la tubería verde: los granos de cuajada desuerados pasan al Área 5, donde se salan (1.5–2.0%), se colocan en moldes perforados y se prensan para dar forma y ajustar la humedad final.",
+        equipment: "Mesa de desuerado/salado, moldes sanitarios y prensas neumáticas o mecánicas",
+        question: "¿Qué funciones cumple la adición de sal en el queso fresco?",
+        options: ["Aportar sabor, regular la humedad (sinéresis), fortalecer la corteza y controlar microorganismos", "Incrementar el volumen al doble con aire", "Sustituir la pasteurización de la leche"],
+        correct: 0,
+        feedback: "La sal desempeña un papel sensorial, reológico y de control de actividad de agua."
+      },
+      {
+        zone: 7, seg: "fresco-4",
+        title: "Envasado directo y refrigeración (2–6 °C)",
+        body: "Desde el Área 5 (Moldeo y Prensado), la línea verde baja directamente al Área 8 (Envasado al vacío/higiénico y cámara fría a 2–6 °C), sin pasar por las salas de Pasta Hilada ni de Yogurt.",
+        equipment: "Empacadora al vacío o termoformadora y cámara de refrigeración",
+        question: "¿Por qué el queso fresco requiere conservarse estrictamente en cadena de frío (2–6 °C)?",
+        options: ["Por su alto contenido de humedad (>45–55%) y pH cercano a la neutralidad", "Porque tiene 0% de agua", "Para que se funda dentro de la bolsa"],
+        correct: 0,
+        feedback: "Al ser un queso de alta humedad y baja acidez, depende de la refrigeración e higiene para su conservación."
+      },
+      {
+        zone: 8, seg: "fresco-5",
+        title: "Control de calidad, rendimiento y liberación NOM-243",
+        body: "Se evalúa el rendimiento quesero (kg de queso por cada 100 L de leche), composición y microbiología conforme a la NOM-243-SSA1-2010.",
+        equipment: "Laboratorio de control fisicoquímico y microbiológico",
+        question: "¿Qué garantiza el análisis microbiológico antes de liberar el lote de queso fresco?",
+        options: ["Que se cumplan los límites sanitarios y ausencia de patógenos como Listeria monocytogenes y Salmonella", "Que el queso cambie a sabor fresa", "Que no necesite refrigeración"],
+        correct: 0,
+        feedback: "El control sanitario verifica la eficacia de la pasteurización y la ausencia de recontaminación durante el moldeo."
+      }
+    ],
+    end: "¡Completaste la ruta de Queso Fresco! Observaste cómo el flujo verde pasó de la tina de cuajada a moldeo/prensado y bajó directo a envasado sin cruzar por pasta hilada ni yogurt."
+  },
+
+  hilado: {
+    color: "var(--c-hilado)",
+    name: "Queso Pasta Hilada (Oaxaca)",
+    activeZones: [0, 1, 2, 3, 5, 7, 8],
+    bypassNote: "Observa la tubería ámbar: la cuajada acidificada (pH 5.2–5.4) pasa del Área 4 al Área 6 (Fundido e Hilado a 72 °C) y baja directo a Envasado (8), sin pasar por Prensado (5) ni Yogurt (7).",
+    title: "Elaboración de Queso de Pasta Hilada (Oaxaca)",
+    intro: "Sigue el desarrollo de acidez en la cuajada y la desmineralización parcial que permite fundir y estirar las hebras.",
+    steps: [
+      {
+        zone: 0, seg: null,
+        title: "Recepción y evaluación de leche",
+        body: "Se recibe leche fresca verificando su acidez inicial y calidad higiénica para permitir una acidificación controlada posterior.",
+        equipment: "Tanque de recepción, filtro y acidímetro Dornic / potenciómetro",
+        question: "¿Cómo se controla el avance de la acidez durante la elaboración de quesos de pasta hilada?",
+        options: ["Midiendo pH y grados Dornic (°D) en leche, suero y cuajada", "Solo observando el color externo de la tina", "Pesando las cajas de cartón"],
+        correct: 0,
+        feedback: "El monitoreo de pH y acidez titulable (°D) es el punto crítico para lograr el hilado."
+      },
+      {
+        zone: 1, seg: "hilado-0",
+        title: "Estandarización de grasa",
+        body: "Se ajusta el contenido graso de la leche para lograr elasticidad y evitar pérdida excesiva de grasa durante el fundido en agua caliente.",
+        equipment: "Descremadora y tanque de estandarización",
+        question: "¿Qué ocurre si el contenido graso no está balanceado frente a la caseína?",
+        options: ["Se afecta el rendimiento, la textura de la hebra y la retención de grasa al fundir", "El queso se convierte en leche en polvo", "No coagula nunca"],
+        correct: 0,
+        feedback: "La relación grasa/caseína define la plasticidad de la pasta durante el estirado."
+      },
+      {
+        zone: 2, seg: "hilado-1",
+        title: "Pasteurización y adición de cultivos lácticos",
+        body: "Tras pasteurizar y enfriar a 34–36 °C, se inoculan cultivos lácticos termófilos productores de ácido láctico.",
+        equipment: "Pasteurizador HTST y dosificación de cultivo iniciador",
+        question: "¿Cuál es el rol de las bacterias ácido lácticas en el queso Oaxaca?",
+        options: ["Transformar lactosa en ácido láctico hasta alcanzar el pH óptimo de hilado (5.2–5.4)", "Producir gas carbónico para inflar el envase", "Sustituir al cuajo por completo"],
+        correct: 0,
+        feedback: "El ácido láctico solubiliza parcialmente el fosfato de calcio micelar, permitiendo que la cuajada estire."
+      },
+      {
+        zone: 3, seg: "hilado-2",
+        title: "Coagulación, desuerado y maduración ácida de la cuajada",
+        body: "Se coagula con cuajo, se corta y desuera parcialmente, dejando madurar la cuajada en bloque hasta que alcance un pH de 5.2 a 5.4 (~32–35 °D en suero) y supere la prueba de estiramiento.",
+        equipment: "Tina quesera y potenciómetro de punción para cuajada",
+        question: "¿Qué sucede a nivel químico cuando la cuajada llega a pH 5.2–5.4?",
+        options: ["La paracaseína se desmineraliza parcialmente (pierde calcio) volviéndose termoplástica y elástica", "La proteína se destruye por completo", "Se congela instantáneamente"],
+        correct: 0,
+        feedback: "En pH 5.2–5.4 el paracaseinato dicálcico pasa a monocálcico, capaz de fundir y formar fibras al calentarse."
+      },
+      {
+        zone: 5, seg: "hilado-3",
+        title: "Fundido, estirado (hilado), choque térmico y salado",
+        body: "Observa la tubería ámbar: la cuajada en su punto entra al Área 6, donde se funde con agua caliente o vapor a 70–75 °C amasándola hasta formar una tira fibrosa brillante; luego pasa a agua fría (choque térmico) para fijar la hebra, se sala y se forma la bola.",
+        equipment: "Paila o hiladora mecánica (70–75 °C), tina de agua fría y mesa de boleado",
+        question: "¿Qué pasa si intentas fundir la cuajada cuando el pH aún está muy alto (ej. pH 6.2) o si ya bajó demasiado (pH < 4.9)?",
+        options: ["A pH alto la cuajada se corta/no estira, y a pH muy bajo se deshace como papilla sin elasticidad", "En ambos casos sale perfecta", "Se convierte en helado"],
+        correct: 0,
+        feedback: "La ventana de hilado depende estrictamente del equilibrio de calcio en el rango de pH 5.2–5.4."
+      },
+      {
+        zone: 7, seg: "hilado-4",
+        title: "Envasado directo y conservación en frío",
+        body: "Desde el Área 6 (Pasta Hilada), la tubería ámbar conduce las bolas de queso Oaxaca directo al Área 8 (Envasado y Refrigeración a 2–6 °C), sin pasar por Prensas ni Yogurt.",
+        equipment: "Envasadora al vacío / bolsas retráctiles y cámara de refrigeración",
+        question: "¿Para qué se aplica el baño en agua fría antes de formar la bola y envasar?",
+        options: ["Para enfriar la hebra caliente, detener la fusión y conservar su forma fibrosa", "Para hervir el queso", "Para agregarle azúcar"],
+        correct: 0,
+        feedback: "El choque térmico en agua fría estabiliza la estructura alineada de las fibras de proteína."
+      },
+      {
+        zone: 8, seg: "hilado-5",
+        title: "Verificación de calidad e inocuidad NOM-243",
+        body: "Se evalúa humedad, grasa, capacidad de fundido, hebra e inocuidad microbiológica bajo la NOM-243-SSA1-2010.",
+        equipment: "Laboratorio de calidad y prueba funcional de fundido",
+        question: "¿Por qué aunque el fundido se realiza a 70–75 °C es obligatorio usar leche pasteurizada e higiene estricta en el boleado manual?",
+        options: ["Porque la manipulación post-fundido (agua fría, salado y boleado) puede recontaminar el producto", "Porque a 70 °C crecen más bacterias patógenas", "Porque el queso Oaxaca no lleva leche"],
+        correct: 0,
+        feedback: "El control higiénico posterior al hilado y la calidad del agua fría son determinantes para cumplir la NOM-243."
+      }
+    ],
+    end: "¡Completaste la línea de Queso de Pasta Hilada! Viste cómo el flujo ámbar pasó de la tina de acidificación al área de fundido/hilado y luego directo a envasado."
+  },
+
+  yogurt: {
+    color: "var(--c-yogurt)",
+    name: "Yogurt Batido",
+    activeZones: [0, 1, 2, 6, 7, 8],
+    bypassNote: "Observa la tubería violeta: del Área 3 (Tratamiento Térmico y Homogeneización) el caudal salta directo al Área 7 (Línea de Yogurt) y baja a Envasado (8), sin tocar ninguna sala de Quesos (4, 5 ni 6).",
+    title: "Elaboración de Yogurt Batido",
+    intro: "Explora la coagulación ácida por fermentación simbiótica de Streptococcus thermophilus y Lactobacillus delbrueckii subsp. bulgaricus.",
+    steps: [
+      {
+        zone: 0, seg: null,
+        title: "Recepción y selección rigurosa de leche",
+        body: "Se recibe leche de alta calidad microbiológica, libre de antibióticos e inhibidores para que el cultivo láctico fermente sin retrasos.",
+        equipment: "Recepción isotérmica y prueba rápida de antibióticos",
+        question: "¿Qué ocurriría en el tanque de fermentación si la leche contiene trazas de antibióticos?",
+        options: ["Se inhibe el crecimiento de S. thermophilus y L. bulgaricus, fallando la acidificación y coagulación", "El yogurt se fermenta en 2 minutos", "Se transforma en mantequilla"],
+        correct: 0,
+        feedback: "Las bacterias del cultivo iniciador son altamente sensibles a betalactámicos y otros antimicrobianos."
+      },
+      {
+        zone: 1, seg: "yogurt-0",
+        title: "Estandarización de sólidos totales (SNG y grasa)",
+        body: "Se ajusta el porcentaje de grasa y se incrementan los Sólidos No Grasos (ej. añadiendo 2–3% de leche descremada en polvo) para aumentar la viscosidad y evitar sinéresis en el gel.",
+        equipment: "Tanque mezclador de estandarización y fortificación de sólidos",
+        question: "¿Por qué se elevan los sólidos no grasos (proteína) en la base para yogurt?",
+        options: ["Para reforzar la red del gel ácido, darle mayor cuerpo/consistencia y reducir la separación de suero", "Para disminuir el valor nutritivo", "Para no tener que pasteurizar"],
+        correct: 0,
+        feedback: "Mayor concentración de proteína genera una matriz más densa que retiene mejor el agua libre."
+      },
+      {
+        zone: 2, seg: "yogurt-1",
+        title: "Homogeneización y tratamiento térmico intenso (85–90 °C)",
+        body: "La mezcla se homogeneiza (15–20 MPa) y recibe un tratamiento térmico alto (85 °C por 15–30 min o 90–95 °C por 5 min) para desnaturalizar las proteínas del suero (~80–85%), de modo que se unan a la caseína y retengan agua.",
+        equipment: "Homogeneizador de alta presión e intercambiador de calor",
+        question: "¿Por qué en yogurt se aplica un calentamiento más intenso (85–95 °C) que una pasteurización estándar (72 °C)?",
+        options: ["Para desnaturalizar intencionalmente las proteínas del suero y mejorar la firmeza y viscosidad del gel evitando la sinéresis", "Para quemar la lactosa", "Porque a 72 °C se congela"],
+        correct: 0,
+        feedback: "La β-lactoglobulina desnaturalizada interactúa con la κ-caseína aumentando la retención de agua del coágulo ácido."
+      },
+      {
+        zone: 6, seg: "yogurt-2",
+        title: "Inoculación, incubación (42–45 °C), enfriamiento y batido",
+        body: "Observa la tubería violeta: la base pasa directo del Área 3 al Área 7 (Yogurt) sin tocar las salas de quesos. Se enfría a 42–45 °C, se inocula el cultivo simbiótico (S. thermophilus y L. bulgaricus) y se incuba por 4–6 h hasta llegar a pH 4.5–4.6 (punto isoeléctrico de la caseína). Luego se enfría a 15–20 °C y se bate suavemente con fruta/aroma.",
+        equipment: "Tanque fermentador encamisado (42–45 °C), enfriador tubular y agitador lento",
+        question: "¿A qué pH se detiene la incubación cuando las micelas de caseína alcanzan su punto isoeléctrico y forman el gel?",
+        options: ["Alrededor de pH 4.5 – 4.6 (acidez ~75–85 °D)", "A pH 7.0 neutro", "A pH 12.0 alcalino"],
+        correct: 0,
+        feedback: "A pH 4.6 la carga neta de la caseína se vuelve cero (punto isoeléctrico) y precipita formando el gel lácteo."
+      },
+      {
+        zone: 7, seg: "yogurt-3",
+        title: "Envasado higiénico y cadena de frío (2–6 °C)",
+        body: "Desde el Área 7 de Yogurt, la tubería violeta lleva el producto batido directo al Área 8 (Envasado y Cámara Fría a 2–6 °C) para frenar la post-acidificación y estabilizar el gel.",
+        equipment: "Dosificadora-selladora de vasos/botellas y cámara a 2–6 °C",
+        question: "¿Qué ocurre si el yogurt no se enfría oportunamente después de alcanzar pH 4.5?",
+        options: ["Continúa la post-acidificación, provocando sabor excesivamente ácido y expulsión de suero (sinéresis)", "El yogurt se vuelve dulce otra vez", "Sube el pH a 6.8"],
+        correct: 0,
+        feedback: "El enfriamiento reduce la actividad metabólica de las bacterias lácticas y estabiliza la viscosidad."
+      },
+      {
+        zone: 8, seg: "yogurt-4",
+        title: "Control de calidad, viabilidad láctica y NOM-243",
+        body: "Se verifica pH final, viscosidad, ausencia de sinéresis, recuento de bacterias lácticas viables y límites sanitarios NOM-243-SSA1-2010.",
+        equipment: "Viscosímetro, potenciómetro y laboratorio microbiológico",
+        question: "¿Cómo se diferencia la coagulación del yogurt frente a la del queso fresco?",
+        options: ["El yogurt coagula por vía ácida (pH ~4.6 por fermentación láctica) y el queso fresco por vía enzimática (acción de la quimosina sobre la κ-caseína)", "Son exactamente iguales", "El yogurt usa cuajo a -20 °C"],
+        correct: 0,
+        feedback: "En el yogurt la neutralización de cargas al llegar a pH 4.6 forma el gel; en el queso fresco el cuajo hidroliza la κ-caseína a pH ~6.6."
+      }
+    ],
+    end: "¡Completaste la línea de Yogurt Batido! Observaste cómo el flujo violeta pasó directo del tratamiento térmico al tanque de fermentación y luego a envasado sin cruzar por las áreas de quesería."
+  }
+};
+
+let product = "fresco", step = -1, answered = false, correctCount = 0, showAllFlows = false;
+const $ = s => document.querySelector(s);
+
+function updateMapVisuals() {
+  const data = content[product];
+  $("#mapTag").textContent = step >= 0
+    ? `${data.name} · Paso ${step + 1} de ${data.steps.length}`
+    : `Ruta seleccionada: ${data.name}`;
+
+  ["fresco", "hilado", "yogurt"].forEach(p => {
+    const grp = document.getElementById("pipes-" + p);
+    if (grp) {
+      grp.classList.toggle("route-active", showAllFlows || p === product);
+    }
+  });
+
+  document.querySelectorAll("[data-seg]").forEach(el => el.classList.remove("segment-hot"));
+  if (step >= 0 && step < data.steps.length) {
+    const activeSeg = data.steps[step].seg;
+    if (activeSeg) {
+      document.querySelectorAll(`[data-seg="${activeSeg}"]`).forEach(el => el.classList.add("segment-hot"));
+    }
+  }
+
+  const currentZone = (step >= 0 && step < data.steps.length) ? data.steps[step].zone : -1;
+  const visitedZones = step > 0 ? data.steps.slice(0, step).map(s => s.zone) : [];
+
+  document.querySelectorAll("#mapNodes > g").forEach(g => {
+    const key = Number(g.dataset.key);
+    const rect = g.querySelector(".zone");
+    const inRoute = data.activeZones.includes(key);
+
+    rect.classList.toggle("in-route", inRoute);
+    rect.classList.toggle("dimmed", !inRoute && !showAllFlows);
+    rect.classList.toggle("hot", key === currentZone);
+    rect.classList.toggle("done", key !== currentZone && visitedZones.includes(key));
+  });
+}
+
+function begin() {
+  product = $("#product").value;
+  step = 0;
+  answered = false;
+  correctCount = 0;
+  $("#summaryPanel").hidden = true;
+  $("#question").hidden = false;
+  $("#start").disabled = true;
+  $("#next").disabled = true;
+  $("#prev").disabled = true;
+  render();
+}
+
+function render() {
+  const data = content[product];
+  updateMapVisuals();
+
+  if (step < 0) {
+    $("#lessonTitle").textContent = "Elige una línea para comenzar";
+    $("#productPill").textContent = data.title;
+    $("#lesson").innerHTML = `
+      <p>${data.intro}</p>
+      <div class="route-note" style="border-left:4px solid ${data.color}">${data.bypassNote}</div>
+      <p style="margin-top:10px">Pulsa <strong>“Comenzar recorrido”</strong> para avanzar etapa por etapa.</p>
+    `;
+    return;
+  }
+
+  if (step >= data.steps.length) {
+    finish();
+    return;
+  }
+
+  const s = data.steps[step];
+  $("#lessonTitle").textContent = s.title;
+  $("#productPill").textContent = data.title;
+  $("#lesson").innerHTML = `
+    <div class="eyebrow">Paso ${step + 1} de ${data.steps.length} · Línea de ${data.name}</div>
+    <h2>${s.title}</h2>
+    <p>${s.body}</p>
+    <div class="equipment"><strong>Equipos / Área activa</strong>${s.equipment}</div>
+    <div class="route-note" style="border-left:4px solid ${data.color}">${data.bypassNote}</div>
+  `;
+
+  $("#progressText").textContent = `Etapa ${step + 1} de ${data.steps.length}`;
+  let percent = Math.round((step / data.steps.length) * 100);
+  $("#percent").textContent = percent + " %";
+  $("#bar").style.width = percent + "%";
+
+  $("#qTitle").textContent = s.question;
+  $("#choices").innerHTML = s.options
+    .map((o, i) => `<button class="choice" data-choice="${i}">${String.fromCharCode(65 + i)}. ${o}</button>`)
+    .join("");
+  $("#feedback").className = "feedback";
+  $("#feedback").textContent = "Selecciona una respuesta para habilitar el avance al siguiente equipo.";
+  answered = false;
+  $("#next").disabled = true;
+  $("#prev").disabled = step === 0;
+  $("#next").textContent = step === data.steps.length - 1 ? "Finalizar recorrido →" : "Siguiente etapa →";
+
+  document.querySelectorAll(".choice").forEach(b =>
+    b.addEventListener("click", () => answer(Number(b.dataset.choice)))
+  );
+}
+
+function answer(i) {
+  if (answered) return;
+  answered = true;
+  const s = content[product].steps[step], good = i === s.correct;
+  if (good) correctCount++;
+  document.querySelectorAll(".choice").forEach((b, j) => {
+    b.disabled = true;
+    if (j === s.correct) b.classList.add("correct");
+    if (j === i && !good) b.classList.add("wrong");
+  });
+  $("#feedback").className = "feedback " + (good ? "good" : "bad");
+  $("#feedback").textContent = (good ? "¡Correcto! " : "Respuesta incorrecta. ") + s.feedback;
+  $("#next").disabled = false;
+}
+
+function finish() {
+  const data = content[product];
+  $("#question").hidden = true;
+  $("#summaryPanel").hidden = false;
+  $("#summaryTitle").textContent = data.title + " · Recorrido finalizado";
+  $("#summaryText").textContent = `Respondiste correctamente ${correctCount} de ${data.steps.length} preguntas en el primer intento. ${data.end}`;
+  $("#summaryList").innerHTML = data.steps.map(s => `<li>${s.title}</li>`).join("");
+  $("#progressText").textContent = "Recorrido completado";
+  $("#percent").textContent = "100 %";
+  $("#bar").style.width = "100%";
+  step = -1;
+  updateMapVisuals();
+  $("#start").disabled = false;
+  $("#start").textContent = "Nuevo recorrido";
+  $("#next").disabled = true;
+  $("#prev").disabled = true;
+}
+
+$("#start").addEventListener("click", begin);
+$("#next").addEventListener("click", () => { if (answered) { step++; render(); } });
+$("#prev").addEventListener("click", () => { if (step > 0) { step--; render(); } });
+$("#restart").addEventListener("click", begin);
+
+$("#product").addEventListener("change", () => {
+  product = $("#product").value;
+  step = -1;
+  $("#question").hidden = true;
+  $("#summaryPanel").hidden = true;
+  $("#start").disabled = false;
+  $("#start").textContent = "Comenzar recorrido";
+  $("#next").disabled = true;
+  $("#prev").disabled = true;
+  $("#progressText").textContent = "Listo para iniciar";
+  $("#percent").textContent = "0 %";
+  $("#bar").style.width = "0%";
+  render();
+});
+
+$("#toggleAllFlows").addEventListener("click", (e) => {
+  showAllFlows = !showAllFlows;
+  e.currentTarget.classList.toggle("active", showAllFlows);
+  e.currentTarget.textContent = showAllFlows ? "👁️ Mostrando los 3 caudales" : "👁️ Ver los 3 caudales a la vez";
+  updateMapVisuals();
+});
+
+render();
+</script>
+</body>
+</html>
