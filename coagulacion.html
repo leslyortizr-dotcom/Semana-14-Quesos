@@ -1,448 +1,686 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animación Interactiva: Coagulación de la Leche</title>
-    <style>
-        :root {
-            --bg-color: #f4f6f9;
-            --card-bg: #ffffff;
-            --primary: #f59e0b;
-            --primary-hover: #d97706;
-            --text: #1f2937;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            max-width: 850px;
-            width: 100%;
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-        }
-        h1 {
-            text-align: center;
-            color: #b45309;
-            margin-top: 0;
-        }
-        .canvas-wrapper {
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 3px solid #fde68a;
-            background: #fffbeb; /* Color leche fresca */
-            transition: background 2s ease;
-        }
-        canvas {
-            display: block;
-            width: 100%;
-            height: 420px;
-        }
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        button {
-            background-color: #e5e7eb;
-            color: #374151;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        button:hover {
-            background-color: #d1d5db;
-        }
-        button.active {
-            background-color: var(--primary);
-            color: white;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
-        }
-        .info-panel {
-            background-color: #fef3c7;
-            border-left: 5px solid var(--primary);
-            padding: 16px 20px;
-            border-radius: 6px;
-            margin-top: 15px;
-        }
-        .info-panel h3 {
-            margin: 0 0 8px 0;
-            color: #92400e;
-        }
-        .info-panel p {
-            margin: 0;
-            line-height: 1.5;
-        }
-        .legend {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-            padding: 12px;
-            background: #f9fafb;
-            border-radius: 8px;
-            font-size: 13px;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .dot {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coagulación Enzimática · Semana 14</title>
+<style>
+:root{
+  --navy:#12306b; --navy-2:#1d4196; --ink:#0f1b33; --text:#22304a; --muted:#64748b;
+  --bg:#eef2f8; --card:#ffffff; --line:#dbe3ef; --soft:#f6f8fc;
+  --orange:#f05a28; --magenta:#d61f5c; --ok:#16a34a; --warn:#d97706; --bad:#dc2626;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--text);padding:18px;line-height:1.45}
+.app{max-width:1200px;margin:0 auto;background:var(--card);border-radius:18px;box-shadow:0 12px 34px rgba(15,27,51,.10);overflow:hidden}
+.topbar{height:6px;background:linear-gradient(90deg,var(--orange),var(--magenta))}
+header{padding:16px 24px 6px}
+.back{display:inline-flex;align-items:center;gap:6px;background:#334155;color:#f8fafc;text-decoration:none;padding:8px 14px;border-radius:8px;font-weight:600;font-size:13px;border:1px solid #475569;margin-bottom:12px}
+.back:hover{background:#1e293b}
+.title-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+h1{margin:0;color:var(--navy);font-size:26px;letter-spacing:-.3px}
+.subtitle{color:var(--muted);font-size:14px;margin-top:2px}
+.week-tag{background:var(--navy);color:#fff;font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;white-space:nowrap}
+.week-tag b{color:#ffb38f}
+
+.stages{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:14px 24px 8px}
+@media (max-width:940px){.stages{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:520px){.stages{grid-template-columns:repeat(2,1fr)}}
+.stg{border:1px solid var(--line);background:var(--soft);border-radius:12px;padding:9px 10px;cursor:pointer;text-align:left;font:inherit;color:var(--muted);transition:.15s}
+.stg:hover{border-color:#9fb3e0}
+.stg .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#dfe6f1;color:#475569;font-size:12px;font-weight:700;margin-right:6px}
+.stg b{font-size:13px;color:inherit}
+.stg small{display:block;font-size:11.5px;margin-top:2px}
+.stg.on{background:#eef3ff;border-color:#b8c8f0;color:var(--navy)}
+.stg.on .n{background:var(--navy);color:#fff}
+.stg.done .n{background:var(--ok);color:#fff}
+
+.main{display:grid;grid-template-columns:1fr 350px;gap:18px;padding:6px 24px 16px}
+@media (max-width:980px){.main{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.canvas-box{border-radius:14px;overflow:hidden;border:1px solid var(--line);position:relative;background:#fffdf6}
+canvas{display:block;width:100%;height:auto}
+#cv{cursor:crosshair}
+.legend{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;font-size:12px;background:var(--soft);padding:8px 10px;border-radius:10px;border:1px solid var(--line)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.lg{width:12px;height:12px;border-radius:50%;display:inline-block}
+.timeline{border:1px solid var(--line);border-radius:14px;background:#fff;padding:8px 10px 10px}
+.tl-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:0 2px 4px}
+.tl-head b{font-size:13.5px;color:var(--navy)}
+.scrub{width:calc(664/760*100%);margin-left:calc(46/760*100%);display:block;accent-color:var(--navy);margin-top:2px;cursor:pointer}
+.ctrls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.btn{border:0;border-radius:10px;padding:9px 13px;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s;font-family:inherit}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--navy);color:#fff}.btn-primary:hover:not(:disabled){background:var(--navy-2)}
+.btn-accent{background:linear-gradient(90deg,var(--orange),var(--magenta));color:#fff}
+.btn-ghost{background:#fff;border:1.5px solid var(--line);color:var(--text)}.btn-ghost:hover:not(:disabled){border-color:var(--navy-2)}
+.btn-event{background:#fff7ed;border:1.5px solid #fdba74;color:#9a3412;width:100%}
+.seg{display:flex;background:#e6ecf5;border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:transparent;padding:7px 4px;border-radius:8px;font-weight:600;font-size:12.5px;color:#475569;cursor:pointer;line-height:1.2;font-family:inherit}
+.seg button.on{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.clock{font-weight:700;color:var(--navy);font-size:14px;background:#eef3ff;padding:6px 12px;border-radius:999px}
+
+.card{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.card h3{margin:0 0 6px;font-size:14.5px;color:var(--navy)}
+.card .hint{font-size:12px;color:var(--muted);margin:-2px 0 6px}
+.zoom canvas{border-radius:10px;border:1px solid var(--line);background:#fff}
+.macro{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:start}
+.macro canvas{border-radius:10px;border:1px solid var(--line);background:#fff}
+.ro{display:flex;flex-direction:column;gap:7px}
+.ro .k{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.ro .v{font-size:17px;font-weight:800;color:var(--ink)}
+.bar{height:7px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-top:2px}
+.bar i{display:block;height:100%;width:0;border-radius:4px}
+.pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700}
+.exp label{display:block;font-weight:600;font-size:12.5px;margin:8px 0 4px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.chip{border:1.5px solid var(--line);background:#fff;color:var(--text);padding:6px 10px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.chip:hover{border-color:var(--navy-2)}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.exp-note{font-size:12.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
+
+.bottom{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;padding:0 24px 18px}
+@media (max-width:940px){.bottom{grid-template-columns:1fr}}
+.box{padding:14px 16px;border-radius:12px;background:var(--soft);border-left:5px solid var(--navy);font-size:14px}
+.box h3{margin:0 0 6px;font-size:15.5px;color:var(--navy)}
+.box p{margin:6px 0}
+.box.quiz{border-left-color:var(--orange)}
+.box.quiz h3{color:#c2410c}
+.opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:8px 11px;margin:6px 0;font:inherit;font-size:13.5px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--navy-2)}
+.opt.right{border-color:var(--ok);background:#f0fdf4}
+.opt.wrong{border-color:var(--bad);background:#fef2f2}
+.fb{font-size:13px;margin-top:6px}
+.book{font-size:12.5px;color:#475569;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+.score{font-size:12px;color:var(--muted);font-weight:600}
+details.teacher{margin:0 24px 22px;border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:#fbfcfe;font-size:13.5px}
+details.teacher summary{cursor:pointer;font-weight:700;color:var(--navy)}
+details.teacher li{margin:3px 0}
+footer{padding:0 24px 18px;font-size:11.5px;color:var(--muted)}
+</style>
 </head>
 <body>
+<div class="app">
+  <div class="topbar"></div>
+  <header>
+    <a class="back" href="index.html">⬅ Volver al Menú Principal</a>
+    <div class="title-row">
+      <div>
+        <h1>🧀 Coagulación Enzimática de la Leche</h1>
+        <div class="subtitle">Del cuajo a la cuajada, molécula por molécula. Recorre la línea de tiempo, usa la lupa sobre la κ-caseína y pon a prueba el mecanismo con experimentos clásicos.</div>
+      </div>
+      <div class="week-tag">Semana 14 · <b>Figuras 12–14 del CECYBOOK</b></div>
+    </div>
+  </header>
 
-<div class="container">
-    <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; background: #334155; color: #f8fafc; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; border: 1px solid #475569; margin-bottom: 14px; transition: 0.2s;">⬅ Volver al Menú Principal</a>
-    <h1>🧀 Coagulación de la Leche para Elaborar Queso</h1>
-    
-    <div class="controls">
-        <button id="btn-phase1" class="active" onclick="setPhase(1)">1. Leche Fresca (Estable)</button>
-        <button id="btn-phase2" onclick="setPhase(2)">2. Añadir Cuajo (Hidrólisis)</button>
-        <button id="btn-phase3" onclick="setPhase(3)">3. Coagulación (Cuajada y Suero)</button>
-        <button onclick="resetSim()" style="background:#ef4444; color:white;">↻ Reiniciar</button>
+  <div class="stages" id="stages"></div>
+
+  <div class="main">
+    <div class="col">
+      <div class="canvas-box"><canvas id="cv" width="760" height="430"></canvas></div>
+      <div class="legend">
+        <span><i class="lg" style="background:radial-gradient(circle at 35% 35%,#a9c8ff,#2f63c9)"></i>Micela de caseína</span>
+        <span><i class="lg" style="background:#8b5cf6;height:3px;border-radius:0"></i>κ-caseína</span>
+        <span><i class="lg" style="background:#d946ef;width:10px;height:4px;border-radius:2px"></i>GMP (al suero)</span>
+        <span><i class="lg" style="background:#f59e0b"></i>Ca²⁺ asociado / puente</span>
+        <span><i class="lg" style="background:#22c55e"></i>Ca²⁺ soluble</span>
+        <span><i class="lg" style="background:#d61f5c"></i>Quimosina (cuajo)</span>
+        <span><i class="lg" style="background:#f6dc8c"></i>Glóbulo de grasa</span>
+        <span><i class="lg" style="background:#7dd3fc"></i>Suero expulsado</span>
+      </div>
+      <div class="timeline">
+        <div class="tl-head"><b>Línea de tiempo: arrastra para avanzar o regresar</b><span class="clock" id="clock">t = 0.0 min</span></div>
+        <canvas id="tl" width="760" height="186"></canvas>
+        <input type="range" class="scrub" id="scrub" min="0" max="60" step="0.25" value="0">
+        <div class="ctrls">
+          <button class="btn btn-primary" id="play">▶ Reproducir</button>
+          <div class="seg" id="speed" style="min-width:200px"><button data-v="1">1 s = 1 min</button><button data-v="2" class="on">1 s = 2 min</button><button data-v="4">1 s = 4 min</button></div>
+          <button class="btn btn-ghost" id="restart">↺ Volver a t = 0</button>
+          <button class="btn btn-accent" id="cut">🔪 Cortar el gel</button>
+        </div>
+      </div>
     </div>
 
-    <div class="canvas-wrapper" id="canvas-container">
-        <canvas id="simCanvas" width="800" height="420"></canvas>
+    <div class="col">
+      <div class="card zoom">
+        <h3>🔍 Lupa: superficie de la micela</h3>
+        <div class="hint">Haz clic en cualquier micela para examinarla.</div>
+        <canvas id="zm" width="320" height="270"></canvas>
+      </div>
+      <div class="card">
+        <h3>🥛 Lo que verías a simple vista</h3>
+        <div class="macro">
+          <div><canvas id="bk" width="150" height="170"></canvas><button class="btn btn-ghost" id="tilt" style="width:100%;margin-top:6px;padding:7px;font-size:12.5px">↗ Inclinar el vaso</button></div>
+          <div class="ro">
+            <div><div class="k">κ-caseína hidrolizada</div><div class="v" id="r-h">0 %</div><div class="bar"><i id="b-h" style="background:#8b5cf6"></i></div></div>
+            <div><div class="k">Micelas unidas a la red</div><div class="v" id="r-a">0 %</div><div class="bar"><i id="b-a" style="background:#f59e0b"></i></div></div>
+            <div><div class="k">Consistencia</div><div id="r-s"></div></div>
+            <div id="ro-w" style="display:none"><div class="k">Suero expulsado</div><div class="v" id="r-w">0 %</div><div class="bar"><i id="b-w" style="background:#7dd3fc"></i></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card exp">
+        <h3>🧪 Experimentos «¿Qué pasa si…?»</h3>
+        <div class="presets" id="presets">
+          <button class="chip on" data-p="normal">Condición normal</button>
+          <button class="chip" data-p="frio">❄️ Cuajo en frío</button>
+          <button class="chip" data-p="sinca">🚫 Sin Ca²⁺</button>
+          <button class="chip" data-p="caliente">🔥 60 °C</button>
+          <button class="chip" data-p="sincuajo">Sin cuajo</button>
+        </div>
+        <label>Cuajo</label>
+        <div class="seg" data-k="rennet"><button data-v="0">Sin cuajo</button><button data-v="1" class="on">Con cuajo</button></div>
+        <label>Temperatura de la leche</label>
+        <div class="seg" data-k="T"><button data-v="10">10 °C</button><button data-v="32" class="on">32 °C</button><button data-v="60">60 °C</button></div>
+        <label>Calcio disponible</label>
+        <div class="seg" data-k="ca"><button data-v="none">Retirado</button><button data-v="normal" class="on">Normal</button><button data-v="extra">+ CaCl₂</button></div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+          <button class="btn btn-event" id="evCa" style="display:none">➕ Añadir Ca²⁺ ahora</button>
+          <button class="btn btn-event" id="evWarm" style="display:none">🌡️ Calentar a 32 °C ahora</button>
+        </div>
+        <div class="exp-note" id="expNote"></div>
+      </div>
     </div>
+  </div>
 
-    <div class="legend">
-        <div class="legend-item"><span class="dot" style="background: #f8fafc; border: 2px solid #94a3b8;"></span> Micela de Caseína</div>
-        <div class="legend-item"><span class="dot" style="background: #ef4444; height:3px; border-radius:0;"></span> Kappa-caseína (Carga - )</div>
-        <div class="legend-item"><span class="dot" style="background: #8b5cf6;"></span> Enzima Quimosina (Cuajo)</div>
-        <div class="legend-item"><span class="dot" style="background: #3b82f6;"></span> Iones de Calcio (Ca²⁺)</div>
-    </div>
+  <div class="bottom">
+    <div class="box"><h3 id="stTitle"></h3><div id="stBody"></div><div class="book" id="stBook"></div></div>
+    <div class="box quiz"><h3>✅ Comprueba lo que entendiste <span class="score" id="score"></span></h3><div id="quiz"></div></div>
+  </div>
 
-    <div class="info-panel">
-        <h3 id="phase-title">Fase 1: Leche Fresca (Suspensión Coloidal Estable)</h3>
-        <p id="phase-desc">
-            En la leche fresca, las proteínas principales llamadas <strong>micelas de caseína</strong> flotan libremente. Están recubiertas por "pelos" de <strong>kappa-caseína</strong> que tienen carga eléctrica negativa (-). Como cargas iguales se repelen, las micelas rebotan entre sí sin unirse, manteniendo la leche líquida.
-        </p>
-    </div>
+  <details class="teacher">
+    <summary>👩‍🏫 Notas para el docente</summary>
+    <ul>
+      <li><b>Uso sugerido (15–20 min):</b> recorrer las 6 etapas con la condición normal y responder la pregunta de cada una; después, los experimentos «Cuajo en frío» y «Sin Ca²⁺» para separar la fase enzimática de la fase de agregación (Figura 14, p. 16).</li>
+      <li><b>Experimentos clásicos:</b> a 10 °C la quimosina sigue hidrolizando κ-caseína, pero las micelas casi no se agregan; al calentar, coagulan de inmediato. Sin Ca²⁺ ocurre algo parecido: las micelas quedan desestabilizadas pero no forman red hasta que se añade calcio. A 60 °C la enzima se desnaturaliza (Figura 15, p. 17).</li>
+      <li><b>Ajustes respecto a la versión anterior:</b> (1) la estabilidad de la micela se explica por repulsión estérica además de la carga negativa, como en la Figura 13; (2) la quimosina corta un enlace específico (Phe105–Met106) y libera el GMP al suero; (3) los colores del calcio coinciden con el CECYBOOK (naranja asociado, verde soluble); (4) la cuajada es una red que ocupa todo el volumen y no se «hunde»: el suero queda atrapado hasta que se corta el gel (Idea clave, p. 14); (5) la coagulación avanza de forma progresiva en el tiempo.</li>
+      <li><b>Simplificaciones:</b> esquema no a escala; la cinética es un modelo didáctico con tendencias tomadas de Fox et al. (2017) y Gregersen y Lucey (2016). Los tiempos son orientativos.</li>
+    </ul>
+  </details>
+  <footer>Recurso didáctico complementario · CECYBOOK Semana 14 · 7.3 Proceso para la obtención de quesos.</footer>
 </div>
 
 <script>
-const canvas = document.getElementById('simCanvas');
-const ctx = canvas.getContext('2d');
-const container = document.getElementById('canvas-container');
+/* ===================== Utilidades ===================== */
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const sig=x=>1/(1+Math.exp(-x));
+const fmt=(v,d=1)=>Number(v).toFixed(d);
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+let rnd=mulberry32(7);
 
-let currentPhase = 1;
-let micelles = [];
-let enzymes = [];
-let calciums = [];
-let cutHairs = [];
+const W=760,H=430, TMAX=60, DTM=1/60;   // 1 paso = 1 s de animación = 1/60 min simulado
+const CUT_G=30, GAP_X=W/2;
 
-const NUM_MICELLES = 22;
-const NUM_ENZYMES = 8;
-const NUM_CALCIUM = 35;
-
-class Micelle {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.vx = (Math.random() - 0.5) * 2.5;
-        this.vy = (Math.random() - 0.5) * 2.5;
-        this.radius = 22;
-        this.hairs = 12; // Pelos de kappa-caseína intactos
-        this.locked = false;
-    }
-
-    update() {
-        if (currentPhase === 3 && this.hairs <= 3) {
-            // Fase 3: Atracción para formar la red de cuajada en el centro/abajo
-            const targetX = canvas.width / 2 + (this.x - canvas.width / 2) * 0.98;
-            const targetY = canvas.height * 0.62;
-            this.vx += (targetX - this.x) * 0.002;
-            this.vy += (targetY - this.y) * 0.004;
-            this.vx *= 0.92;
-            this.vy *= 0.92;
-        }
-
-        this.x += this.vx;
-        this.y += this.vy;
-
-        // Rebote en bordes
-        if (this.x - this.radius < 0) { this.x = this.radius; this.vx *= -1; }
-        if (this.x + this.radius > canvas.width) { this.x = canvas.width - this.radius; this.vx *= -1; }
-        if (this.y - this.radius < 0) { this.y = this.radius; this.vy *= -1; }
-        if (this.y + this.radius > canvas.height) { this.y = canvas.height - this.radius; this.vy *= -1; }
-    }
-
-    draw() {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-
-        // Dibujar pelos de kappa-caseína si aún tiene
-        if (this.hairs > 0) {
-            ctx.strokeStyle = '#ef4444';
-            ctx.lineWidth = 2;
-            for (let i = 0; i < this.hairs; i++) {
-                let angle = (i * 2 * Math.PI) / 12;
-                let hx1 = Math.cos(angle) * this.radius;
-                let hy1 = Math.sin(angle) * this.radius;
-                let hx2 = Math.cos(angle) * (this.radius + 9);
-                let hy2 = Math.sin(angle) * (this.radius + 9);
-                
-                ctx.beginPath();
-                ctx.moveTo(hx1, hy1);
-                ctx.quadraticCurveTo(hx1 + 3, hy1 - 3, hx2, hy2);
-                ctx.stroke();
-
-                // Signo negativo de repulsión en Fase 1
-                if (currentPhase === 1 && i % 3 === 0) {
-                    ctx.fillStyle = '#dc2626';
-                    ctx.font = 'bold 11px Arial';
-                    ctx.fillText('-', hx2 - 3, hy2 + 3);
-                }
-            }
-        }
-
-        // Cuerpo de la micela de caseína
-        let grad = ctx.createRadialGradient(-5, -5, 4, 0, 0, this.radius);
-        grad.addColorStop(0, '#ffffff');
-        grad.addColorStop(1, '#e2e8f0');
-        
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = grad;
-        ctx.fill();
-        ctx.strokeStyle = '#94a3b8';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Textura interna de submicelas
-        ctx.fillStyle = '#cbd5e1';
-        for (let a = 0; a < 5; a++) {
-            let rx = Math.cos(a * 1.3) * 10;
-            let ry = Math.sin(a * 1.3) * 10;
-            ctx.beginPath();
-            ctx.arc(rx, ry, 4, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        ctx.restore();
-    }
+/* ===================== Condiciones y eventos ===================== */
+const C={rennet:1,T:32,ca:'normal'};
+let EV=[];  // {t,type:'ca'|'warm'|'cut'}
+function condAt(t){
+  let T=C.T, ca=C.ca, cut=null;
+  EV.forEach(e=>{ if(e.t<=t+1e-9){ if(e.type==='ca') ca='normal'; if(e.type==='warm') T=32; if(e.type==='cut') cut=e.t; }});
+  return {T,ca,rennet:C.rennet,cut};
 }
-
-class Enzyme {
-    constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 4.5;
-        this.vy = (Math.random() - 0.5) * 4.5;
-    }
-
-    update() {
-        this.x += this.vx;
-        this.y += this.vy;
-
-        if (this.x < 10 || this.x > canvas.width - 10) this.vx *= -1;
-        if (this.y < 10 || this.y > canvas.height - 10) this.vy *= -1;
-
-        // Cortar kappa-caseína al tocar una micela
-        micelles.forEach(m => {
-            let dx = m.x - this.x;
-            let dy = m.y - this.y;
-            let dist = Math.hypot(dx, dy);
-            if (dist < m.radius + 14 && m.hairs > 0) {
-                m.hairs = Math.max(0, m.hairs - 1);
-                cutHairs.push({ x: m.x + (Math.random()-0.5)*30, y: m.y + (Math.random()-0.5)*30, vy: -0.6, alpha: 1 });
-            }
-        });
-    }
-
-    draw() {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        // Forma de "Pac-Man" (Enzima Quimosina)
-        ctx.fillStyle = '#8b5cf6';
-        ctx.beginPath();
-        ctx.arc(0, 0, 10, 0.25 * Math.PI, 1.75 * Math.PI);
-        ctx.lineTo(0, 0);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-    }
+function rates(c){
+  const inact=1/(1+Math.exp((c.T-50)/2));
+  const ke=c.rennet?0.19*Math.pow(1.6,(c.T-32)/10)*inact:0;
+  const fCa=c.ca==='none'?0.004:(c.ca==='extra'?1.15:1);
+  const ka=0.018*Math.pow(3,(c.T-32)/10)*sig((c.T-18)/1.5)*fCa;
+  const fT=c.T<30?Math.max(0.2,1-0.03*(30-c.T)):(c.T<=37?1:Math.exp(-Math.pow((c.T-37)/8,2)));
+  const Gmax=100*fT*(c.ca==='extra'?1.05:1);
+  return {ke,ka,Gmax,inact};
 }
-
-function initSim() {
-    micelles = [];
-    enzymes = [];
-    calciums = [];
-    cutHairs = [];
-
-    for (let i = 0; i < NUM_MICELLES; i++) {
-        micelles.push(new Micelle(
-            60 + Math.random() * (canvas.width - 120),
-            60 + Math.random() * (canvas.height - 120)
-        ));
-    }
-
-    for (let i = 0; i < NUM_CALCIUM; i++) {
-        calciums.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            vx: (Math.random() - 0.5) * 1.5,
-            vy: (Math.random() - 0.5) * 1.5
-        });
-    }
+/* variables macroscópicas: h (hidrólisis), x (avance de agregación), G (firmeza), pr (tiempo "preparado") */
+function newMacro(){return {h:0,x:0,G:0,pr:0,kaEff:0,syn:0};}
+function integrate(M,t){
+  const c=condAt(t), r=rates(c);
+  M.h+=r.ke*(1-M.h)*DTM;
+  if(M.h>0.85 && r.ka<0.003) M.pr+=DTM;
+  M.kaEff=0;
+  if(M.h>0.8){
+    const boost=(1+2*clamp((M.h-0.85)/0.15,0,1))*(1+3*Math.min(1,M.pr/10));
+    M.kaEff=r.ka*boost*clamp((M.h-0.8)/0.2,0,1);
+    M.x+=M.kaEff*(1-M.x)*DTM;
+  }
+  M.G=r.Gmax*Math.pow(M.x,1.5);
+  if(c.cut!==null) M.syn=1-Math.exp(-(t-c.cut)/7);
+  return {c,r};
 }
-
-function handleCollisions() {
-    for (let i = 0; i < micelles.length; i++) {
-        for (let j = i + 1; j < micelles.length; j++) {
-            let m1 = micelles[i];
-            let m2 = micelles[j];
-            let dx = m2.x - m1.x;
-            let dy = m2.y - m1.y;
-            let dist = Math.hypot(dx, dy);
-            let minDist = (currentPhase === 1) ? m1.radius + m2.radius + 16 : m1.radius + m2.radius + 2;
-
-            if (dist < minDist && dist > 0) {
-                let angle = Math.atan2(dy, dx);
-                if (currentPhase < 3) {
-                    // Se repelen elásticamente
-                    let force = 0.8;
-                    m1.vx -= Math.cos(angle) * force;
-                    m1.vy -= Math.sin(angle) * force;
-                    m2.vx += Math.cos(angle) * force;
-                    m2.vy += Math.sin(angle) * force;
-                } else {
-                    // En Fase 3 se agrupan formando puentes de calcio (coágulo)
-                    let overlap = minDist - dist;
-                    m1.x -= Math.cos(angle) * overlap * 0.5;
-                    m1.y -= Math.sin(angle) * overlap * 0.5;
-                    m2.x += Math.cos(angle) * overlap * 0.5;
-                    m2.y += Math.sin(angle) * overlap * 0.5;
-                    
-                    // Dibujar enlace de Calcio entre micelas cercanas
-                    ctx.strokeStyle = '#3b82f6';
-                    ctx.lineWidth = 4;
-                    ctx.beginPath();
-                    ctx.moveTo(m1.x, m1.y);
-                    ctx.lineTo(m2.x, m2.y);
-                    ctx.stroke();
-                }
-            } else if (currentPhase === 3 && dist < 95) {
-                // Red de gel (puentes entre micelas cercanas)
-                ctx.strokeStyle = 'rgba(245, 158, 11, 0.45)';
-                ctx.lineWidth = 6;
-                ctx.beginPath();
-                ctx.moveTo(m1.x, m1.y);
-                ctx.lineTo(m2.x, m2.y);
-                ctx.stroke();
-            }
-        }
-    }
+/* curva prevista para la gráfica */
+let PREV=[];
+function computePreview(){
+  const M=newMacro(); PREV=[{t:0,h:0,G:0}];
+  for(let i=1;i<=TMAX*60;i++){ integrate(M,(i-1)*DTM); if(i%15===0) PREV.push({t:i*DTM,h:M.h,G:M.G}); }
 }
+function previewTimeTo(G){ const p=PREV.find(q=>q.G>=G); return p?p.t:null; }
 
-function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Iones de calcio flotando
-    calciums.forEach(c => {
-        c.x += c.vx;
-        c.y += c.vy;
-        if (c.x < 0 || c.x > canvas.width) c.vx *= -1;
-        if (c.y < 0 || c.y > canvas.height) c.vy *= -1;
-
-        ctx.fillStyle = '#3b82f6';
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, 3.5, 0, Math.PI * 2);
-        ctx.fill();
+/* ===================== Simulación de partículas ===================== */
+let SIM;
+function resetSim(){
+  rnd=mulberry32(7);
+  const S={t:0,M:newMacro(),mic:[],bonds:[],bset:new Set(),gmp:[],enz:[],sol:[],fat:[],drops:[],hist:[],cutDone:false,lastC:null,lastR:null};
+  for(let i=0;i<24;i++){
+    const r=15+rnd()*7, n=14, hairs=[];
+    for(let k=0;k<n;k++) hairs.push({a:k*2*Math.PI/n+rnd()*0.2,thr:0.02+rnd()*0.96,cut:false});
+    let x,y,tries=0;
+    do{x=40+rnd()*(W-80); y=50+rnd()*(H-90); tries++;}while(tries<80 && S.mic.some(m=>Math.hypot(m.x-x,m.y-y)<m.r+r+24));
+    S.mic.push({x,y,vx:0,vy:0,r,hairs,nb:0,rot:rnd()*6,free:false,cutFrac:0});
+  }
+  for(let i=0;i<4;i++) S.fat.push({x:60+rnd()*(W-120),y:70+rnd()*(H-130),r:20+rnd()*10,vx:0,vy:0});
+  for(let i=0;i<7;i++) S.enz.push({x:rnd()*W,y:rnd()*H,vx:0,vy:0,tg:null,m:0});
+  SIM=S; syncSol(condAt(0));
+}
+function syncSol(c){
+  const target=c.ca==='none'?0:(c.ca==='extra'?28:15);
+  while(SIM.sol.length<target) SIM.sol.push({x:rnd()*W,y:rnd()*H,vx:(rnd()-.5)*30,vy:(rnd()-.5)*30});
+  while(SIM.sol.length>target) SIM.sol.pop();
+}
+function doCut(){
+  const keep=[]; SIM.bset=new Set(); SIM.mic.forEach(m=>m.nb=0);
+  SIM.bonds.forEach(b=>{ const a=SIM.mic[b.i], c=SIM.mic[b.j]; if((a.x-GAP_X)*(c.x-GAP_X)>0){ keep.push(b); SIM.bset.add(b.i*100+b.j); a.nb++; c.nb++; } });
+  SIM.bonds=keep; SIM.cutDone=true;
+}
+function step(){
+  const S=SIM, dt=DTM; // dt en "segundos de animación" = 1/60
+  const {c,r}=integrate(S.M,S.t); S.t+=DTM; S.lastC=c; S.lastR=r;
+  const M=S.M;
+  if(c.cut!==null && !S.cutDone && S.t>=c.cut) doCut();
+  syncSol(c);
+  const coldF=clamp(c.T/32,0.45,1.5);
+  const amp=45*coldF*(1-Math.min(0.94,M.G/45));
+  // pelos de κ-caseína
+  S.mic.forEach(m=>{
+    let n=0;
+    m.hairs.forEach(hh=>{
+      if(!hh.cut && M.h>hh.thr){ hh.cut=true; const a=hh.a+m.rot; if(S.gmp.length<220) S.gmp.push({x:m.x+Math.cos(a)*(m.r+8),y:m.y+Math.sin(a)*(m.r+8),vx:Math.cos(a)*25,vy:Math.sin(a)*25,life:1,a}); }
+      if(hh.cut) n++;
     });
-
-    // Restos de kappa-caseína cortados flotando en el suero
-    cutHairs.forEach((h, index) => {
-        h.y += h.vy;
-        h.alpha -= 0.003;
-        ctx.strokeStyle = `rgba(239, 68, 68, ${Math.max(0, h.alpha)})`;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(h.x, h.y);
-        ctx.lineTo(h.x + 6, h.y - 5);
-        ctx.stroke();
-    });
-
-    handleCollisions();
-
-    micelles.forEach(m => {
-        m.update();
-        m.draw();
-    });
-
-    if (currentPhase >= 2) {
-        enzymes.forEach(e => {
-            e.update();
-            e.draw();
-        });
+    m.cutFrac=n/m.hairs.length; m.free=m.cutFrac>0.72;
+    m.vx+=(rnd()-.5)*amp*dt*6; m.vy+=(rnd()-.5)*amp*dt*6;
+  });
+  const bondP=1-Math.exp(-M.kaEff*30*DTM);
+  const mic=S.mic;
+  for(let i=0;i<mic.length;i++){ const a=mic[i];
+    for(let j=i+1;j<mic.length;j++){ const b=mic[j];
+      const dx=b.x-a.x, dy=b.y-a.y, d=Math.hypot(dx,dy)||0.01;
+      const steric=!(a.free&&b.free);
+      const minD=a.r+b.r+(steric?16:2);
+      if(d<minD){ const p=(minD-d)*(steric?4:8)*dt*10; a.vx-=dx/d*p; a.vy-=dy/d*p; b.vx+=dx/d*p; b.vy+=dy/d*p; }
+      if(!steric && M.kaEff>0.002 && !S.cutDone){
+        if(d<120){ const at=M.kaEff*90*(1-d/120)*dt; a.vx+=dx/d*at; a.vy+=dy/d*at; b.vx-=dx/d*at; b.vy-=dy/d*at; }
+        const key=i*100+j;
+        if(d<a.r+b.r+22 && a.nb<3 && b.nb<3 && !S.bset.has(key) && rnd()<bondP){ S.bonds.push({i,j}); S.bset.add(key); a.nb++; b.nb++; }
+      }
     }
-
-    requestAnimationFrame(animate);
+  }
+  const shrink = S.cutDone ? 1-0.25*M.syn : 1;
+  S.bonds.forEach(bd=>{ const a=mic[bd.i], b=mic[bd.j]; const dx=b.x-a.x, dy=b.y-a.y, d=Math.hypot(dx,dy)||0.01; const rest=(a.r+b.r+5)*shrink; const f=(d-rest)*6*dt; a.vx+=dx/d*f; a.vy+=dy/d*f; b.vx-=dx/d*f; b.vy-=dy/d*f; });
+  const gapW = 8+26*M.syn;
+  mic.forEach(m=>{
+    if(S.cutDone){ const dxg=m.x-GAP_X; if(Math.abs(dxg)<m.r+gapW){ m.vx+=Math.sign(dxg||1)*40*dt; } }
+    const damp=m.nb>0?(1-5*dt):(1-1.6*dt); m.vx*=damp; m.vy*=damp;
+    const sp=Math.hypot(m.vx,m.vy); if(sp>35){m.vx*=35/sp;m.vy*=35/sp;}
+    m.x+=m.vx*dt; m.y+=m.vy*dt;
+    const pad=m.r+12;
+    if(m.x<pad){m.x=pad;m.vx=Math.abs(m.vx);} if(m.x>W-pad){m.x=W-pad;m.vx=-Math.abs(m.vx);}
+    if(m.y<pad+10){m.y=pad+10;m.vy=Math.abs(m.vy);} if(m.y>H-pad){m.y=H-pad;m.vy=-Math.abs(m.vy);}
+  });
+  // GMP
+  S.gmp.forEach(g=>{ g.x+=g.vx*dt; g.y+=g.vy*dt; g.vx*=0.985; g.vy*=0.985; g.vx+=(rnd()-.5)*20*dt; g.vy+=(rnd()-.5)*20*dt; g.life-=dt*0.18; });
+  S.gmp=S.gmp.filter(g=>g.life>0);
+  // quimosina
+  if(c.rennet){
+    const act=clamp(r.inact,0,1);
+    S.enz.forEach(e=>{
+      if(!e.tg || rnd()<0.006){ const cand=mic.filter(m=>m.cutFrac<1); e.tg=cand.length?cand[Math.floor(rnd()*cand.length)]:mic[Math.floor(rnd()*mic.length)]; }
+      const dx=e.tg.x-e.x, dy=e.tg.y-e.y, d=Math.hypot(dx,dy)||1, v=(20+55*act)*coldF;
+      e.vx+=(dx/d*v-e.vx)*dt*1.5+(rnd()-.5)*30*dt; e.vy+=(dy/d*v-e.vy)*dt*1.5+(rnd()-.5)*30*dt;
+      if(d<e.tg.r+10 && rnd()<0.03) e.tg=null;
+      e.x=clamp(e.x+e.vx*dt,8,W-8); e.y=clamp(e.y+e.vy*dt,8,H-8); e.m+=dt*10*act;
+    });
+  }
+  // Ca soluble y grasa
+  S.sol.forEach(q=>{ q.vx=clamp(q.vx+(rnd()-.5)*60*dt,-30,30); q.vy=clamp(q.vy+(rnd()-.5)*60*dt,-30,30); q.x+=q.vx*dt; q.y+=q.vy*dt; if(q.x<4||q.x>W-4)q.vx*=-1; if(q.y<4||q.y>H-4)q.vy*=-1; q.x=clamp(q.x,4,W-4); q.y=clamp(q.y,4,H-4); });
+  S.fat.forEach(f=>{ f.vx+=(rnd()-.5)*amp*dt*2; f.vy+=(rnd()-.5)*amp*dt*2; f.vx*=1-1.5*dt; f.vy*=1-1.5*dt; f.x=clamp(f.x+f.vx*dt,f.r,W-f.r); f.y=clamp(f.y+f.vy*dt,f.r+10,H-f.r); });
+  // gotas de suero (sinéresis tras el corte)
+  if(S.cutDone && S.t-c.cut<30 && S.drops.length<160){
+    const bonded=mic.filter(m=>m.nb>0);
+    if(bonded.length && rnd()<0.5*(1-M.syn+0.15)){ const m=bonded[Math.floor(rnd()*bonded.length)]; S.drops.push({x:m.x+(rnd()-.5)*m.r,y:m.y+(rnd()-.5)*m.r,vx:Math.sign(GAP_X-m.x)*(20+rnd()*20),vy:(rnd()-.3)*10,in:false}); }
+  }
+  S.drops.forEach(d=>{ if(Math.abs(d.x-GAP_X)<gapW*0.8){ d.in=true; d.vx*=0.9; d.vy=18; } d.x+=d.vx*dt; d.y+=d.vy*dt; if(d.y>H-6){d.y=H-6; d.vy=0;} });
+  // historial
+  if(Math.round(S.t*60)%15===0){ const agg=mic.filter(m=>m.nb>0).length/mic.length; S.hist.push({t:S.t,a:agg}); }
+}
+function seek(t){
+  t=clamp(t,0,TMAX); resetSim();
+  const n=Math.round(t*60); for(let i=0;i<n;i++) step();
+  zoomSync=true; // la lupa no reanima cortes pasados
 }
 
-function setPhase(phase) {
-    currentPhase = phase;
-    document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
-    document.getElementById(`btn-phase${phase}`).classList.add('active');
+/* ===================== Dibujo: vista principal ===================== */
+const cv=$('#cv'), ctx=cv.getContext('2d');
+const tl=$('#tl'), tctx=tl.getContext('2d');
+const zm=$('#zm'), zctx=zm.getContext('2d');
+const bk=$('#bk'), bctx=bk.getContext('2d');
+function hiDPI(c,k,w,h){ const d=Math.min(2,window.devicePixelRatio||1); c.width=w*d; c.height=h*d; k.setTransform(d,0,0,d,0,0); }
+hiDPI(cv,ctx,W,H); hiDPI(tl,tctx,760,186); hiDPI(zm,zctx,320,270); hiDPI(bk,bctx,150,170);
+let SEL=0;
 
-    const title = document.getElementById('phase-title');
-    const desc = document.getElementById('phase-desc');
+function drawMain(){
+  const S=SIM, M=S.M, c=S.lastC||condAt(0), r=S.lastR||rates(c);
+  const gel=Math.min(1,M.G/60);
+  const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#fffef8'); g.addColorStop(1,gel>0?`rgb(${251-6*gel},${245-10*gel},${228-22*gel})`:'#fbf5e4');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  if(S.cutDone){ const gw=8+26*M.syn; ctx.fillStyle='rgba(214,226,160,.75)'; ctx.fillRect(GAP_X-gw,0,gw*2,H); ctx.strokeStyle='rgba(150,165,90,.6)'; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.moveTo(GAP_X,0); ctx.lineTo(GAP_X,H); ctx.stroke(); ctx.setLineDash([]); }
+  S.fat.forEach(f=>{ const rg=ctx.createRadialGradient(f.x-f.r*.3,f.y-f.r*.3,2,f.x,f.y,f.r); rg.addColorStop(0,'#fffbe6'); rg.addColorStop(1,'#f6dc8c'); ctx.globalAlpha=.85; ctx.fillStyle=rg; ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,7); ctx.fill(); ctx.globalAlpha=1; ctx.strokeStyle='#e7c766'; ctx.lineWidth=1.2; ctx.stroke(); });
+  ctx.fillStyle='#22c55e'; S.sol.forEach(q=>{ctx.beginPath(); ctx.arc(q.x,q.y,3.2,0,7); ctx.fill();});
+  S.bonds.forEach(bd=>{ const a=S.mic[bd.i], b=S.mic[bd.j]; ctx.strokeStyle='rgba(245,158,11,.85)'; ctx.lineWidth=2+Math.min(4,M.G/25); ctx.setLineDash([5,3]); ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); ctx.setLineDash([]); const mx=(a.x+b.x)/2,my=(a.y+b.y)/2; ctx.fillStyle='#f59e0b'; ctx.strokeStyle='#b45309'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(mx,my,4,0,7); ctx.fill(); ctx.stroke(); });
+  const caBound=c.ca==='none'&&!EV.some(e=>e.type==='ca'&&e.t<=S.t)?2:4;
+  S.mic.forEach((m,idx)=>{
+    m.hairs.forEach(hh=>{ if(hh.cut) return; const a=hh.a+m.rot, x1=m.x+Math.cos(a)*m.r, y1=m.y+Math.sin(a)*m.r, x2=m.x+Math.cos(a)*(m.r+9), y2=m.y+Math.sin(a)*(m.r+9); ctx.strokeStyle='#8b5cf6'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.fillStyle='#7c3aed'; ctx.beginPath(); ctx.arc(x2,y2,1.8,0,7); ctx.fill(); });
+    const rg=ctx.createRadialGradient(m.x-m.r*.35,m.y-m.r*.35,2,m.x,m.y,m.r); rg.addColorStop(0,'#a9c8ff'); rg.addColorStop(1,'#2f63c9');
+    ctx.fillStyle=rg; ctx.beginPath(); ctx.arc(m.x,m.y,m.r,0,7); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.2)'; for(let k=0;k<5;k++){const a=k*1.256+m.rot; ctx.beginPath(); ctx.arc(m.x+Math.cos(a)*m.r*.45,m.y+Math.sin(a)*m.r*.45,m.r*.3,0,7); ctx.fill();}
+    ctx.fillStyle='#f59e0b'; for(let k=0;k<caBound;k++){const a=k*(6.283/caBound)+m.rot+0.6; ctx.beginPath(); ctx.arc(m.x+Math.cos(a)*m.r*.6,m.y+Math.sin(a)*m.r*.6,2.6,0,7); ctx.fill();}
+    if(idx===SEL){ ctx.strokeStyle='#12306b'; ctx.lineWidth=2; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.arc(m.x,m.y,m.r+15,0,7); ctx.stroke(); ctx.setLineDash([]); ctx.font='14px sans-serif'; ctx.fillText('🔍',m.x+m.r+8,m.y-m.r-6); }
+  });
+  S.gmp.forEach(gm=>{ ctx.globalAlpha=clamp(gm.life*1.5,0,1); ctx.strokeStyle='#d946ef'; ctx.lineWidth=2; const cs=Math.cos(gm.a), sn=Math.sin(gm.a); ctx.beginPath(); ctx.moveTo(gm.x,gm.y); ctx.lineTo(gm.x+cs*4-sn*3,gm.y+sn*4+cs*3); ctx.lineTo(gm.x+cs*8+sn*3,gm.y+sn*8-cs*3); ctx.lineTo(gm.x+cs*12,gm.y+sn*12); ctx.stroke(); ctx.globalAlpha=1; });
+  if(c.rennet){ const inactive=r.inact<0.3; S.enz.forEach(e=>{ const mouth=0.15+0.2*Math.abs(Math.sin(e.m)); ctx.save(); ctx.translate(e.x,e.y); ctx.rotate(Math.atan2(e.vy,e.vx)); ctx.fillStyle=inactive?'#9ca3af':'#d61f5c'; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,8,mouth*Math.PI,(2-mouth)*Math.PI); ctx.closePath(); ctx.fill(); ctx.restore(); }); }
+  ctx.fillStyle='#7dd3fc'; S.drops.forEach(d=>{ctx.beginPath(); ctx.arc(d.x,d.y,2.6,0,7); ctx.fill();});
+  // rótulo
+  ctx.fillStyle='rgba(255,255,255,.88)'; ctx.fillRect(6,6,520,40);
+  ctx.fillStyle='#12306b'; ctx.font='600 12px Segoe UI, system-ui, sans-serif'; ctx.fillText('Vista microscópica esquemática (no a escala) · '+condLabel(c),12,21);
+  ctx.fillStyle='#475569'; ctx.font='12px Segoe UI, system-ui, sans-serif'; ctx.fillText(stageNote(),12,38);
+}
+function condLabel(c){ return `${c.rennet?'con cuajo':'sin cuajo'} · ${c.T} °C · Ca²⁺ ${c.ca==='none'?'retirado':c.ca==='extra'?'+ CaCl₂':'normal'}`; }
 
-    if (phase === 1) {
-        container.style.background = '#fffbeb'; // Blanco leche
-        title.innerText = 'Fase 1: Leche Fresca (Suspensión Coloidal Estable)';
-        desc.innerHTML = 'En la leche fresca, las <strong>micelas de caseína</strong> flotan libremente. Están recubiertas por "pelos" de <strong>kappa-caseína</strong> con carga eléctrica negativa (-). Como cargas iguales se repelen, las micelas rebotan sin unirse.';
-    } 
-    else if (phase === 2) {
-        container.style.background = '#fef9c3';
-        if (enzymes.length === 0) {
-            for (let i = 0; i < NUM_ENZYMES; i++) enzymes.push(new Enzyme());
-        }
-        title.innerText = 'Fase 2: Adición del Cuajo (Fase Enzimática)';
-        desc.innerHTML = 'Al agregar el cuajo, la enzima <strong>quimosina</strong> (puntos morados) actúa como unas tijeras microscópicas: corta los pelos de <strong>kappa-caseína</strong>. Al perder esta capa protectora, las micelas pierden su repulsión eléctrica.';
-    } 
-    else if (phase === 3) {
-        container.style.background = '#ecfccb'; // Verde/amarillo claro del suero
-        // Asegurar que las micelas hayan perdido sus pelos para coagular
-        micelles.forEach(m => m.hairs = 0);
-        title.innerText = 'Fase 3: Coagulación y Sinéresis (Formación de la Cuajada)';
-        desc.innerHTML = 'Sin la kappa-caseína, las micelas desnudas (<em>para-caseína</em>) se unen entre sí mediante <strong>puentes de calcio (Ca²⁺)</strong>. Forman una red tridimensional sólida (la <strong>cuajada</strong>, futuro queso) mientras expulsan la parte líquida amarillenta verdosa (el <strong>suero de leche</strong>).';
+/* ===================== Lupa ===================== */
+let zoomCutTimes=[], zoomPrev=[false,false,false], lastSel=-1, zoomSync=true;
+function drawZoom(now){
+  const k=zctx, w=320, h=270, m=SIM.mic[SEL], c=SIM.lastC||condAt(0), r=SIM.lastR||rates(c);
+  k.clearRect(0,0,w,h); const bg=k.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#fffef8'); bg.addColorStop(1,'#fbf5e4'); k.fillStyle=bg; k.fillRect(0,0,w,h);
+  if(SEL!==lastSel || zoomSync){ zoomPrev=[0,1,2].map(i=>m.cutFrac>(i+1)/3.6); zoomCutTimes=[]; lastSel=SEL; zoomSync=false; }
+  // superficie de la micela
+  const cx=160, cy=560, R=360;
+  const sg=k.createRadialGradient(cx-80,cy-260,20,cx,cy,R); sg.addColorStop(0,'#a9c8ff'); sg.addColorStop(1,'#2f63c9');
+  k.fillStyle=sg; k.beginPath(); k.arc(cx,cy,R,0,7); k.fill();
+  k.fillStyle='#f59e0b'; [[40,226],[115,214],[200,214],[280,224]].forEach(p=>{k.beginPath(); k.arc(p[0],p[1],4,0,7); k.fill();});
+  const surfY=x=>cy-Math.sqrt(R*R-(x-cx)*(x-cx));
+  const frac=m.cutFrac, xs=[70,150,230];
+  xs.forEach((x0,i)=>{
+    const cut=frac>(i+1)/3.6;
+    if(cut && !zoomPrev[i]) zoomCutTimes[i]=now;
+    zoomPrev[i]=cut;
+    const y0=surfY(x0);
+    // para-κ-caseína (1–105)
+    let px=x0, py=y0;
+    for(let b=0;b<4;b++){ py=y0-8-b*11; px=x0+Math.sin(b*1.3+i)*3; k.fillStyle='#6d5bd0'; k.beginPath(); k.arc(px,py,5.5,0,7); k.fill(); }
+    const sx=px, sy=py-8;
+    // GMP (106–169)
+    const el=cut&&zoomCutTimes[i]?(now-zoomCutTimes[i])/1000:(cut?99:0);
+    if(!cut || el<3){
+      const off=cut?el*28:0, al=cut?clamp(1-el/3,0,1):1;
+      k.globalAlpha=al;
+      for(let b=0;b<5;b++){ const gx=sx+Math.sin(b*1.1+i+now/600)*5+(cut?off*0.3:0), gy=sy-8-b*11-off; k.fillStyle='#d946ef'; k.beginPath(); k.arc(gx,gy,5.5,0,7); k.fill(); if(b%2===1){ k.fillStyle='#fff'; k.font='bold 10px sans-serif'; k.fillText('−',gx-3,gy+3.5);} }
+      k.globalAlpha=1;
     }
+    if(!cut){ k.fillStyle='#dc2626'; k.save(); k.translate(sx,sy); k.rotate(Math.PI/4); k.fillRect(-3,-3,6,6); k.restore(); }
+  });
+  // quimosina acercándose al siguiente sitio
+  const next=[0,1,2].find(i=>!zoomPrev[i]);
+  if(c.rennet && next!==undefined && SIM.t>0){
+    const x0=xs[next], y0=surfY(x0)-52, inactive=r.inact<0.3;
+    const bob=Math.sin(now/300)*4, mouth=0.12+0.18*Math.abs(Math.sin(now/180));
+    k.save(); k.translate(x0+24,y0+bob); k.rotate(Math.PI); k.fillStyle=inactive?'#9ca3af':'#d61f5c'; k.beginPath(); k.moveTo(0,0); k.arc(0,0,14,mouth*Math.PI,(2-mouth)*Math.PI); k.closePath(); k.fill(); k.restore();
+    k.fillStyle=inactive?'#64748b':'#9d174d'; k.font='600 10.5px Segoe UI, system-ui, sans-serif'; k.fillText(inactive?'● Quimosina inactiva (desnaturalizada)':'● Quimosina buscando el siguiente enlace',8,62);
+  }
+  // puente de calcio si la micela está en la red
+  if(m.nb>0){ k.fillStyle='rgba(47,99,201,.85)'; k.beginPath(); k.arc(382,130,80,0,7); k.fill(); k.strokeStyle='#f59e0b'; k.setLineDash([4,3]); k.lineWidth=2.5; k.beginPath(); k.moveTo(272,150); k.lineTo(304,140); k.stroke(); k.setLineDash([]); k.fillStyle='#f59e0b'; k.beginPath(); k.arc(288,145,6,0,7); k.fill(); k.fillStyle='#92400e'; k.font='700 10px sans-serif'; k.fillText('Ca²⁺ puente',258,128); }
+  // etiquetas
+  k.font='600 10.5px Segoe UI, system-ui, sans-serif';
+  k.fillStyle='#a21caf'; k.fillText('GMP (106–169): hidrofílico, carga −',8,16);
+  k.fillStyle='#475569'; k.fillText('→ se libera al suero',8,29);
+  k.fillStyle='#fff'; k.fillText('Micela · para-κ-caseína (1–105) queda unida',8,240);
+  k.fillStyle='#dc2626'; k.fillText('◆ enlace Phe105–Met106',8,46);
+  const cutN=zoomPrev.filter(Boolean).length;
+  k.fillStyle='#fff'; k.font='700 11px Segoe UI, system-ui, sans-serif'; k.fillText(`Esta micela: ${Math.round(m.cutFrac*100)} % de κ-caseína cortada · ${m.nb} puente(s)`,8,h-12);
 }
 
-function resetSim() {
-    initSim();
-    setPhase(1);
+/* ===================== Vaso ===================== */
+let tiltStart=null;
+function drawBeaker(now){
+  const k=bctx, w=150, h=170, M=SIM.M; k.clearRect(0,0,w,h); k.fillStyle='#fff'; k.fillRect(0,0,w,h);
+  let ang=0; if(tiltStart){ const e=(now-tiltStart)/1000; if(e>3.2) tiltStart=null; else ang=-0.55*Math.sin(Math.min(1,e/3.2)*Math.PI); }
+  const bx=88, by=156, bw=64, bh=100, G=M.G, cut=SIM.cutDone, gel=G>=10;
+  const outline=()=>{ k.beginPath(); k.moveTo(-bw/2,-bh); k.lineTo(-bw/2+4,0); k.lineTo(bw/2-4,0); k.lineTo(bw/2,-bh); };
+  const milk=gel?'#fbf4de':'#fdf9ee';
+  k.save(); k.translate(bx,by); k.rotate(ang); outline(); k.closePath(); k.clip();
+  if(cut){
+    k.fillStyle='#e3e9b0'; k.fillRect(-bw,-bh*0.7,bw*2,bh);
+    k.fillStyle='#fffaf0'; k.strokeStyle='#e3d6b5'; k.lineWidth=1;
+    const s=9*(1-0.25*M.syn);
+    for(let gx=-bw/2+6;gx<bw/2-8;gx+=11) for(let gy=-4;gy>-bh*0.7+6+M.syn*24;gy-=11){ k.fillRect(gx,gy-s,s,s); k.strokeRect(gx,gy-s,s,s); }
+  } else if(gel){
+    k.fillStyle=milk; k.fillRect(-bw,-bh*0.7,bw*2,bh);
+    k.strokeStyle='rgba(200,185,140,.7)'; k.beginPath(); k.moveTo(-bw/2,-bh*0.7); k.lineTo(bw/2,-bh*0.7); k.stroke();
+  } else {
+    // líquido: la superficie se mantiene horizontal (más rígida cuanto más viscosa)
+    const visc=clamp(G/10,0,1);
+    k.rotate(-ang); k.translate(0,-bh*0.7*Math.cos(ang)); k.rotate(ang*visc);
+    k.fillStyle=milk; k.fillRect(-160,0,320,220);
+  }
+  k.restore();
+  k.save(); k.translate(bx,by); k.rotate(ang); outline(); k.strokeStyle='#94a3b8'; k.lineWidth=2.5; k.stroke(); k.restore();
+  k.fillStyle='#475569'; k.font='600 11px Segoe UI, system-ui, sans-serif';
+  k.fillText(cut?'Granos en suero':G>=CUT_G?'Gel firme':G>=10?'Gel débil':G>=1?'Más viscosa':'Líquida',8,16);
+  if(tiltStart){ k.fillStyle='#64748b'; k.font='10.5px Segoe UI, system-ui, sans-serif'; k.fillText(gel||cut?'No fluye: es un gel':'Fluye: sigue líquida',8,30); }
 }
 
-initSim();
-animate();
+/* ===================== Línea de tiempo ===================== */
+function drawTimeline(){
+  const k=tctx, w=760, h=186, x0=46, x1=w-50, y0=h-40, y1=12;
+  const X=t=>x0+t/TMAX*(x1-x0), YG=g=>y0-Math.min(g,110)/110*(y0-y1), Y1=v=>y0-v*(y0-y1);
+  k.clearRect(0,0,w,h); k.fillStyle='#fff'; k.fillRect(0,0,w,h);
+  k.font='11px Segoe UI, system-ui, sans-serif';
+  // bandas de fase según la previsión
+  const tH=(PREV.find(p=>p.h>=0.85)||{}).t, tC=previewTimeTo(CUT_G);
+  const bands=[[0,tH??TMAX,'rgba(139,92,246,.08)','Fase enzimática'],[tH??TMAX,tC??TMAX,'rgba(245,158,11,.10)','Agregación y gelificación'],[tC??TMAX,TMAX,'rgba(22,163,74,.08)','Fortalecimiento del gel']];
+  bands.forEach(b=>{ if(b[1]>b[0]){ k.fillStyle=b[2]; k.fillRect(X(b[0]),y1,X(b[1])-X(b[0]),y0-y1); if(X(b[1])-X(b[0])>95){k.fillStyle='#64748b'; k.fillText(b[3],X(b[0])+5,y1+12);} } });
+  k.strokeStyle='#eef2f7'; for(let t=0;t<=60;t+=10){ k.beginPath(); k.moveTo(X(t),y1); k.lineTo(X(t),y0); k.stroke(); k.fillStyle='#64748b'; k.fillText(t+' min',X(t)-12,y0+15); }
+  k.fillStyle='#12306b'; [0,50,100].forEach(g=>k.fillText(g,x0-22,YG(g)+4));
+  k.fillStyle='#7c3aed'; [0,.5,1].forEach(v=>k.fillText(Math.round(v*100)+'%',x1+6,Y1(v)+4));
+  k.strokeStyle='#94a3b8'; k.beginPath(); k.moveTo(x0,y1); k.lineTo(x0,y0); k.lineTo(x1,y0); k.lineTo(x1,y1); k.stroke();
+  // previsión
+  const now=SIM.t;
+  const line=(key,col,Y,dash,wd)=>{ k.strokeStyle=col; k.lineWidth=wd; k.setLineDash(dash);
+    k.globalAlpha=1; k.beginPath(); PREV.filter(p=>p.t<=now+0.01).forEach((p,i)=>i?k.lineTo(X(p.t),Y(p[key])):k.moveTo(X(p.t),Y(p[key]))); k.stroke();
+    k.globalAlpha=.22; k.beginPath(); PREV.filter(p=>p.t>=now-0.3).forEach((p,i)=>i?k.lineTo(X(p.t),Y(p[key])):k.moveTo(X(p.t),Y(p[key]))); k.stroke();
+    k.globalAlpha=1; k.setLineDash([]); };
+  line('h','#8b5cf6',Y1,[6,4],2);
+  line('G','#12306b',YG,[],3);
+  // micelas en red (de la simulación)
+  k.strokeStyle='#f59e0b'; k.lineWidth=2; k.beginPath(); SIM.hist.forEach((p,i)=>i?k.lineTo(X(p.t),Y1(p.a)):k.moveTo(X(p.t),Y1(p.a))); k.stroke();
+  // eventos
+  EV.forEach(e=>{ k.strokeStyle=e.type==='cut'?'#d61f5c':'#ea580c'; k.lineWidth=1.5; k.setLineDash([3,3]); k.beginPath(); k.moveTo(X(e.t),y1); k.lineTo(X(e.t),y0); k.stroke(); k.setLineDash([]); k.fillStyle=k.strokeStyle; k.font='600 11px Segoe UI, system-ui, sans-serif'; k.fillText(e.type==='cut'?'Corte':e.type==='ca'?'+Ca²⁺':'Calentar',X(e.t)+3,y0-6); });
+  // cursor
+  k.strokeStyle='#0f1b33'; k.lineWidth=2; k.beginPath(); k.moveTo(X(now),y1); k.lineTo(X(now),y0); k.stroke();
+  // leyenda
+  k.font='11px Segoe UI, system-ui, sans-serif';
+  const lg=[['#8b5cf6','κ-caseína hidrolizada (%)'],['#f59e0b','Micelas en la red (%)'],['#12306b','Firmeza (Pa)']];
+  let lx=x1-470; lg.forEach(l=>{ k.fillStyle=l[0]; k.fillRect(lx,h-10,14,3); k.fillStyle='#475569'; k.fillText(l[1],lx+18,h-6); lx+=165; });
+}
+
+/* ===================== Etapas y textos ===================== */
+const STAGES=[
+  {n:1,t:'Leche fluida',s:'antes del cuajo',seek:0},
+  {n:2,t:'Acción del cuajo',s:'hidrólisis de κ-caseína',seek:4},
+  {n:3,t:'Micelas desestabilizadas',s:'pierden la repulsión',seek:11},
+  {n:4,t:'Agregación',s:'puentes de Ca²⁺',seek:18},
+  {n:5,t:'Cuajada',s:'red tridimensional',seek:32},
+  {n:6,t:'Corte y sinéresis',s:'sale el suero',seek:null}
+];
+function currentStage(){
+  const S=SIM, M=S.M, c=S.lastC||condAt(0);
+  if(S.cutDone) return 6;
+  if(!c.rennet || S.t<0.3) return 1;
+  if(M.h<0.85) return 2;
+  if(M.G<1) return 3;
+  if(M.G<CUT_G) return 4;
+  return 5;
+}
+function stageNote(){
+  const st=currentStage(), M=SIM.M, c=SIM.lastC||condAt(0), r=SIM.lastR||rates(c);
+  if(c.rennet && r.inact<0.3) return '60 °C: la quimosina se desnaturalizó y casi no corta κ-caseína';
+  return ['', c.rennet?'Micelas estables: la capa de κ-caseína las mantiene separadas':'Sin cuajo, las micelas permanecen estables',
+    `La quimosina corta la κ-caseína y libera GMP: ${Math.round(M.h*100)} % hidrolizado`,
+    M.h>=0.85 && M.kaEff<0.003 ? (c.ca==='none'?'Desestabilizadas, pero sin Ca²⁺ no forman puentes':'Desestabilizadas, pero a baja temperatura casi no se agregan') : 'Micelas sin capa protectora: pueden acercarse entre sí',
+    'El Ca²⁺ une micelas desestabilizadas: crece la red','Red continua que atrapa agua y grasa: la cuajada',
+    'Al cortar, la red se contrae y expulsa suero (sinéresis)'][st];
+}
+let lastStage=0;
+function stageText(st){
+  const c=SIM.lastC||condAt(0), r=SIM.lastR||rates(c), M=SIM.M;
+  const T={
+    1:['Etapa 1 · Leche fluida','<p>Las <b>micelas de caseína</b> están formadas por submicelas de α<sub>s1</sub>-, α<sub>s2</sub>- y β-caseína unidas por <b>fosfato de calcio coloidal</b> (puntos naranjas). En su superficie, la <b>κ-caseína</b> forma una capa «pilosa» hidrofílica con carga negativa: las micelas se mantienen separadas por <b>repulsión estérica</b> y electrostática.</p><p>El calcio se reparte entre la micela (asociado) y la fase soluble (puntos verdes).</p>','Figura 1 (p. 3), Figura 10 (p. 11) y Figura 12, recuadro «Detalle de una micela» (p. 13).'],
+    2:['Etapa 2 · Acción del cuajo','<p>La <b>quimosina</b> hidroliza un enlace muy específico de la κ-caseína, <b>Phe105–Met106</b>. La parte <b>para-κ-caseína</b> (1–105) queda en la micela y el <b>glicomacropéptido (GMP)</b> (106–169) se libera al suero. Usa la lupa para verlo.</p><p>A simple vista la leche sigue líquida, aunque molecularmente ya cambió mucho: compara el % hidrolizado con el vaso.</p>','Figura 13 (p. 14) y Figura 14, fase enzimática (p. 16).'],
+    3:['Etapa 3 · Micelas desestabilizadas','<p>Al perder el GMP, la micela pierde su capa estabilizadora: disminuye la repulsión estérica y la carga negativa. Las micelas ya pueden acercarse.</p><p>La agregación empieza cuando se ha hidrolizado alrededor del <b>85 %</b> de la κ-caseína.</p>'+(M.h>=0.85&&M.kaEff<0.003?`<p>⚠️ <b>Observa:</b> la κ-caseína ya está casi toda hidrolizada, pero ${c.ca==='none'?'sin Ca²⁺':'a 10 °C'} las micelas no forman red. Esto demuestra que la coagulación tiene <b>dos fases distintas</b>. Prueba el botón ${c.ca==='none'?'«Añadir Ca²⁺ ahora»':'«Calentar a 32 °C ahora»'}.</p>`:''),'Figura 13, paso 3 (p. 14) y Tabla 3 (p. 15).'],
+    4:['Etapa 4 · Agregación de micelas','<p>Las micelas desestabilizadas chocan y se unen mediante <b>puentes de Ca²⁺</b> (líneas naranjas). La red crece rápidamente y la leche aumenta su viscosidad.</p><p>La temperatura y el calcio controlan sobre todo esta fase: por eso se adiciona CaCl₂ a la leche pasteurizada.</p>','Figura 11 (p. 12), Figura 14, agregación (p. 16) y Figura 15 (p. 17).'],
+    5:['Etapa 5 · Formación de la cuajada','<p>Se forma una <b>red tridimensional continua</b> de caseína que ocupa todo el volumen y atrapa agua, grasa y otros sólidos. La red sigue fortaleciéndose con el tiempo.</p><p>El suero <b>todavía está atrapado</b>: no sale solo. Cuando la firmeza sea suficiente, usa «Cortar el gel».</p>','Figura 12, paso 5 (p. 13), Idea clave (p. 14) y Figura 16 (p. 18).'],
+    6:['Etapa 6 · Corte y sinéresis','<p>Al cortar, se abren superficies nuevas. La red de caseína se <b>contrae</b> (los puentes se acortan) y expulsa el <b>lactosuero</b> (gotas azules) hacia la zona de corte: eso es la <b>sinéresis</b>.</p><p>En el vaso, la cuajada se convierte en granos que flotan en suero amarillo-verdoso.</p>','Figuras 19–21 (pp. 21–23).']
+  }[st];
+  let extra='';
+  if(c.rennet && r.inact<0.3) extra='<p>🔥 <b>A 60 °C</b> la quimosina se desnaturaliza (gris): la leche no coagula. Compara con la Figura 15.</p>';
+  if(!c.rennet && st===1) extra='<p>Sin cuajo no hay hidrólisis de κ-caseína: puedes esperar los 60 min y la leche seguirá líquida.</p>';
+  $('#stTitle').textContent=T[0]; $('#stBody').innerHTML=T[1]+extra; $('#stBook').innerHTML='📘 <b>En tu CECYBOOK:</b> '+T[2];
+}
+function renderStages(){
+  const cur=currentStage();
+  $('#stages').innerHTML=STAGES.map(s=>`<button class="stg ${s.n===cur?'on':''} ${s.n<cur?'done':''}" data-n="${s.n}"><span class="n">${s.n}</span><b>${s.t}</b><small>${s.s}</small></button>`).join('');
+}
+$('#stages').addEventListener('click',e=>{
+  const b=e.target.closest('.stg'); if(!b) return; const n=+b.dataset.n, s=STAGES[n-1];
+  pause();
+  if(n===6){
+    let ce=EV.find(x=>x.type==='cut');
+    if(!ce){ const tc=previewTimeTo(CUT_G); if(tc===null){ flash('El gel nunca alcanza firmeza de corte con estas condiciones.'); return; } addEvent({t:Math.max(SIM.t,Math.ceil(tc)),type:'cut'}); ce=EV.find(x=>x.type==='cut'); }
+    goto(Math.min(TMAX,ce.t+10));
+  } else {
+    if(EV.some(x=>x.type==='cut' && x.t<=s.seek)) EV=EV.filter(x=>x.type!=='cut'), computePreview();
+    goto(s.seek);
+  }
+  showQuiz(n);
+});
+
+/* ===================== Preguntas ===================== */
+const QUIZ={
+  1:{q:'En la leche fresca, ¿qué mantiene separadas a las micelas de caseína?',o:['Los puentes de calcio entre micelas','La capa de κ-caseína en su superficie','Los glóbulos de grasa','El GMP disuelto en el suero'],a:1,e:'La κ-caseína forma una capa hidrofílica y cargada en la superficie que produce repulsión estérica y electrostática.'},
+  2:{q:'¿Qué hace exactamente la quimosina?',o:['Disuelve el fosfato de calcio de la micela','Une las micelas entre sí','Corta el enlace Phe105–Met106 de la κ-caseína','Acidifica la leche hasta pH 4.6'],a:2,e:'La quimosina es muy específica: hidroliza el enlace Phe105–Met106 y libera el GMP al suero.'},
+  3:{q:'A los 5 minutos de añadir el cuajo la leche se ve líquida. ¿Qué significa?',o:['Que el cuajo no está funcionando','Que la hidrólisis avanza, pero aún no empieza la agregación','Que hay que agitar la leche','Que la leche ya está lista para cortar'],a:1,e:'La agregación comienza cuando se ha hidrolizado cerca del 85 % de la κ-caseína; antes, el cambio es molecular y no se ve.'},
+  4:{q:'Si retiras el Ca²⁺ de la leche y añades cuajo, ¿qué esperas?',o:['No se hidroliza la κ-caseína','Se hidroliza la κ-caseína, pero las micelas casi no se agregan','Se forma una cuajada más firme','La leche coagula instantáneamente'],a:1,e:'El calcio no es necesario para la fase enzimática, pero sí para los puentes de la fase de agregación. Compruébalo con el experimento «Sin Ca²⁺».'},
+  5:{q:'Ya se formó la cuajada. ¿Qué pasa con el lactosuero?',o:['Sale solo y queda la cuajada en el fondo','Sigue atrapado en la red hasta que se corta y ocurre la sinéresis','Se evapora','Se convierte en caseína'],a:1,e:'La red ocupa todo el volumen y retiene el suero; se expulsa después, con el corte y la sinéresis (Idea clave, p. 14).'},
+  6:{q:'¿Por qué el corte favorece la salida del suero?',o:['Porque disuelve la caseína','Porque abre superficies nuevas y la red se contrae (sinéresis)','Porque agrega más cuajo','Porque baja la temperatura'],a:1,e:'El corte aumenta la superficie de los granos; la red se contrae y el suero encuentra vías para salir.'}
+};
+const answered={};
+let quizStage=1;
+function showQuiz(n){
+  quizStage=n; const Q=QUIZ[n], A=answered[n];
+  $('#quiz').innerHTML=`<p style="margin:0 0 4px"><b>Etapa ${n}.</b> ${Q.q}</p>`+Q.o.map((o,i)=>`<button class="opt ${A!==undefined?(i===Q.a?'right':(i===A?'wrong':'')):''}" data-i="${i}" ${A!==undefined?'disabled':''}>${String.fromCharCode(65+i)}) ${o}</button>`).join('')+(A!==undefined?`<div class="fb">${A===Q.a?'✅ <b>¡Correcto!</b> ':'❌ <b>No exactamente.</b> '}${Q.e}</div>`:'');
+  const ok=Object.keys(answered).filter(k=>answered[k]===QUIZ[k].a).length;
+  $('#score').textContent=`· ${ok}/6 correctas`;
+}
+$('#quiz').addEventListener('click',e=>{ const b=e.target.closest('.opt'); if(!b||b.disabled) return; answered[quizStage]=+b.dataset.i; showQuiz(quizStage); });
+
+/* ===================== Controles ===================== */
+let playing=false, speed=2;
+function pause(){ playing=false; $('#play').textContent='▶ Reproducir'; }
+function goto(t){ seek(t); $('#scrub').value=SIM.t; refreshUI(true); }
+$('#play').addEventListener('click',()=>{ if(SIM.t>=TMAX-0.01) goto(0); playing=!playing; $('#play').textContent=playing?'⏸ Pausa':'▶ Reproducir'; });
+$('#restart').addEventListener('click',()=>{ pause(); goto(0); });
+$('#speed').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; speed=+b.dataset.v; $$('#speed button').forEach(x=>x.classList.toggle('on',x===b)); });
+let scrubPending=null;
+$('#scrub').addEventListener('input',e=>{ pause(); scrubPending=parseFloat(e.target.value); });
+$('#cut').addEventListener('click',()=>{
+  if(EV.some(x=>x.type==='cut')){ flash('El gel ya fue cortado. Regresa en la línea de tiempo o usa «Volver a t = 0».'); return; }
+  if(SIM.M.G<CUT_G){ flash(SIM.M.G<1?'Todavía no hay gel que cortar.':'El gel aún es débil: si lo cortas ahora se fragmentaría en finos. Espera a la etapa 5.'); return; }
+  addEvent({t:SIM.t,type:'cut'}); goto(SIM.t+1/60); playing=true; $('#play').textContent='⏸ Pausa';
+});
+$('#evCa').addEventListener('click',()=>{ addEvent({t:SIM.t,type:'ca'}); goto(SIM.t+1/60); playing=true; $('#play').textContent='⏸ Pausa'; });
+$('#evWarm').addEventListener('click',()=>{ addEvent({t:SIM.t,type:'warm'}); goto(SIM.t+1/60); playing=true; $('#play').textContent='⏸ Pausa'; });
+function addEvent(e){ EV=EV.filter(x=>!(x.type===e.type)); EV.push(e); EV.sort((a,b)=>a.t-b.t); computePreview(); }
+function flash(msg){ const n=$('#expNote'); n.innerHTML='⚠️ '+msg; n.style.borderColor='#fdba74'; setTimeout(()=>{n.style.borderColor=''; expNote();},3500); }
+
+/* condiciones */
+$$('.seg[data-k]').forEach(seg=>seg.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return; const k=seg.dataset.k, v=b.dataset.v;
+  C[k]= k==='ca'?v:+v; setConditions();
+  $$('#presets .chip').forEach(x=>x.classList.remove('on'));
+}));
+const PRESETS={
+  normal:{rennet:1,T:32,ca:'normal',note:'Condición de referencia: leche pasteurizada a 32 °C con cuajo y calcio normal.'},
+  frio:{rennet:1,T:10,ca:'normal',note:'<b>Cuajo en frío.</b> Reproduce hasta ~30 min: la κ-caseína se hidroliza casi por completo, pero no se forma gel. Después pulsa «Calentar a 32 °C ahora» y observa la coagulación rápida.'},
+  sinca:{rennet:1,T:32,ca:'none',note:'<b>Sin Ca²⁺ (quelante).</b> La quimosina trabaja igual, pero sin calcio las micelas no forman puentes. Cuando estén desestabilizadas, pulsa «Añadir Ca²⁺ ahora».'},
+  caliente:{rennet:1,T:60,ca:'normal',note:'<b>60 °C.</b> La quimosina se desnaturaliza: casi no hay hidrólisis y la leche no coagula (Figura 15, p. 17).'},
+  sincuajo:{rennet:0,T:32,ca:'normal',note:'<b>Control sin cuajo.</b> Las micelas siguen estables durante los 60 min.'}
+};
+let presetNote=PRESETS.normal.note;
+$('#presets').addEventListener('click',e=>{
+  const b=e.target.closest('.chip'); if(!b) return; const P=PRESETS[b.dataset.p];
+  Object.assign(C,{rennet:P.rennet,T:P.T,ca:P.ca}); presetNote=P.note;
+  $$('#presets .chip').forEach(x=>x.classList.toggle('on',x===b));
+  $$('.seg[data-k]').forEach(seg=>seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.v==String(C[seg.dataset.k]))));
+  EV=[]; computePreview(); goto(0); expNote(); playing=true; $('#play').textContent='⏸ Pausa';
+});
+function setConditions(){
+  $$('.seg[data-k]').forEach(seg=>seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.v==String(C[seg.dataset.k]))));
+  presetNote='Condición personalizada. La simulación se recalcula hasta el minuto actual con las nuevas condiciones.';
+  EV=[]; computePreview(); goto(SIM.t); expNote();
+}
+function expNote(){ $('#expNote').innerHTML=presetNote; }
+
+/* ===================== Interfaz ===================== */
+cv.addEventListener('click',e=>{
+  const rc=cv.getBoundingClientRect(), x=(e.clientX-rc.left)*W/rc.width, y=(e.clientY-rc.top)*H/rc.height;
+  let best=-1, bd=1e9; SIM.mic.forEach((m,i)=>{ const d=Math.hypot(m.x-x,m.y-y); if(d<m.r+14 && d<bd){bd=d; best=i;} });
+  if(best>=0) SEL=best;
+});
+$('#tilt').addEventListener('click',()=>{ tiltStart=performance.now(); });
+function state(G){
+  if(SIM.cutDone) return ['Cuajada cortada','#e0f2fe','#075985'];
+  if(G<1) return ['Líquida','#e2e8f0','#334155'];
+  if(G<10) return ['Viscosa','#e0e7ff','#3730a3'];
+  if(G<CUT_G) return ['Gel débil','#fee2e2','#991b1b'];
+  return ['Gel firme (cortable)','#dcfce7','#166534'];
+}
+function refreshUI(force){
+  const M=SIM.M, agg=SIM.mic.filter(m=>m.nb>0).length/SIM.mic.length;
+  $('#clock').textContent=`t = ${fmt(SIM.t)} min`;
+  $('#r-h').textContent=Math.round(M.h*100)+' %'; $('#b-h').style.width=M.h*100+'%';
+  $('#r-a').textContent=Math.round(agg*100)+' %'; $('#b-a').style.width=agg*100+'%';
+  const s=state(M.G); $('#r-s').innerHTML=`<span class="pill" style="background:${s[1]};color:${s[2]}">${s[0]}</span>`;
+  $('#ro-w').style.display=SIM.cutDone?'':'none'; $('#r-w').textContent=Math.round(M.syn*100)+' %'; $('#b-w').style.width=M.syn*100+'%';
+  const c=SIM.lastC||condAt(0);
+  $('#evCa').style.display=(C.ca==='none' && !EV.some(e=>e.type==='ca'))?'':'none';
+  $('#evWarm').style.display=(C.T===10 && !EV.some(e=>e.type==='warm'))?'':'none';
+  $('#cut').disabled=EV.some(e=>e.type==='cut');
+  const st=currentStage();
+  if(st!==lastStage || force){ lastStage=st; renderStages(); stageText(st); if(force!=='keepQuiz') showQuiz(st); }
+  if(!document.activeElement || document.activeElement.id!=='scrub') $('#scrub').value=SIM.t;
+}
+
+/* ===================== Bucle ===================== */
+let frame=0;
+function loop(now){
+  requestAnimationFrame(loop);
+  try{
+    frame++;
+    if(scrubPending!==null){ seek(scrubPending); scrubPending=null; refreshUI(true); }
+    if(playing){ for(let i=0;i<speed;i++){ if(SIM.t>=TMAX-1e-9){ pause(); break; } step(); } }
+    drawMain(); drawZoom(now); drawBeaker(now);
+    if(frame%2===0) drawTimeline();
+    if(frame%4===0) refreshUI(false);
+  }catch(err){ console.error(err); }
+}
+computePreview(); resetSim(); expNote(); refreshUI(true);
+requestAnimationFrame(loop);
 </script>
-
 </body>
 </html>

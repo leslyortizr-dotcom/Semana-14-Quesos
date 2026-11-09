@@ -1,624 +1,536 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador: Corte de Cuajada y Sinéresis</title>
-    <style>
-        :root {
-            --bg: #f1f5f9;
-            --card: #ffffff;
-            --text: #1e293b;
-            --primary: #d97706;
-            --whey: #ecfccb;
-        }
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        .app-container {
-            max-width: 1020px;
-            width: 100%;
-            background: var(--card);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
-        h1 {
-            text-align: center;
-            margin: 0 0 6px 0;
-            color: #92400e;
-            font-size: 24px;
-        }
-        .subtitle {
-            text-align: center;
-            color: #64748b;
-            margin-bottom: 18px;
-            font-size: 14px;
-        }
-        .recipes-bar {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-        }
-        .btn {
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 13.5px;
-            transition: all 0.2s;
-        }
-        .btn-soft { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-        .btn-semi { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
-        .btn-hard { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-        .btn-reset { background: #e2e8f0; color: #334155; }
-        .btn:hover { transform: translateY(-1px); filter: brightness(0.96); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corte y Sinéresis · Semana 14</title>
+<style>
+:root{
+  --navy:#12306b; --navy-2:#1d4196; --ink:#0f1b33; --text:#22304a; --muted:#64748b;
+  --bg:#eef2f8; --card:#ffffff; --line:#dbe3ef; --soft:#f6f8fc;
+  --orange:#f05a28; --magenta:#d61f5c; --ok:#16a34a; --warn:#d97706; --bad:#dc2626;
+  --A:#1d4ed8; --B:#ea580c;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--text);padding:18px;line-height:1.45}
+.app{max-width:1200px;margin:0 auto;background:var(--card);border-radius:18px;box-shadow:0 12px 34px rgba(15,27,51,.10);overflow:hidden}
+.topbar{height:6px;background:linear-gradient(90deg,var(--orange),var(--magenta))}
+header{padding:16px 24px 6px}
+.back{display:inline-flex;align-items:center;gap:6px;background:#334155;color:#f8fafc;text-decoration:none;padding:8px 14px;border-radius:8px;font-weight:600;font-size:13px;border:1px solid #475569;margin-bottom:12px}
+.back:hover{background:#1e293b}
+.title-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+h1{margin:0;color:var(--navy);font-size:26px;letter-spacing:-.3px}
+.subtitle{color:var(--muted);font-size:14px;margin-top:2px}
+.week-tag{background:var(--navy);color:#fff;font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;white-space:nowrap}
+.week-tag b{color:#ffb38f}
+.presets{padding:12px 24px 4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.presets .lbl{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-right:4px}
+.chip{border:1.5px solid var(--line);background:#fff;color:var(--text);padding:7px 12px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.chip:hover{border-color:var(--navy-2)}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.chip:disabled{opacity:.5;cursor:not-allowed}
+.question{margin:8px 24px 0;padding:10px 14px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;font-size:14px}
+.question b{color:#9a3412}
 
-        .dashboard {
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 20px;
-        }
-        @media (max-width: 800px) {
-            .dashboard { grid-template-columns: 1fr; }
-        }
-        .controls-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .control-group label {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 6px;
-        }
-        .cut-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-        }
-        .cut-btn {
-            padding: 8px 4px;
-            border: 2px solid #cbd5e1;
-            background: white;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-        }
-        .cut-btn.active {
-            border-color: #d97706;
-            background: #fffbeb;
-            color: #b45309;
-        }
-        .action-btn {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            background: #0284c7;
-            color: white;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .action-btn:hover { background: #0369a1; }
-        .action-btn:disabled { background: #94a3b8; cursor: not-allowed; }
-
-        input[type="range"] { width: 100%; cursor: pointer; }
-        .scale-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #64748b;
-            margin-top: 2px;
-        }
-        .metrics {
-            background: white;
-            border-radius: 8px;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            font-size: 13px;
-        }
-        .metric-row { margin-bottom: 12px; }
-        .metric-row:last-child { margin-bottom: 0; }
-        .progress-bg {
-            height: 10px;
-            background: #e2e8f0;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 4px;
-        }
-        .progress-fill { height: 100%; transition: width 0.2s; }
-
-        .canvas-area {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .canvas-wrapper {
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 3px solid #cbd5e1;
-            background: #ecfccb; /* Color del suero verde-amarillento */
-        }
-        canvas {
-            display: block;
-            width: 100%;
-            height: 390px;
-        }
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            justify-content: center;
-            font-size: 12px;
-            background: #f8fafc;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-        .legend-item { display: flex; align-items: center; gap: 6px; }
-        .box-icon { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
-
-        .info-panel {
-            margin-top: 16px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        @media (max-width: 650px) {
-            .info-panel { grid-template-columns: 1fr; }
-        }
-        .info-box {
-            padding: 15px;
-            border-radius: 10px;
-            background: #f8fafc;
-            border-left: 5px solid #d97706;
-            font-size: 14px;
-            line-height: 1.45;
-        }
-        .info-box h3 { margin: 0 0 6px 0; font-size: 16px; color: #92400e; }
-    </style>
+.main{display:grid;grid-template-columns:330px 1fr;gap:18px;padding:12px 24px 16px}
+@media (max-width:980px){.main{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.card{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.card h3{margin:0 0 6px;font-size:14.5px;color:var(--navy)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.tab{border:2px solid var(--line);background:#fff;border-radius:10px;padding:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;color:var(--muted)}
+.tab.A.on{border-color:var(--A);color:var(--A);background:#eff6ff}
+.tab.B.on{border-color:var(--B);color:var(--B);background:#fff7ed}
+.ctl{margin-bottom:11px}
+.ctl label{display:flex;justify-content:space-between;align-items:baseline;font-weight:600;font-size:13px;margin-bottom:4px;gap:8px}
+.ctl label .val{font-weight:800;font-size:14px;white-space:nowrap}
+.ctl input[type=range]{width:100%;cursor:pointer}
+.ctl .sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+.ctl .lock{font-size:11px;color:#9a3412;font-weight:600}
+.scale{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted)}
+.seg{display:flex;background:#e6ecf5;border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:transparent;padding:6px 3px;border-radius:8px;font-weight:600;font-size:12px;color:#475569;cursor:pointer;line-height:1.2;font-family:inherit}
+.seg button.on{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.seg button:disabled{opacity:.45;cursor:not-allowed}
+.btn{border:0;border-radius:10px;padding:10px 13px;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s;font-family:inherit}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--navy);color:#fff}.btn-primary:hover:not(:disabled){background:var(--navy-2)}
+.btn-accent{background:linear-gradient(90deg,var(--orange),var(--magenta));color:#fff}
+.btn-ghost{background:#fff;border:1.5px solid var(--line);color:var(--text)}.btn-ghost:hover:not(:disabled){border-color:var(--navy-2)}
+.btn-A{background:#fff;border:2px solid var(--A);color:var(--A)} .btn-B{background:#fff;border:2px solid var(--B);color:var(--B)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pred{font-size:13px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.pred label{margin-right:10px;cursor:pointer}
+.canvas-box{border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#f4f7fb}
+canvas{display:block;width:100%;height:auto}
+.board{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.score{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 11px;font-size:12.5px}
+.score.A{border-top:4px solid var(--A)} .score.B{border-top:4px solid var(--B)}
+.score .h{font-weight:800;font-size:13.5px;margin-bottom:4px}
+.score.A .h{color:var(--A)} .score.B .h{color:var(--B)}
+.kv{display:flex;justify-content:space-between;gap:6px;padding:2px 0;border-bottom:1px dashed #edf1f7}
+.kv:last-child{border:0}
+.kv b{color:var(--ink)}
+.flag{font-size:11.5px;font-weight:700;margin-top:4px}
+.chart-box{border:1px solid var(--line);border-radius:14px;background:#fff;padding:8px}
+.chart-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;padding:0 4px 4px}
+.chart-head b{font-size:13.5px;color:var(--navy)}
+.clock{font-weight:700;color:var(--navy);font-size:14px;background:#eef3ff;padding:5px 12px;border-radius:999px}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.stat div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:11.5px;color:var(--muted)}
+.stat b{display:block;font-size:15px;color:var(--ink)}
+.bottom{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;padding:0 24px 18px}
+@media (max-width:940px){.bottom{grid-template-columns:1fr}}
+.box{padding:14px 16px;border-radius:12px;background:var(--soft);border-left:5px solid var(--navy);font-size:14px}
+.box h3{margin:0 0 6px;font-size:15.5px;color:var(--navy)}
+.box p{margin:6px 0}
+.box.book{border-left-color:var(--orange)} .box.book h3{color:#c2410c}
+table{border-collapse:collapse;width:100%;font-size:13px;margin-top:6px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+th{background:#eef2f8;color:var(--navy)}
+td.A{color:var(--A);font-weight:700} td.B{color:var(--B);font-weight:700}
+details.teacher{margin:0 24px 22px;border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:#fbfcfe;font-size:13.5px}
+details.teacher summary{cursor:pointer;font-weight:700;color:var(--navy)}
+details.teacher li{margin:3px 0}
+footer{padding:0 24px 18px;font-size:11.5px;color:var(--muted)}
+</style>
 </head>
 <body>
+<div class="app">
+  <div class="topbar"></div>
+  <header>
+    <a class="back" href="index.html">⬅ Volver al Menú Principal</a>
+    <div class="title-row">
+      <div>
+        <h1>🔪 Corte de la Cuajada y Sinéresis: Equipo A vs. Equipo B</h1>
+        <div class="subtitle">Dos equipos reciben la misma cuajada en punto de corte. Cada uno decide grano, reposo, agitación y cocción. ¿Quién expulsa más suero, quién pierde más sólidos y por qué?</div>
+      </div>
+      <div class="week-tag">Semana 14 · <b>Figuras 18–21 del CECYBOOK</b></div>
+    </div>
+  </header>
 
-<div class="app-container">
-    <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; background: #334155; color: #f8fafc; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; border: 1px solid #475569; margin-bottom: 14px; transition: 0.2s;">⬅ Volver al Menú Principal</a>
-    <h1>🔪 Simulador: Corte de la Cuajada y Sinéresis</h1>
-    <div class="subtitle">Descubre cómo el tamaño del corte con la lira, la temperatura de cocción y la agitación controlan la humedad del queso</div>
+  <div class="presets">
+    <span class="lbl">Comparaciones</span>
+    <button class="chip" data-c="p20">📏 Pregunta p. 20: 2 cm vs 0.5 cm</button>
+    <button class="chip" data-c="reposo">⏳ Con reposo vs sin reposo</button>
+    <button class="chip" data-c="agita">🌀 Agitar vs dejar quieto</button>
+    <button class="chip" data-c="calor">🔥 Calentar lento vs rápido</button>
+    <button class="chip" data-c="recetas">🧀 Fresco vs tipo parmesano</button>
+  </div>
+  <div class="question" id="question"><b>Exploración libre.</b> Configura a cada equipo con las pestañas A y B, haz tu predicción y pulsa «Cortar e iniciar».</div>
 
-    <!-- Recetas Rápidas -->
-    <div class="recipes-bar">
-        <button class="btn btn-soft" onclick="loadRecipe('soft')">🧀 Receta Queso Blando (Panela / Brie)</button>
-        <button class="btn btn-semi" onclick="loadRecipe('semi')">🧀 Receta Semiduro (Manchego / Gouda)</button>
-        <button class="btn btn-hard" onclick="loadRecipe('hard')">🧀 Receta Queso Duro (Parmesano / Cotija)</button>
-        <button class="btn btn-reset" onclick="resetVat()">🔄 Nueva Tina Sin Cortar</button>
+  <div class="main">
+    <div class="col">
+      <div class="card">
+        <div class="tabs"><button class="tab A on" data-t="0">Equipo A</button><button class="tab B" data-t="1">Equipo B</button></div>
+        <div class="ctl"><label>Tamaño del grano (lira) <span class="val" id="v-a">10 mm</span></label>
+          <input type="range" id="a" min="3" max="20" step="1" value="10">
+          <div class="scale"><span>Fino 3–5 mm</span><span>Medio 5–10 mm</span><span>Grueso 10–20 mm</span></div>
+          <div class="sub" id="s-a"></div><div class="lock" data-lock></div></div>
+        <div class="ctl"><label>Reposo tras el corte</label>
+          <div class="seg" data-k="rest"><button data-v="0">0 min</button><button data-v="5" class="on">5 min</button><button data-v="10">10 min</button></div><div class="lock" data-lock></div></div>
+        <div class="ctl"><label>Agitación <span class="val" id="v-stir">Suave</span></label>
+          <div class="seg" data-k="stir"><button data-v="0">Sin agitar</button><button data-v="1" class="on">Suave</button><button data-v="2">Media</button><button data-v="3">Intensa</button></div>
+          <div class="sub">Se puede cambiar durante el proceso.</div></div>
+        <div class="ctl"><label>Temperatura de cocción <span class="val" id="v-T">32 °C</span></label>
+          <input type="range" id="Tt" min="32" max="55" step="1" value="32">
+          <div class="scale"><span>32 °C sin cocción</span><span>~38 °C semicocida</span><span>~53 °C cocida</span></div></div>
+        <div class="ctl"><label>Velocidad de calentamiento</label>
+          <div class="seg" data-k="hr"><button data-v="0.5">0.5 °C/min</button><button data-v="1" class="on">1 °C/min</button><button data-v="2">2 °C/min</button></div></div>
+        <div class="ctl" style="margin-bottom:0"><label>Acidez desarrollada (cultivo)</label>
+          <div class="seg" data-k="acid"><button data-v="baja">Baja</button><button data-v="media" class="on">Media</button><button data-v="alta">Alta</button></div></div>
+      </div>
+      <div class="card">
+        <h3>🧊 ¿Por qué el grano pequeño suelta más suero?</h3>
+        <canvas id="cube" width="300" height="170"></canvas>
+        <div class="stat" id="cubeStat"></div>
+      </div>
     </div>
 
-    <div class="dashboard">
-        <!-- Controles -->
-        <div class="controls-card">
-            <div class="control-group">
-                <label>1. Tamaño de Corte (Calibre de la Lira):</label>
-                <div class="cut-buttons">
-                    <button id="size-large" class="cut-btn active" onclick="selectCutSize('large')">
-                        Grande (2 cm)<br><small>Tipo Nuez</small>
-                    </button>
-                    <button id="size-medium" class="cut-btn" onclick="selectCutSize('medium')">
-                        Mediano (1 cm)<br><small>Tipo Maíz</small>
-                    </button>
-                    <button id="size-small" class="cut-btn" onclick="selectCutSize('small')">
-                        Pequeño (3 mm)<br><small>Tipo Arroz</small>
-                    </button>
-                </div>
-            </div>
-
-            <button id="btn-cut" class="action-btn" onclick="performCut()">
-                🔪 Cortar Cuajada con la Lira
-            </button>
-
-            <div class="control-group">
-                <label>
-                    <span>2. Temperatura de Cocción:</span>
-                    <span id="temp-label" style="color:#dc2626;">32 °C</span>
-                </label>
-                <input type="range" id="temp-slider" min="30" max="55" step="1" value="32" oninput="updateParams()">
-                <div class="scale-labels">
-                    <span>30 °C (Sin cocción)</span>
-                    <span>40 °C (Media)</span>
-                    <span>55 °C (Pasta cocida)</span>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label>
-                    <span>3. Velocidad de Agitación:</span>
-                    <span id="stir-label" style="color:#0284c7;">Reposo</span>
-                </label>
-                <input type="range" id="stir-slider" min="0" max="3" step="1" value="0" oninput="updateParams()">
-                <div class="scale-labels">
-                    <span>0 (Reposo)</span>
-                    <span>1 (Suave)</span>
-                    <span>2 (Media)</span>
-                    <span>3 (Intensa)</span>
-                </div>
-            </div>
-
-            <!-- Métricas en Vivo -->
-            <div class="metrics">
-                <div class="metric-row">
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>Humedad dentro del Grano:</span>
-                        <strong id="moisture-val" style="color:#0284c7;">87.0%</strong>
-                    </div>
-                    <div class="progress-bg">
-                        <div id="moisture-bar" class="progress-fill" style="width:87%; background:#0284c7;"></div>
-                    </div>
-                </div>
-
-                <div class="metric-row">
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>Suero Expulsado a la Tina:</span>
-                        <strong id="whey-val" style="color:#65a30d;">0%</strong>
-                    </div>
-                    <div class="progress-bg">
-                        <div id="whey-bar" class="progress-fill" style="width:0%; background:#84cc16;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tina de Quesería (Canvas) -->
-        <div class="canvas-area">
-            <div class="canvas-wrapper">
-                <canvas id="vatCanvas" width="660" height="390"></canvas>
-            </div>
-            <div class="legend">
-                <div class="legend-item"><span class="box-icon" style="background:#fffbeb; border:2px solid #f59e0b;"></span> Grano de Cuajada Húmedo</div>
-                <div class="legend-item"><span class="box-icon" style="background:#fde047; border:2px solid #ca8a04;"></span> Grano Seco y Compacto</div>
-                <div class="legend-item"><span class="box-icon" style="background:#38bdf8; border-radius:50%;"></span> Gotas de Suero Expulsadas</div>
-                <div class="legend-item"><span class="box-icon" style="background:#ecfccb; border:1px solid #84cc16;"></span> Suero Libre en la Tina</div>
-            </div>
-        </div>
+    <div class="col">
+      <div class="pred" id="predBox">🤔 <b>Predice:</b> ¿qué equipo terminará con la cuajada <b>más seca</b>?
+        <label><input type="radio" name="pred" value="A"> A</label><label><input type="radio" name="pred" value="B"> B</label><label><input type="radio" name="pred" value="=" > Casi igual</label>
+      </div>
+      <div class="canvas-box"><canvas id="cv" width="760" height="330"></canvas></div>
+      <div class="row">
+        <button class="btn btn-accent" id="start">🔪 Cortar e iniciar</button>
+        <button class="btn btn-ghost" id="pause" disabled>⏸ Pausa</button>
+        <div class="seg" id="speed" style="min-width:210px"><button data-v="1">1 s = 1 min</button><button data-v="2" class="on">1 s = 2 min</button><button data-v="4">1 s = 4 min</button></div>
+        <button class="btn btn-A" id="drainA" disabled>Desuerar A</button>
+        <button class="btn btn-B" id="drainB" disabled>Desuerar B</button>
+        <button class="btn btn-ghost" id="reset">↺ Nueva cuajada</button>
+      </div>
+      <div class="board" id="board"></div>
+      <div class="chart-box">
+        <div class="chart-head"><b>Humedad de los granos durante el desuerado</b><span class="clock" id="clock">t = 0.0 min desde el corte</span></div>
+        <canvas id="ch" width="760" height="220"></canvas>
+      </div>
     </div>
+  </div>
 
-    <!-- Explicación Dinámica -->
-    <div class="info-panel">
-        <div class="info-box">
-            <h3>🔬 ¿Qué está pasando con la Sinéresis?</h3>
-            <div id="syneresis-desc">
-                La cuajada está intacta formando un solo bloque gelatinoso con <strong>87% de agua</strong> atrapada en su red de caseína. Elige el calibre de la lira y pulsa <strong>"Cortar Cuajada"</strong> para iniciar el desuerado.
-            </div>
-        </div>
-        <div class="info-box" style="border-left-color: #0284c7;">
-            <h3>🧀 Tipo de Queso Resultante</h3>
-            <div id="cheese-result">
-                <strong>Estado actual:</strong> Gel de cuajada sin cortar.<br>
-                Sin el corte, el suero tarda horas en salir solo de la superficie.
-            </div>
-        </div>
+  <div class="bottom">
+    <div class="box" id="exA"><h3>🔬 ¿Qué está pasando?</h3><div id="exBody"></div></div>
+    <div class="box book"><h3>📘 Conecta con tu CECYBOOK</h3>
+      <p><b>Figura 18</b> (p. 20): tamaño de grano y humedad final. <b>Figura 19</b> (p. 21): etapas de la sinéresis. <b>Figuras 20 y 21</b> (pp. 22–23): reposo, agitación y cicatrización.</p>
+      <p><i>Idea clave (p. 21):</i> el suero que sale cuenta una historia; si sale turbio y lechoso se está llevando componentes que debían quedar en el queso.</p>
+      <p>Retirar «más suero» no siempre es mejor: un desuerado excesivo da un queso seco y de menor rendimiento; uno insuficiente deja una pasta muy húmeda y vulnerable.</p>
     </div>
+  </div>
+
+  <details class="teacher">
+    <summary>👩‍🏫 Notas para el docente</summary>
+    <ul>
+      <li><b>Uso sugerido (20 min):</b> empezar con «Pregunta p. 20» para que los equipos predigan y comprueben; seguir con «Con reposo vs sin reposo» para conectar con finos y suero turbio (Tabla 4, p. 26); cerrar con «Calentar lento vs rápido».</li>
+      <li><b>Qué se modela:</b> la salida de suero sigue una cinética que se acelera con granos pequeños (el suero recorre menos distancia hasta la superficie), mayor temperatura, agitación y acidez. Los granos sin agitar se asientan y se apelmazan. Calentar demasiado rápido endurece la superficie del grano y atrapa humedad. La agitación intensa antes de que los granos cicatricen genera finos.</li>
+      <li><b>Ajustes respecto a la versión anterior:</b> (1) los tamaños de grano siguen la Figura 18 (fino 3–5 mm, medio 5–10 mm, grueso 10–20 mm); (2) la humedad mostrada es la de los granos al desuerar, no la del queso terminado, que todavía baja con moldeo, prensado y salado; por eso ya no se clasifica «semiduro» con 54–64 % de humedad; (3) se agregaron el reposo, las pérdidas de finos y el color del suero; (4) se sustituyeron Brie, Camembert y Cotija por los ejemplos del CECYBOOK, porque los dos primeros casi no se cortan ni agitan y el Cotija no es de pasta cocida.</li>
+      <li><b>Simplificaciones:</b> modelo didáctico; tiempos y porcentajes son orientativos y sirven para comparar entre equipos, no como especificación de proceso.</li>
+    </ul>
+  </details>
+  <footer>Recurso didáctico complementario · CECYBOOK Semana 14 · 7.3 Proceso para la obtención de quesos.</footer>
 </div>
 
 <script>
-const canvas = document.getElementById('vatCanvas');
-const ctx = canvas.getContext('2d');
+/* ===================== Utilidades ===================== */
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const fmt=(v,d=1)=>Number(v).toFixed(d);
+function mixHex(a,b,t){const A=[1,3,5].map(i=>parseInt(a.slice(i,i+2),16)),B=[1,3,5].map(i=>parseInt(b.slice(i,i+2),16));return `rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')})`;}
+const COL=['#1d4ed8','#ea580c'], NAME=['A','B'];
+const W0=87, TMAX=90;
+const STIR_N=['Sin agitar','Suave','Media','Intensa'];
+const ACID_K={baja:0.85,media:1,alta:1.25}, ACID_EQ={baja:0,media:2,alta:4};
 
-let cutSize = 'large'; // 'large', 'medium', 'small'
-let isCut = false;
-let liraProgress = -1; // Animación de las cuchillas pasando
-let temp = 32;
-let stirLevel = 0;
-let stirrerAngle = 0;
+/* ===================== Estado ===================== */
+function newTeam(id){ return {id,a:10,rest:5,stir:1,Tt:32,hr:1,acid:'media', W:W0,T:32,fines:0,cs:0,mat:0,drained:null,hist:[{t:0,W:W0}],grains:[],k:0,paddle:0,drainAnim:0}; }
+const S={teams:[newTeam(0),newTeam(1)], sel:0, started:false, running:false, t:0, speed:2, cutAnim:0, compare:null, pred:null};
 
-let grains = [];
-let wheyDrops = [];
-let moisture = 87.0; // % de humedad inicial del gel
-
-class CurdGrain {
-    constructor(x, y, size) {
-        this.x = x;
-        this.y = y;
-        this.initialSize = size;
-        this.currentSize = size;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
-        this.angle = Math.random() * Math.PI * 2;
-        this.vAngle = (Math.random() - 0.5) * 0.02;
-    }
-
-    update(shrinkRatio) {
-        // El tamaño del cubo disminuye conforme expulsa suero
-        this.currentSize = this.initialSize * shrinkRatio;
-
-        if (stirLevel > 0) {
-            // Corriente circular provocada por las palas agitadoras
-            let dx = this.x - canvas.width / 2;
-            let dy = this.y - canvas.height / 2;
-            let dist = Math.hypot(dx, dy) + 1;
-
-            // Fuerza tangencial de giro + turbulencia térmica
-            let speed = stirLevel * 0.85 + (temp - 30) * 0.02;
-            this.vx += (-dy / dist) * 0.08 * speed + (Math.random() - 0.5) * 0.3 * stirLevel;
-            this.vy += (dx / dist) * 0.08 * speed + (Math.random() - 0.5) * 0.3 * stirLevel;
-            this.vx *= 0.94;
-            this.vy *= 0.94;
-            this.angle += this.vAngle * stirLevel;
-        } else {
-            // Si no hay agitación, los granos más densos sedimentan al fondo de la tina
-            this.vy += 0.06;
-            this.vx *= 0.92;
-            this.vy *= 0.90;
-        }
-
-        this.x += this.vx;
-        this.y += this.vy;
-
-        // Rebote en las paredes de la tina
-        let half = this.currentSize / 2;
-        if (this.x - half < 12) { this.x = 12 + half; this.vx *= -0.7; }
-        if (this.x + half > canvas.width - 12) { this.x = canvas.width - 12 - half; this.vx *= -0.7; }
-        if (this.y - half < 12) { this.y = 12 + half; this.vy *= -0.7; }
-        if (this.y + half > canvas.height - 12) { this.y = canvas.height - 12 - half; this.vy *= -0.5; }
-    }
-
-    draw(dryness) {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.angle);
-
-        // El color pasa de blanco marfil (húmedo) a amarillo mantequilla (seco/concentrado)
-        let r = Math.round(255 - dryness * 5);
-        let g = Math.round(251 - dryness * 28);
-        let b = Math.round(235 - dryness * 145);
-
-        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-        ctx.strokeStyle = dryness > 0.5 ? '#ca8a04' : '#f59e0b';
-        ctx.lineWidth = 1.8;
-
-        let s = this.currentSize;
-        ctx.beginPath();
-        ctx.roundRect(-s / 2, -s / 2, s, s, Math.max(3, s * 0.18));
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.restore();
-    }
+/* ===================== Modelo ===================== */
+function stepTeam(tm,dtm){
+  if(tm.drained!==null) return;
+  const t=S.t, resting=t<tm.rest, stir=resting?0:tm.stir;
+  // temperatura (cocción tras el reposo)
+  if(!resting){
+    if(tm.T<tm.Tt-1e-6){ const inc=Math.min(tm.Tt-tm.T,tm.hr*dtm); tm.T+=inc; if(tm.hr>1) tm.cs=Math.min(1,tm.cs+(tm.hr-1)*0.08*dtm); }
+    else if(tm.T>tm.Tt) tm.T=Math.max(tm.Tt,tm.T-0.4*dtm);
+  }
+  // apelmazamiento si no se agita
+  if(!resting && stir===0) tm.mat=Math.min(1,tm.mat+0.06*dtm); else if(stir>0) tm.mat=Math.max(0,tm.mat-0.03*stir*dtm);
+  const sv=Math.pow(10/tm.a,1.5), fT=Math.exp((tm.T-32)*0.05), fS=resting?0.4:[0.35,1,1.3,1.55][stir];
+  tm.k=0.058*sv*fT*fS*ACID_K[tm.acid]*(1-0.5*tm.cs)*(1-0.5*tm.mat);
+  const Weq=60-(tm.T-32)*0.8-ACID_EQ[tm.acid]+4*tm.cs;
+  if(tm.W>Weq) tm.W-=tm.k*(tm.W-Weq)*dtm;
+  // finos: agitar fuerte antes de que el grano cicatrice
+  const heal=1-Math.exp(-t/4);
+  tm.fines+=(0.004+stir*stir*0.18*(1-heal)+0.004*stir*Math.sqrt(10/tm.a))*dtm;
 }
+const waterOut=W=>{ const w=13*W/(100-W); return clamp(1-w/W0,0,1)*100; };   // % del agua inicial expulsada
+const shrinkLin=W=>Math.cbrt(13/(100-W));
+function wheyOf(f){ return f<2?{k:'claro',txt:'claro, amarillo-verdoso',c:'#dfe6a6'}:(f<4?{k:'turbio',txt:'ligeramente turbio',c:'#ebebcd'}:{k:'lechoso',txt:'blanco y lechoso',c:'#f5f3ea'}); }
+function cheeseOf(W){ if(W>=58) return 'alta humedad: típico de quesos frescos (panela, ranchero)'; if(W>=50) return 'humedad intermedia: típico de semiduros (gouda, menonita, cheddar)'; return 'baja humedad: típico de pasta cocida (parmesano, tipo suizo)'; }
+function timeTo(tm,Wt){ const p=tm.hist.find(h=>h.W<=Wt); return p?p.t:null; }
 
-function selectCutSize(size) {
-    cutSize = size;
-    document.querySelectorAll('.cut-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('size-' + size).classList.add('active');
-    if (isCut) {
-        performCut(); // Recortar inmediatamente si el usuario cambia el tamaño
-    }
+/* ===================== Granos (vista lateral) ===================== */
+const W=760,H=330;
+function geo(i){ const ox=i*380+10; return {ox, x0:ox+24, x1:ox+346, yTop:100, yBot:304, cx:ox+185}; }
+function pxSize(a){ return 6+(a-3)*1.5; }
+function makeGrains(tm){
+  const g=geo(tm.id), s=pxSize(tm.a), arr=[];
+  const cols=Math.floor((g.x1-g.x0)/s), rows=Math.floor((g.yBot-g.yTop-4)/s);
+  const total=cols*rows, keep=Math.min(1,1400/total);
+  let idx=0;
+  for(let c=0;c<cols;c++) for(let r=0;r<rows;r++){
+    if(keep<1 && Math.random()>keep) continue;
+    arr.push({x:g.x0+s/2+c*s, y:g.yBot-s/2-r*s, vx:0, vy:0, rot:0, vr:(Math.random()-.5)*2, i:idx++});
+  }
+  // orden por x para formar el montón al asentarse
+  arr.sort((p,q)=>(q.y-p.y)||(p.x-q.x)).forEach((p,i)=>p.slot=i);
+  tm.grains=arr;
 }
-
-function performCut() {
-    isCut = true;
-    liraProgress = 0; // Inicia el barrido visual de la lira
-    moisture = 85.0;
-    wheyDrops = [];
-    grains = [];
-
-    let boxSize = 48;
-    if (cutSize === 'medium') boxSize = 30;
-    if (cutSize === 'small') boxSize = 18;
-
-    let padding = 28;
-    for (let x = padding + boxSize/2; x < canvas.width - padding; x += boxSize + 6) {
-        for (let y = padding + boxSize/2; y < canvas.height - padding; y += boxSize + 6) {
-            grains.push(new CurdGrain(x, y, boxSize));
-        }
-    }
-
-    document.getElementById('btn-cut').innerText = '✅ Cuajada Cortada (En Desuerado)';
-    updateParams();
-}
-
-function resetVat() {
-    isCut = false;
-    liraProgress = -1;
-    moisture = 87.0;
-    grains = [];
-    wheyDrops = [];
-    document.getElementById('temp-slider').value = 32;
-    document.getElementById('stir-slider').value = 0;
-    document.getElementById('btn-cut').innerText = '🔪 Cortar Cuajada con la Lira';
-    updateParams();
-}
-
-function loadRecipe(type) {
-    if (type === 'soft') {
-        selectCutSize('large');
-        document.getElementById('temp-slider').value = 32;
-        document.getElementById('stir-slider').value = 1;
-    } else if (type === 'semi') {
-        selectCutSize('medium');
-        document.getElementById('temp-slider').value = 39;
-        document.getElementById('stir-slider').value = 2;
-    } else if (type === 'hard') {
-        selectCutSize('small');
-        document.getElementById('temp-slider').value = 53;
-        document.getElementById('stir-slider').value = 3;
-    }
-    performCut();
-    updateParams();
-}
-
-function updateParams() {
-    temp = parseInt(document.getElementById('temp-slider').value);
-    stirLevel = parseInt(document.getElementById('stir-slider').value);
-
-    document.getElementById('temp-label').innerText = temp + ' °C';
-    const stirNames = ['Reposo (Sedimentando)', 'Suave', 'Media', 'Intensa'];
-    document.getElementById('stir-label').innerText = stirNames[stirLevel];
-}
-
-function updateSyneresisPhysics() {
-    if (!isCut) return;
-
-    // Humedad mínima alcanzable según el tamaño de grano, temperatura y agitación
-    let baseTarget = 72; // Grano grande
-    if (cutSize === 'medium') baseTarget = 63;
-    if (cutSize === 'small') baseTarget = 55;
-
-    // El calor contrae las proteínas (sinéresis térmica) y baja más la humedad
-    let tempEffect = (temp - 30) * 0.42;
-    // La agitación evita que los granos se peguen y ayuda a expulsar suero por choque
-    let stirEffect = stirLevel * 1.8;
-
-    let minMoisture = Math.max(46.0, baseTarget - tempEffect - stirEffect);
-
-    if (moisture > minMoisture) {
-        let rate = 0.045 * (1 + (temp - 30) * 0.05 + stirLevel * 0.35);
-        moisture = Math.max(minMoisture, moisture - rate);
-
-        // Generar gotas azules de suero saliendo de los granos
-        if (Math.random() < 0.65 && grains.length > 0) {
-            let randomGrain = grains[Math.floor(Math.random() * grains.length)];
-            wheyDrops.push({
-                x: randomGrain.x,
-                y: randomGrain.y,
-                vx: (Math.random() - 0.5) * 3,
-                vy: -1 - Math.random() * 2,
-                alpha: 1.0
-            });
-        }
-    }
-
-    // Actualizar indicadores en pantalla
-    document.getElementById('moisture-val').innerText = moisture.toFixed(1) + '%';
-    document.getElementById('moisture-bar').style.width = moisture + '%';
-
-    let wheyExpelled = Math.min(100, Math.round(((87 - moisture) / (87 - 46)) * 100));
-    document.getElementById('whey-val').innerText = wheyExpelled + '%';
-    document.getElementById('whey-bar').style.width = wheyExpelled + '%';
-
-    // Actualizar explicación científica y tipo de queso
-    const synDesc = document.getElementById('syneresis-desc');
-    const cheeseRes = document.getElementById('cheese-result');
-
-    let areaText = cutSize === 'large' ? 'baja superficie de salida (grano grande)' :
-                   cutSize === 'medium' ? 'superficie intermedia (grano tamaño maíz)' :
-                   'altísima área superficial (grano fino tipo arroz)';
-
-    synDesc.innerHTML = `Con <strong>${areaText}</strong> y cocción a <strong>${temp} °C</strong>, la red de caseína se contrae expulsando suero. ${
-        stirLevel === 0 ? '⚠️ <em>Al estar en reposo, los granos caen al fondo y pueden volver a pegarse entre sí.</em>' : ''
-    }`;
-
-    if (moisture >= 65) {
-        cheeseRes.innerHTML = '🧀 <strong>Queso de Pasta Blanda / Alta Humedad (>65%):</strong><br>Ideal para <strong>Queso Panela, Queso Fresco, Brie o Camembert</strong>. El grano conserva mucha agua, dando una textura suave, tierna y de corta vida de anaquel.';
-    } else if (moisture >= 54) {
-        cheeseRes.innerHTML = '🧀 <strong>Queso de Pasta Semidura (54% - 64%):</strong><br>Ideal para <strong>Queso Manchego, Gouda, Chihuahua o Cheddar</strong>. Equilibrio perfecto entre firmeza para el prensado y suavidad al paladar.';
+function moveGrains(tm,dt){
+  const g=geo(tm.id), resting=S.t<tm.rest, stir=(resting||tm.drained!==null)?0:tm.stir;
+  const s=pxSize(tm.a)*shrinkLin(tm.W);
+  const cols=Math.max(1,Math.floor((g.x1-g.x0)/(s*0.98)));
+  const cy=(g.yTop+g.yBot)/2, rx=(g.x1-g.x0)/2-8, ry=(g.yBot-g.yTop)/2-8;
+  tm.grains.forEach(p=>{
+    if(stir>0 && S.running){
+      const dx=(p.x-g.cx)/rx, dy=(p.y-cy)/ry, r=Math.hypot(dx,dy)+0.05;
+      const sp=stir*38*(0.35+Math.min(1,r));
+      p.vx+=((-dy/r)*sp-p.vx)*dt*2+(Math.random()-.5)*60*stir*dt;
+      p.vy+=((dx/r)*sp*0.7-p.vy)*dt*2+(Math.random()-.5)*60*stir*dt+20*dt;
+      p.rot+=p.vr*stir*dt;
     } else {
-        cheeseRes.innerHTML = '🧀 <strong>Queso de Pasta Dura / Cocida (<54%):</strong><br>Ideal para <strong>Parmesano (Parmigiano-Reggiano), Grana Padano o Cotija Añejo</strong>. El grano pequeño + alta temperatura dejaron un grano muy seco y denso que puede madurar durante años.';
+      // asentarse en el montón
+      const col=p.slot%cols, row=Math.floor(p.slot/cols);
+      const tx=g.x0+s/2+col*s*0.98, ty=g.yBot-s/2-row*s*0.92;
+      const k=(S.started && !resting)?1.2:0;
+      p.vx+=((tx-p.x)*k-p.vx)*Math.min(1,dt*3);
+      p.vy+=((ty-p.y)*k-p.vy)*Math.min(1,dt*3);
+      p.rot*=1-dt;
     }
+    p.x=clamp(p.x+p.vx*dt,g.x0+s/2,g.x1-s/2); p.y=clamp(p.y+p.vy*dt,g.yTop+s/2,g.yBot-s/2);
+  });
 }
 
-function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+/* ===================== Dibujo de las tinas ===================== */
+const cv=$('#cv'), ctx=cv.getContext('2d');
+const ch=$('#ch'), cctx=ch.getContext('2d');
+const cb=$('#cube'), bctx=cb.getContext('2d');
+function hiDPI(c,k,w,h){ const d=Math.min(2,window.devicePixelRatio||1); c.width=w*d; c.height=h*d; k.setTransform(d,0,0,d,0,0); }
+hiDPI(cv,ctx,W,H); hiDPI(ch,cctx,760,220); hiDPI(cb,bctx,300,170);
 
-    if (!isCut) {
-        // Dibujar bloque único de cuajada intacta antes del corte
-        ctx.fillStyle = '#fffbeb';
-        ctx.strokeStyle = '#fde68a';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.roundRect(18, 18, canvas.width - 36, canvas.height - 36, 12);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#b45309';
-        ctx.font = 'bold 18px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Bloque de Cuajada Intacta (87% Agua / Suero atrapado)', canvas.width / 2, canvas.height / 2);
-        ctx.font = '14px sans-serif';
-        ctx.fillText('Pulsa el botón azul "Cortar Cuajada con la Lira" para dividir el gel', canvas.width / 2, canvas.height / 2 + 26);
-    } else {
-        updateSyneresisPhysics();
-
-        // Proporción de encogimiento del grano según el suero perdido
-        let dryness = (87 - moisture) / (87 - 46); // 0.0 a 1.0
-        let shrinkRatio = 1 - dryness * 0.36;
-
-        // Dibujar todos los granos de cuajada
-        grains.forEach(g => {
-            g.update(shrinkRatio);
-            g.draw(dryness);
-        });
-
-        // Dibujar gotas de suero expulsadas
-        for (let i = wheyDrops.length - 1; i >= 0; i--) {
-            let d = wheyDrops[i];
-            d.x += d.vx;
-            d.y += d.vy;
-            d.alpha -= 0.025;
-            if (d.alpha <= 0) {
-                wheyDrops.splice(i, 1);
-                continue;
-            }
-            ctx.fillStyle = `rgba(14, 165, 233, ${d.alpha})`;
-            ctx.beginPath();
-            ctx.arc(d.x, d.y, 3.2, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        // Dibujar aspas del agitador en el centro si está activo
-        if (stirLevel > 0) {
-            stirrerAngle += 0.025 * stirLevel;
-            ctx.save();
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            ctx.rotate(stirrerAngle);
-            ctx.strokeStyle = 'rgba(71, 85, 105, 0.35)';
-            ctx.lineWidth = 8;
-            ctx.beginPath();
-            ctx.moveTo(-90, 0);
-            ctx.lineTo(90, 0);
-            ctx.moveTo(0, -90);
-            ctx.lineTo(0, 90);
-            ctx.stroke();
-            ctx.restore();
-        }
-
-        // Animación de las cuchillas de la lira pasando recién hecho el corte
-        if (liraProgress >= 0 && liraProgress <= canvas.width) {
-            liraProgress += 18;
-            ctx.strokeStyle = '#475569';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(liraProgress, 0);
-            ctx.lineTo(liraProgress, canvas.height);
-            ctx.stroke();
-        }
+function drawVat(tm){
+  const g=geo(tm.id), col=COL[tm.id];
+  // encabezado
+  ctx.fillStyle=col; ctx.font='800 15px Segoe UI, system-ui, sans-serif'; ctx.fillText('Equipo '+NAME[tm.id],g.ox+6,22);
+  ctx.fillStyle='#475569'; ctx.font='12px Segoe UI, system-ui, sans-serif';
+  ctx.fillText(`Grano ${tm.a} mm · reposo ${tm.rest} min · ${STIR_N[tm.stir].toLowerCase()} · ${tm.Tt} °C${tm.Tt>32?' a '+tm.hr+' °C/min':''}`,g.ox+6,40);
+  // camisa de calentamiento
+  const heat=clamp((tm.T-32)/23,0,1);
+  ctx.fillStyle=`rgba(${Math.round(148+107*heat)},${Math.round(163-90*heat)},${Math.round(184-120*heat)},1)`;
+  roundRect(g.x0-14,g.yTop-22,(g.x1-g.x0)+28,(g.yBot-g.yTop)+36,14); ctx.fill();
+  ctx.fillStyle='#e8edf3'; roundRect(g.x0-6,g.yTop-14,(g.x1-g.x0)+12,(g.yBot-g.yTop)+20,9); ctx.fill();
+  // contenido
+  ctx.save(); ctx.beginPath(); ctx.rect(g.x0,g.yTop-8,g.x1-g.x0,g.yBot-g.yTop+8); ctx.clip();
+  const wh=wheyOf(tm.fines);
+  let level=g.yTop;
+  if(tm.drained!==null){ tm.drainAnim=Math.min(1,tm.drainAnim+0.02); level=g.yTop+(g.yBot-g.yTop)*tm.drainAnim; }
+  if(!S.started || S.cutAnim<1){
+    // bloque de gel (y granos detrás de la lira)
+    const px=S.started? g.x0+(g.x1-g.x0)*S.cutAnim : g.x0;
+    if(S.started){ ctx.fillStyle='#f3ecd6'; ctx.fillRect(g.x0,level,px-g.x0,g.yBot-level); drawGrains(tm,px); }
+    ctx.fillStyle='#fbf6e6'; ctx.fillRect(px,g.yTop,g.x1-px,g.yBot-g.yTop);
+    ctx.fillStyle='rgba(255,255,255,.6)'; ctx.fillRect(px,g.yTop,g.x1-px,6);
+    if(S.started){ ctx.strokeStyle='#475569'; ctx.lineWidth=2; for(let k=-3;k<=3;k++){ ctx.beginPath(); ctx.moveTo(px+k*3,g.yTop-10); ctx.lineTo(px+k*3,g.yBot); ctx.stroke(); } }
+    else { ctx.fillStyle='#92400e'; ctx.font='600 13px Segoe UI, system-ui, sans-serif'; ctx.textAlign='center'; ctx.fillText('Cuajada en punto de corte',g.cx,(g.yTop+g.yBot)/2-4); ctx.font='12px Segoe UI, system-ui, sans-serif'; ctx.fillText('~87 % de agua atrapada en la red',g.cx,(g.yTop+g.yBot)/2+14); ctx.textAlign='left'; }
+  } else {
+    ctx.fillStyle=mixHex('#f3ecd6',wh.c,clamp(waterOut(tm.W)/60,0,1)); ctx.fillRect(g.x0,level,g.x1-g.x0,g.yBot-level);
+    // finos suspendidos
+    if(tm.drained===null){ ctx.fillStyle='rgba(255,253,245,.95)'; const nf=Math.min(220,Math.round(tm.fines*28)); for(let i=0;i<nf;i++){ const hx=g.x0+((i*97.13+S.t*7*(i%3+1))%(g.x1-g.x0)), hy=g.yTop+((i*53.7+S.t*3)%(g.yBot-g.yTop)); ctx.fillRect(hx,hy,2,2);} }
+    drawGrains(tm,g.x1);
+    // agitador
+    const resting=S.t<tm.rest;
+    if(!resting && tm.stir>0 && tm.drained===null){
+      if(S.running) tm.paddle+=0.03*tm.stir;
+      const px=g.cx+Math.sin(tm.paddle)*((g.x1-g.x0)/2-30);
+      ctx.fillStyle='rgba(71,85,105,.85)'; ctx.fillRect(px-2,g.yTop-30,4,(g.yBot-g.yTop)-10);
+      ctx.fillStyle='rgba(71,85,105,.55)'; ctx.fillRect(px-14,g.yBot-60,28,40);
     }
+  }
+  ctx.restore();
+  // termómetro y rótulos
+  ctx.fillStyle='#fff'; roundRect(g.x1-104,g.yTop-14+4,98,22,6); ctx.fill();
+  ctx.fillStyle=tm.T>32.5?'#b91c1c':'#334155'; ctx.font='700 12px Segoe UI, system-ui, sans-serif'; ctx.fillText(`🌡 ${fmt(tm.T)} °C`,g.x1-98,g.yTop+5);
+  let status='';
+  if(!S.started) status='';
+  else if(tm.drained!==null) status=`Desuerado a los ${fmt(tm.drained,0)} min`;
+  else if(S.t<tm.rest) status=`Reposo: los granos cicatrizan (${fmt(tm.rest-S.t)} min)`;
+  else if(tm.stir===0) status=tm.mat>0.3?'⚠ Sin agitar: granos apelmazándose':'Sin agitar: los granos se asientan';
+  else status=tm.T<tm.Tt-0.05?`Agitación y cocción → ${tm.Tt} °C`:'Agitación y sinéresis';
+  ctx.fillStyle='#334155'; ctx.font='600 12px Segoe UI, system-ui, sans-serif'; ctx.fillText(status,g.x0,g.yBot+24);
+}
+function drawGrains(tm,maxX){
+  const s0=pxSize(tm.a), s=s0*shrinkLin(tm.W);
+  const dry=clamp((W0-tm.W)/(W0-42),0,1);
+  const fill=`rgb(${255},${Math.round(251-dry*22)},${Math.round(238-dry*95)})`;
+  const stroke=tm.mat>0.3?'#b45309':'#e0cfa4';
+  const round=S.t<tm.rest?0.08:0.12+0.3*clamp((S.t-tm.rest)/15,0,1);
+  ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=s>10?1.2:0.8;
+  tm.grains.forEach(p=>{
+    if(p.x>maxX) return;
+    if(s<8){ ctx.fillRect(p.x-s/2,p.y-s/2,s,s); return; }
+    ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+    roundRect(-s/2,-s/2,s,s,s*round); ctx.fill(); ctx.stroke(); ctx.restore();
+  });
+  if(tm.mat>0.3 && s>=8){ ctx.strokeStyle='rgba(180,83,9,.35)'; ctx.lineWidth=2; const g=geo(tm.id); ctx.beginPath(); ctx.moveTo(g.x0,g.yBot-s*1.5); ctx.lineTo(g.x1,g.yBot-s*1.5); ctx.stroke(); }
+}
+function roundRect(x,y,w,h,r){ ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x,y,w,h,r); else ctx.rect(x,y,w,h); }
 
-    requestAnimationFrame(animate);
+/* ===================== Gráfica ===================== */
+function drawChart(){
+  const k=cctx, w=760, h=220, x0=48, x1=w-20, y0=h-30, y1=14, Tm=Math.max(30,Math.ceil((S.t+5)/10)*10);
+  const X=t=>x0+t/Tm*(x1-x0), Y=v=>y0-(v-40)/(90-40)*(y0-y1);
+  k.clearRect(0,0,w,h); k.fillStyle='#fff'; k.fillRect(0,0,w,h); k.font='11px Segoe UI, system-ui, sans-serif';
+  // bandas de referencia de humedad del grano
+  [[58,90,'rgba(59,130,246,.06)','alta humedad (frescos)'],[50,58,'rgba(234,179,8,.08)','intermedia (semiduros)'],[40,50,'rgba(220,38,38,.06)','baja (pasta cocida)']].forEach(b=>{ k.fillStyle=b[2]; k.fillRect(x0,Y(b[1]),x1-x0,Y(b[0])-Y(b[1])); k.fillStyle='#94a3b8'; k.fillText(b[3],x1-150,Y(b[1])+13); });
+  k.strokeStyle='#eef2f7';
+  const stepT=Tm<=40?5:10;
+  for(let t=0;t<=Tm;t+=stepT){ k.beginPath(); k.moveTo(X(t),y1); k.lineTo(X(t),y0); k.stroke(); k.fillStyle='#64748b'; k.fillText(t,X(t)-5,y0+14); }
+  for(let v=40;v<=90;v+=10){ k.beginPath(); k.moveTo(x0,Y(v)); k.lineTo(x1,Y(v)); k.stroke(); k.fillStyle='#64748b'; k.fillText(v+'%',x0-32,Y(v)+4); }
+  k.strokeStyle='#94a3b8'; k.beginPath(); k.moveTo(x0,y1); k.lineTo(x0,y0); k.lineTo(x1,y0); k.stroke();
+  k.fillStyle='#475569'; k.fillText('Tiempo desde el corte (min)',w/2-70,h-4);
+  S.teams.forEach(tm=>{
+    k.strokeStyle=COL[tm.id]; k.lineWidth=3; k.beginPath(); tm.hist.forEach((p,i)=>i?k.lineTo(X(p.t),Y(p.W)):k.moveTo(X(p.t),Y(p.W))); k.stroke();
+    if(tm.rest>0 && S.started){ k.fillStyle=COL[tm.id]; k.globalAlpha=.15; k.fillRect(X(0),tm.id?y0-10:y0-20,X(Math.min(tm.rest,S.t))-X(0),8); k.globalAlpha=1; }
+    if(tm.drained!==null){ k.fillStyle=COL[tm.id]; k.beginPath(); k.arc(X(tm.drained),Y(tm.W),5,0,7); k.fill(); k.font='700 11px Segoe UI, system-ui, sans-serif'; k.fillText('Desuerado '+NAME[tm.id],X(tm.drained)+7,Y(tm.W)+(tm.id?18:-8)); k.font='11px Segoe UI, system-ui, sans-serif'; }
+  });
+  if(S.started){ k.fillStyle='#64748b'; k.fillText('barras tenues = reposo',x0+6,y0-24); }
 }
 
-animate();
+/* ===================== Cubo superficie/volumen ===================== */
+function drawCube(){
+  const k=bctx, a=S.teams[S.sel].a, L=20, n=Math.max(1,Math.round(L/a));
+  k.clearRect(0,0,300,170); k.fillStyle='#fff'; k.fillRect(0,0,300,170);
+  const ox=150, oy=162, e=62, iso=(x,y,z)=>[ox+(x-z)*e*0.87/1, oy-(y*e)-(x+z)*e*0.5/1];
+  const P=(x,y,z)=>{const p=iso(x,y,z); return p;};
+  const face=(pts,c)=>{ k.beginPath(); pts.forEach((p,i)=>i?k.lineTo(...p):k.moveTo(...p)); k.closePath(); k.fillStyle=c; k.fill(); };
+  // caras visibles: superior (y=1), frontal izquierda (z=1), frontal derecha (x=1)
+  face([P(0,1,0),P(1,1,0),P(1,1,1),P(0,1,1)],'#fffaf0');
+  face([P(0,0,1),P(1,0,1),P(1,1,1),P(0,1,1)],'#f6ecd2');
+  face([P(1,0,0),P(1,0,1),P(1,1,1),P(1,1,0)],'#ecdcb5');
+  k.strokeStyle=COL[S.sel]; k.lineWidth=n>5?0.7:1;
+  for(let i=1;i<n;i++){ const f=i/n;
+    [[P(f,1,0),P(f,1,1)],[P(0,1,f),P(1,1,f)],[P(f,0,1),P(f,1,1)],[P(0,f,1),P(1,f,1)],[P(1,0,f),P(1,1,f)],[P(1,f,0),P(1,f,1)]].forEach(l=>{k.beginPath(); k.moveTo(...l[0]); k.lineTo(...l[1]); k.stroke();});
+  }
+  k.strokeStyle='#64748b'; k.lineWidth=1.5;
+  [[P(0,1,0),P(1,1,0)],[P(1,1,0),P(1,1,1)],[P(1,1,1),P(0,1,1)],[P(0,1,1),P(0,1,0)],[P(0,0,1),P(1,0,1)],[P(1,0,1),P(1,0,0)],[P(0,0,1),P(0,1,1)],[P(1,0,1),P(1,1,1)],[P(1,0,0),P(1,1,0)]].forEach(l=>{k.beginPath(); k.moveTo(...l[0]); k.lineTo(...l[1]); k.stroke();});
+  k.fillStyle='#334155'; k.font='600 11px Segoe UI, system-ui, sans-serif'; k.fillText('Bloque de 2 × 2 × 2 cm',8,16);
+  k.fillStyle=COL[S.sel]; k.fillText(`cortado en granos de ${a} mm (Equipo ${NAME[S.sel]})`,8,30);
+  const nG=Math.pow(L/a,3), area=6*8000/a/100, sv=6/a, dist=a/2, rel=Math.pow(a/10,2);
+  $('#cubeStat').innerHTML=`<div>Granos en el bloque<b>≈ ${nG<10?fmt(nG,1):Math.round(nG).toLocaleString('es-MX')}</b></div><div>Superficie total<b>${fmt(area,0)} cm²</b></div><div>Distancia máx. al exterior<b>${fmt(dist,1)} mm</b></div><div>Tiempo relativo de salida*<b>${fmt(rel,2)}× (vs 10 mm)</b></div>`;
+  $('#s-a').textContent=a<=5?'Fino: mucha superficie, desuerado rápido, menor humedad.':a<=10?'Medio: desuerado intermedio (el Ranchero usa ~1 cm).':'Grueso: poca superficie, desuerado lento, mayor humedad.';
+}
+
+/* ===================== Panel de marcador y textos ===================== */
+function renderBoard(){
+  $('#board').innerHTML=S.teams.map(tm=>{
+    const wh=wheyOf(tm.fines);
+    const flags=[];
+    if(tm.cs>0.25) flags.push(['⚠ Endurecimiento superficial: calentó demasiado rápido','#b45309']);
+    if(tm.mat>0.3) flags.push(['⚠ Granos apelmazados por falta de agitación','#b45309']);
+    if(wh.k==='lechoso') flags.push(['❌ Pérdida de finos: agitación intensa antes de cicatrizar','#b91c1c']);
+    return `<div class="score ${NAME[tm.id]}"><div class="h">Equipo ${NAME[tm.id]}</div>
+      <div class="kv"><span>Humedad del grano</span><b>${fmt(tm.W,1)} %</b></div>
+      <div class="kv"><span>Agua expulsada (del total inicial)</span><b>${fmt(waterOut(tm.W),0)} %</b></div>
+      <div class="kv"><span>Finos perdidos al suero</span><b>${fmt(tm.fines,1)} %</b></div>
+      <div class="kv"><span>Suero</span><b><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid #cbd5e1;background:${wh.c};vertical-align:-2px"></span> ${wh.txt}</b></div>
+      ${flags.map(f=>`<div class="flag" style="color:${f[1]}">${f[0]}</div>`).join('')}</div>`;
+  }).join('');
+}
+function explain(){
+  const [A,B]=S.teams, E=$('#exBody'); const p=[];
+  if(!S.started){
+    p.push('<p>La cuajada en punto de corte es una red continua de caseína con el suero atrapado. Al cortarla, cada grano tiene nuevas superficies por donde el suero puede salir: <b>la sinéresis</b>.</p>');
+    p.push('<p>El suero del centro del grano debe recorrer una distancia de la mitad de su tamaño hasta la superficie. Por eso, al reducir el grano a la mitad, el suero sale <b>mucho más rápido</b> (observa la tarjeta del cubo).</p>');
+  } else {
+    const both=S.teams.map(tm=>{
+      const st=S.t<tm.rest?'en reposo':tm.drained!==null?'desuerado':'en agitación';
+      return `<b style="color:${COL[tm.id]}">Equipo ${NAME[tm.id]}</b> (${st}): humedad ${fmt(tm.W,1)} %, velocidad de sinéresis ${fmt(tm.k*100,1)} %/min`;
+    });
+    p.push('<p>'+both.join('<br>')+'</p>');
+    const notes=new Set();
+    S.teams.forEach(tm=>{
+      if(S.t<tm.rest) notes.add('<b>Reposo:</b> las superficies recién cortadas se sellan («cicatrizan»); así el grano resiste la agitación sin fragmentarse.');
+      if(tm.rest===0 && tm.stir>=2) notes.add('<b>Agitar sin reposo:</b> los granos aún son frágiles; la agitación los rompe en finos que se van al suero (suero lechoso, menor rendimiento).');
+      if(tm.stir===0 && S.t>=tm.rest) notes.add('<b>Sin agitar:</b> los granos se asientan, se pegan entre sí y el suero queda atrapado en el montón.');
+      if(tm.Tt>32 && S.t>=tm.rest) notes.add('<b>Cocción:</b> al subir la temperatura la red de caseína se contrae más y expulsa más suero.');
+      if(tm.hr>1 && tm.Tt>32) notes.add('<b>Calentar rápido:</b> la superficie del grano se endurece antes que el interior y atrapa humedad; por eso se calienta de forma gradual.');
+      if(tm.acid==='alta') notes.add('<b>Acidez alta:</b> el pH más bajo favorece la contracción de la red y la sinéresis.');
+    });
+    if(Math.abs(A.a-B.a)>=5) notes.add(`<b>Tamaño de grano:</b> el grano de ${Math.min(A.a,B.a)} mm tiene ${fmt(Math.max(A.a,B.a)/Math.min(A.a,B.a),1)} veces más superficie por volumen que el de ${Math.max(A.a,B.a)} mm.`);
+    notes.forEach(n=>p.push('<p>'+n+'</p>'));
+  }
+  if(A.drained!==null && B.drained!==null) p.push(resultsTable());
+  E.innerHTML=p.join('');
+}
+function resultsTable(){
+  const [A,B]=S.teams;
+  const row=(lbl,f)=>`<tr><td>${lbl}</td><td class="A">${f(A)}</td><td class="B">${f(B)}</td></tr>`;
+  const drier=Math.abs(A.W-B.W)<1.5?'=':(A.W<B.W?'A':'B');
+  let predTxt='';
+  if(S.pred) predTxt=`<p>🤔 Tu predicción: <b>${S.pred==='='?'casi igual':'Equipo '+S.pred}</b>. Resultado: <b>${drier==='='?'casi igual':'Equipo '+drier+' quedó más seco'}</b>. ${S.pred===drier?'✅ ¡Acertaste!':'Revisa qué variable hizo la diferencia.'}</p>`;
+  return `<p><b>Resultados al desuerar</b></p><table><tr><th></th><th>Equipo A</th><th>Equipo B</th></tr>
+    ${row('Tiempo hasta desuerar',t=>fmt(t.drained,0)+' min')}
+    ${row('Humedad del grano',t=>fmt(t.W,1)+' %')}
+    ${row('Finos perdidos',t=>fmt(t.fines,1)+' %')}
+    ${row('Suero',t=>wheyOf(t.fines).txt)}
+    ${row('Se parece a',t=>cheeseOf(t.W))}</table>${predTxt}
+    <p style="font-size:12.5px;color:#64748b">La humedad del queso terminado será menor: el moldeo, el prensado y el salado todavía retiran suero.</p>`;
+}
+
+/* ===================== Controles ===================== */
+function syncControls(){
+  const tm=S.teams[S.sel];
+  $$('.tab').forEach(b=>b.classList.toggle('on',+b.dataset.t===S.sel));
+  $('#a').value=tm.a; $('#v-a').textContent=tm.a+' mm'; $('#Tt').value=tm.Tt; $('#v-T').textContent=tm.Tt+' °C';
+  $('#v-stir').textContent=STIR_N[tm.stir];
+  $$('.val').forEach(v=>v.style.color=COL[S.sel]);
+  $('#a').style.accentColor=COL[S.sel]; $('#Tt').style.accentColor=COL[S.sel];
+  $$('.seg[data-k]').forEach(seg=>seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v==String(tm[seg.dataset.k]))));
+  const locked=S.started;
+  $('#a').disabled=locked; $$('.seg[data-k="rest"] button').forEach(b=>b.disabled=locked);
+  $$('[data-lock]').forEach(l=>l.textContent=locked?'🔒 Fijo desde el corte':'');
+  drawCube();
+}
+$$('.tab').forEach(b=>b.addEventListener('click',()=>{ S.sel=+b.dataset.t; syncControls(); }));
+$('#a').addEventListener('input',e=>{ S.teams[S.sel].a=+e.target.value; syncControls(); clearCompare(); });
+$('#Tt').addEventListener('input',e=>{ S.teams[S.sel].Tt=+e.target.value; syncControls(); clearCompare(); });
+$$('.seg[data-k]').forEach(seg=>seg.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b||b.disabled) return; const k=seg.dataset.k, v=b.dataset.v;
+  S.teams[S.sel][k]= k==='acid'?v:+v; syncControls(); clearCompare();
+}));
+$('#speed').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; S.speed=+b.dataset.v; $$('#speed button').forEach(x=>x.classList.toggle('on',x===b)); });
+$$('input[name=pred]').forEach(r=>r.addEventListener('change',e=>{ S.pred=e.target.value; }));
+$('#start').addEventListener('click',()=>{
+  S.started=true; S.running=true; S.t=0; S.cutAnim=0;
+  S.teams.forEach(tm=>{ tm.W=W0; tm.T=32; tm.fines=0; tm.cs=0; tm.mat=0; tm.drained=null; tm.drainAnim=0; tm.hist=[{t:0,W:W0}]; makeGrains(tm); });
+  $('#start').disabled=true; $('#pause').disabled=false; $('#drainA').disabled=false; $('#drainB').disabled=false;
+  $$('input[name=pred]').forEach(r=>r.disabled=true);
+  syncControls(); explain();
+});
+$('#pause').addEventListener('click',()=>{ S.running=!S.running; $('#pause').textContent=S.running?'⏸ Pausa':'▶ Continuar'; });
+function drain(i){ const tm=S.teams[i]; if(tm.drained!==null||!S.started) return; tm.drained=S.t; tm.hist.push({t:S.t,W:tm.W}); $('#drain'+NAME[i]).disabled=true; if(S.teams.every(x=>x.drained!==null)){ S.running=false; $('#pause').disabled=true; } explain(); }
+$('#drainA').addEventListener('click',()=>drain(0)); $('#drainB').addEventListener('click',()=>drain(1));
+$('#reset').addEventListener('click',()=>resetAll(false));
+function resetAll(keepSettings=true){
+  S.started=false; S.running=false; S.t=0; S.cutAnim=0;
+  S.teams.forEach(tm=>{ tm.W=W0; tm.T=32; tm.fines=0; tm.cs=0; tm.mat=0; tm.drained=null; tm.drainAnim=0; tm.hist=[{t:0,W:W0}]; tm.grains=[]; });
+  $('#start').disabled=false; $('#pause').disabled=true; $('#pause').textContent='⏸ Pausa'; $('#drainA').disabled=true; $('#drainB').disabled=true;
+  $$('input[name=pred]').forEach(r=>{ r.disabled=false; r.checked=false; }); S.pred=null;
+  syncControls(); explain(); renderBoard();
+}
+
+/* Comparaciones prearmadas */
+const BASE={a:10,rest:5,stir:1,Tt:32,hr:1,acid:'media'};
+const COMPS={
+  p20:{q:'<b>Pregunta de proceso (p. 20):</b> en la práctica de Ranchero/Botanero se usan cubos de ~1 cm. ¿Qué esperas si un equipo hace cubos de 2 cm y otro de 0.5 cm? Todo lo demás es igual.',A:{a:20},B:{a:5}},
+  reposo:{q:'<b>¿Para qué sirve el reposo?</b> El Equipo A deja reposar 5 min y agita suave; el Equipo B agita intensamente justo después del corte. Observa el color del suero y los finos.',A:{rest:5,stir:1},B:{rest:0,stir:3}},
+  agita:{q:'<b>¿Hace falta agitar?</b> El Equipo A agita suave; el Equipo B deja los granos quietos después del reposo.',A:{stir:1},B:{stir:0}},
+  calor:{q:'<b>¿Da igual calentar rápido?</b> Ambos cocinan a 50 °C con grano de 6 mm; A sube 0.5 °C/min y B 2 °C/min. ¿Quién termina más seco a los 40 min?',A:{a:6,Tt:50,hr:0.5,stir:2},B:{a:6,Tt:50,hr:2,stir:2}},
+  recetas:{q:'<b>Del fresco a la pasta cocida (Figura 18):</b> A imita un queso fresco (grano grueso, sin cocción); B imita un tipo parmesano (grano fino, cocción a 53 °C, agitación media).',A:{a:14,stir:1,Tt:32},B:{a:4,stir:2,Tt:53,hr:1}}
+};
+$$('.presets .chip').forEach(c=>c.addEventListener('click',()=>{
+  const C=COMPS[c.dataset.c];
+  $$('.presets .chip').forEach(x=>x.classList.toggle('on',x===c));
+  Object.assign(S.teams[0],BASE,C.A); Object.assign(S.teams[1],BASE,C.B);
+  S.compare=c.dataset.c; $('#question').innerHTML=C.q+' <b>Haz tu predicción y pulsa «Cortar e iniciar».</b>';
+  resetAll();
+}));
+function clearCompare(){ if(!S.compare) return; S.compare=null; $$('.presets .chip').forEach(x=>x.classList.remove('on')); $('#question').innerHTML='<b>Configuración personalizada.</b> Cambia una sola variable entre A y B para que la comparación sea justa.'; }
+
+/* ===================== Bucle ===================== */
+let last=performance.now(), frame=0;
+function loop(now){
+  requestAnimationFrame(loop);
+  try{
+    const dt=Math.min(0.05,(now-last)/1000); last=now; frame++;
+    if(S.started && S.cutAnim<1){ S.cutAnim=Math.min(1,S.cutAnim+dt/1.4); }
+    else if(S.started && S.running){
+      let dtm=dt*S.speed; while(dtm>1e-9){ const h=Math.min(0.05,dtm); S.t+=h; S.teams.forEach(tm=>stepTeam(tm,h)); dtm-=h; }
+      S.teams.forEach(tm=>{ if(tm.drained===null){ const lp=tm.hist[tm.hist.length-1]; if(S.t-lp.t>=0.2) tm.hist.push({t:S.t,W:tm.W}); }});
+      if(S.t>=TMAX){ S.teams.forEach((tm,i)=>{ if(tm.drained===null) drain(i); }); }
+    }
+    S.teams.forEach(tm=>moveGrains(tm,dt));
+    ctx.clearRect(0,0,W,H); const bg=ctx.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#f8fafc'); bg.addColorStop(1,'#e9eef5'); ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='#dbe3ef'; ctx.beginPath(); ctx.moveTo(380,10); ctx.lineTo(380,H-10); ctx.stroke();
+    S.teams.forEach(drawVat);
+    $('#clock').textContent=`t = ${fmt(S.t)} min desde el corte`;
+    if(frame%3===0) drawChart();
+    if(frame%6===0) renderBoard();
+    if(frame%45===0 && S.started) explain();
+  }catch(err){ console.error(err); }
+}
+syncControls(); renderBoard(); explain(); drawChart();
+requestAnimationFrame(loop);
 </script>
-
 </body>
 </html>

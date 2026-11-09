@@ -1,711 +1,555 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorio: Coagulación Ácida vs. Enzimática</title>
-    <style>
-        :root {
-            --bg: #f1f5f9;
-            --card: #ffffff;
-            --text: #1e293b;
-            --accent: #0284c7;
-            --acid: #ef4444;
-            --enzyme: #8b5cf6;
-        }
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        .app-container {
-            max-width: 1000px;
-            width: 100%;
-            background: var(--card);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
-        h1 {
-            text-align: center;
-            margin: 0 0 6px 0;
-            color: #0f172a;
-            font-size: 24px;
-        }
-        .subtitle {
-            text-align: center;
-            color: #64748b;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        .preset-bar {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-        }
-        .btn {
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .btn-milk { background: #e2e8f0; color: #334155; }
-        .btn-enzyme { background: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; }
-        .btn-acid { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
-        .btn-mixed { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
-        .btn:hover { transform: translateY(-1px); filter: brightness(0.96); }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 20px;
-        }
-        @media (max-width: 780px) {
-            .dashboard { grid-template-columns: 1fr; }
-        }
-        .controls-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-        .control-group label {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 6px;
-        }
-        input[type="range"] {
-            width: 100%;
-            cursor: pointer;
-        }
-        .ph-scale {
-            height: 8px;
-            border-radius: 4px;
-            background: linear-gradient(to right, #ef4444 0%, #eab308 50%, #3b82f6 100%);
-            margin-top: 4px;
-        }
-        .scale-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #64748b;
-            margin-top: 2px;
-        }
-        .toggle-btn {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 2px solid #8b5cf6;
-            background: white;
-            color: #6d28d9;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .toggle-btn.active {
-            background: #8b5cf6;
-            color: white;
-        }
-        .metrics {
-            background: white;
-            border-radius: 8px;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            font-size: 13px;
-        }
-        .metric-row {
-            margin-bottom: 10px;
-        }
-        .metric-row:last-child { margin-bottom: 0; }
-        .progress-bg {
-            height: 8px;
-            background: #e2e8f0;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 4px;
-        }
-        .progress-fill {
-            height: 100%;
-            transition: width 0.3s;
-        }
-        .canvas-area {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .canvas-wrapper {
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 3px solid #cbd5e1;
-            background: #fffbeb;
-            transition: background 1s ease;
-        }
-        canvas {
-            display: block;
-            width: 100%;
-            height: 390px;
-        }
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-            justify-content: center;
-            font-size: 12px;
-            background: #f8fafc;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-        .legend-item { display: flex; align-items: center; gap: 6px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-
-        .analysis-panel {
-            margin-top: 18px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        @media (max-width: 650px) {
-            .analysis-panel { grid-template-columns: 1fr; }
-        }
-        .info-box {
-            padding: 15px;
-            border-radius: 10px;
-            background: #f8fafc;
-            border-left: 5px solid #0284c7;
-            font-size: 14px;
-            line-height: 1.45;
-        }
-        .info-box h3 { margin: 0 0 6px 0; font-size: 16px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coagulación Ácida vs. Enzimática · Semana 14</title>
+<style>
+:root{
+  --navy:#12306b; --navy-2:#1d4196; --ink:#0f1b33; --text:#22304a; --muted:#64748b;
+  --bg:#eef2f8; --card:#ffffff; --line:#dbe3ef; --soft:#f6f8fc;
+  --orange:#f05a28; --magenta:#d61f5c; --ok:#16a34a; --warn:#d97706; --bad:#dc2626;
+  --enz:#2563eb; --acid:#dc2626; --mix:#7c3aed; --heat:#ea580c;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--text);padding:18px;line-height:1.45}
+.app{max-width:1200px;margin:0 auto;background:var(--card);border-radius:18px;box-shadow:0 12px 34px rgba(15,27,51,.10);overflow:hidden}
+.topbar{height:6px;background:linear-gradient(90deg,var(--orange),var(--magenta))}
+header{padding:16px 24px 6px}
+.back{display:inline-flex;align-items:center;gap:6px;background:#334155;color:#f8fafc;text-decoration:none;padding:8px 14px;border-radius:8px;font-weight:600;font-size:13px;border:1px solid #475569;margin-bottom:12px}
+.back:hover{background:#1e293b}
+.title-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+h1{margin:0;color:var(--navy);font-size:26px;letter-spacing:-.3px}
+.subtitle{color:var(--muted);font-size:14px;margin-top:2px}
+.week-tag{background:var(--navy);color:#fff;font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;white-space:nowrap}
+.week-tag b{color:#ffb38f}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 24px 0}
+@media (max-width:700px){.tabs{grid-template-columns:1fr}}
+.tab{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;text-align:left;cursor:pointer;font:inherit;color:var(--muted)}
+.tab b{display:block;font-size:15px;color:inherit}
+.tab small{font-size:12.5px}
+.tab.on{border-color:var(--navy);background:#eef3ff;color:var(--navy)}
+.pane{display:none;padding:12px 24px 18px}
+.pane.show{display:block}
+.presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.presets .lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-right:4px}
+.chip{border:1.5px solid var(--line);background:#fff;color:var(--text);padding:6px 11px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.chip:hover{border-color:var(--navy-2)}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.lab{display:grid;grid-template-columns:300px 1fr;gap:16px}
+@media (max-width:960px){.lab{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.card{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.card h3{margin:0 0 8px;font-size:14.5px;color:var(--navy)}
+.ctl{margin-bottom:12px}
+.ctl:last-child{margin-bottom:0}
+.ctl label{display:flex;justify-content:space-between;align-items:baseline;font-weight:600;font-size:13px;margin-bottom:4px;gap:8px}
+.ctl label .val{font-weight:800;font-size:18px;color:var(--navy)}
+.ctl input[type=range]{width:100%;cursor:pointer;accent-color:var(--navy)}
+.phbar{height:10px;border-radius:5px;background:linear-gradient(90deg,#dc2626,#f97316,#eab308,#84cc16,#22c55e,#3b82f6);margin-top:4px}
+.scale{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted)}
+.seg{display:flex;background:#e6ecf5;border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:transparent;padding:7px 4px;border-radius:8px;font-weight:600;font-size:12.5px;color:#475569;cursor:pointer;font-family:inherit;line-height:1.2}
+.seg button.on{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.meter{margin-top:8px}
+.meter .k{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600}
+.meter .k b{color:var(--ink)}
+.bar{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-top:3px}
+.bar i{display:block;height:100%;border-radius:4px;transition:width .3s}
+.state{border-radius:12px;padding:10px 12px;color:#fff;font-weight:800;font-size:15px}
+.state small{display:block;font-weight:600;font-size:12px;opacity:.9}
+.views{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:640px){.views{grid-template-columns:1fr}}
+.view{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.view b{display:block;font-size:12.5px;color:var(--navy);padding:7px 10px;border-bottom:1px solid var(--line);background:var(--soft)}
+canvas{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;font-size:11.5px;background:var(--soft);padding:7px 10px;border-radius:10px;border:1px solid var(--line)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.lg{width:11px;height:11px;border-radius:50%;display:inline-block}
+.result{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:760px){.result{grid-template-columns:1fr}}
+.props .row{display:grid;grid-template-columns:150px 1fr;gap:8px;align-items:center;font-size:12.5px;margin:5px 0}
+.cheeses{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.cheese{background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:600}
+.box{padding:12px 14px;border-radius:12px;background:var(--soft);border-left:5px solid var(--navy);font-size:13.5px}
+.box h3{margin:0 0 6px;font-size:15px;color:var(--navy)}
+.box p{margin:5px 0}
+.book{font-size:12.5px;color:#475569;margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)}
+/* hilado */
+.hgrid{display:grid;grid-template-columns:300px 1fr;gap:16px}
+@media (max-width:960px){.hgrid{grid-template-columns:1fr}}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-accent{background:linear-gradient(90deg,var(--orange),var(--magenta));color:#fff}
+.btn-ghost{background:#fff;border:1.5px solid var(--line);color:var(--text)}
+.btn-primary{background:var(--navy);color:#fff}
+.verdict{margin-top:8px;padding:9px 11px;border-radius:10px;font-size:13.5px}
+.verdict.good{background:#f0fdf4;border:1px solid #bbf7d0;color:#14532d}
+.verdict.bad{background:#fef2f2;border:1px solid #fecaca;color:#7f1d1d}
+.verdict.mid{background:#fffbeb;border:1px solid #fde68a;color:#78350f}
+.tries{font-size:12.5px;margin-top:8px}
+.tries div{padding:3px 0;border-bottom:1px dashed var(--line)}
+/* clasificación */
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:52px;padding:10px;border:2px dashed var(--line);border-radius:12px;background:#fff}
+.item{background:#fff;border:1.5px solid #cbd5e1;border-radius:10px;padding:7px 11px;font-weight:700;font-size:13px;cursor:grab;user-select:none;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.item.sel{outline:3px solid var(--orange)}
+.item.right{border-color:var(--ok);background:#f0fdf4}
+.item.wrong{border-color:var(--bad);background:#fef2f2}
+.bins{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+@media (max-width:900px){.bins{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.bins{grid-template-columns:1fr}}
+.bin{border:2px solid var(--line);border-radius:14px;background:var(--soft);padding:10px;min-height:170px;display:flex;flex-direction:column;gap:6px;transition:.15s}
+.bin.over{border-color:var(--orange);background:#fff7ed}
+.bin h4{margin:0;font-size:14px;color:var(--ink)}
+.bin small{font-size:11.5px;color:var(--muted)}
+.bin .drop{display:flex;flex-direction:column;gap:6px;flex:1}
+.why{font-size:12px;color:#475569;font-weight:500;margin-top:2px}
+details.teacher{margin:0 24px 22px;border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:#fbfcfe;font-size:13.5px}
+details.teacher summary{cursor:pointer;font-weight:700;color:var(--navy)}
+details.teacher li{margin:3px 0}
+footer{padding:0 24px 18px;font-size:11.5px;color:var(--muted)}
+</style>
 </head>
 <body>
-
-<div class="app-container">
-    <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; background: #334155; color: #f8fafc; text-decoration: none; padding:     8px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; border: 1px solid #475569; margin-bottom: 14px; transition: 0.2s;">⬅ Volver al Menú Principal</a>
-    <h1>🔬 Simulador: Coagulación Ácida vs. Enzimática</h1>
-    <div class="subtitle">Explora cómo el pH y el cuajo alteran la estructura microscópica de la caseína, el calcio y el tipo de queso resultante</div>
-
-    <!-- Botones de Escenarios Rápidos -->
-    <div class="preset-bar">
-        <button class="btn btn-milk" onclick="applyPreset(6.7, 32, false)">🥛 Leche Fresca (pH 6.7)</button>
-        <button class="btn btn-enzyme" onclick="applyPreset(6.6, 35, true)">🧀 Coagulación Enzimática (Cuajo, pH 6.6)</button>
-        <button class="btn btn-acid" onclick="applyPreset(4.6, 35, false)">🍋 Coagulación Ácida (pH 4.6 Isoeléctrico)</button>
-        <button class="btn btn-mixed" onclick="applyPreset(5.3, 38, true)">🍕 Coagulación Mixta (Pasta Hilada, pH 5.3)</button>
+<div class="app">
+  <div class="topbar"></div>
+  <header>
+    <a class="back" href="index.html">⬅ Volver al Menú Principal</a>
+    <div class="title-row">
+      <div>
+        <h1>⚖️ Coagulación ácida vs. enzimática</h1>
+        <div class="subtitle">Cambia el pH, agrega cuajo o calor y observa qué le pasa a la micela de caseína, a su calcio y al gel que se forma. Después comprueba por qué el pH decide si una cuajada puede hilarse.</div>
+      </div>
+      <div class="week-tag">Semana 14 · <b>p. 10 y Figuras 10–13</b></div>
     </div>
+  </header>
 
-    <div class="dashboard">
-        <!-- Panel de Controles -->
-        <div class="controls-card">
-            <div class="control-group">
-                <label>
-                    <span>Acidez (pH de la leche):</span>
-                    <span id="ph-val" style="color:#0284c7; font-size:16px;">6.7</span>
-                </label>
-                <input type="range" id="ph-slider" min="4.0" max="6.7" step="0.1" value="6.7" oninput="updateControls()">
-                <div class="ph-scale"></div>
-                <div class="scale-labels">
-                    <span>4.0 (Muy Ácido)</span>
-                    <span>4.6 (Isoeléctrico)</span>
-                    <span>6.7 (Fresco)</span>
-                </div>
-            </div>
+  <div class="tabs">
+    <button class="tab on" data-t="lab"><b>1 · Laboratorio de pH</b><small>Micela, calcio, carga y tipo de gel</small></button>
+    <button class="tab" data-t="hil"><b>2 · Prueba de hilado</b><small>¿Por qué el Oaxaca necesita pH 5.2–5.4?</small></button>
+    <button class="tab" data-t="cls"><b>3 · Clasifica los quesos</b><small>Enzimática, ácida o ácido-térmica</small></button>
+  </div>
 
-            <div class="control-group">
-                <label>
-                    <span>Temperatura:</span>
-                    <span id="temp-val">32 °C</span>
-                </label>
-                <input type="range" id="temp-slider" min="15" max="45" step="1" value="32" oninput="updateControls()">
-                <div class="scale-labels">
-                    <span>15 °C (Lenta)</span>
-                    <span>35 °C (Óptima)</span>
-                    <span>45 °C (Rápida)</span>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <button id="rennet-btn" class="toggle-btn" onclick="toggleRennet()">
-                    🧪 Añadir Cuajo (Quimosina): NO
-                </button>
-            </div>
-
-            <!-- Indicadores Bioquímicos en Tiempo Real -->
-            <div class="metrics">
-                <div class="metric-row">
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>Carga Negativa (Repulsión):</span>
-                        <strong id="charge-text">100%</strong>
-                    </div>
-                    <div class="progress-bg">
-                        <div id="charge-bar" class="progress-fill" style="width:100%; background:#ef4444;"></div>
-                    </div>
-                </div>
-
-                <div class="metric-row">
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>Calcio dentro de la Micela:</span>
-                        <strong id="calcium-text">100%</strong>
-                    </div>
-                    <div class="progress-bg">
-                        <div id="calcium-bar" class="progress-fill" style="width:100%; background:#3b82f6;"></div>
-                    </div>
-                </div>
-
-                <div class="metric-row">
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>Firmeza / Elasticidad del Gel:</span>
-                        <strong id="gel-text">Líquido</strong>
-                    </div>
-                    <div class="progress-bg">
-                        <div id="gel-bar" class="progress-fill" style="width:0%; background:#10b981;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Lienzo de Animación -->
-        <div class="canvas-area">
-            <div class="canvas-wrapper" id="canvas-wrap">
-                <canvas id="simCanvas" width="660" height="390"></canvas>
-            </div>
-            <div class="legend">
-                <div class="legend-item"><span class="dot" style="background:#f8fafc; border:2px solid #64748b;"></span> Micela de Caseína</div>
-                <div class="legend-item"><span class="dot" style="background:#ef4444; height:3px; border-radius:0;"></span> Kappa-caseína</div>
-                <div class="legend-item"><span class="dot" style="background:#3b82f6;"></span> Fosfato de Calcio (Ca²⁺)</div>
-                <div class="legend-item"><span class="dot" style="background:#f59e0b;"></span> Protones Ácidos (H⁺)</div>
-                <div class="legend-item"><span class="dot" style="background:#8b5cf6;"></span> Enzima Quimosina (Cuajo)</div>
-            </div>
-        </div>
+  <!-- ===================== PESTAÑA 1 ===================== -->
+  <div class="pane show" data-p="lab">
+    <div class="presets"><span class="lbl">Escenarios</span>
+      <button class="chip" data-s="fresca">🥛 Leche fresca</button>
+      <button class="chip" data-s="enz">🧀 Coagulación enzimática</button>
+      <button class="chip" data-s="acida">🍋 Coagulación ácida</button>
+      <button class="chip" data-s="mixta">🧪 Láctica con poco cuajo</button>
+      <button class="chip" data-s="termica">🔥 Ácido-térmica</button>
     </div>
-
-    <!-- Explicación Dinámica -->
-    <div class="analysis-panel">
-        <div class="info-box" id="mechanism-box">
-            <h3>🔬 ¿Qué ocurre a nivel microscópico?</h3>
-            <div id="mechanism-text"></div>
+    <div class="lab">
+      <div class="col">
+        <div class="card">
+          <div class="ctl"><label>pH de la leche al coagular <span class="val" id="v-pH">6.70</span></label>
+            <input type="range" id="pH" min="4.2" max="6.8" step="0.05" value="6.7"><div class="phbar"></div>
+            <div class="scale"><span>4.2</span><span>4.6 isoeléctrico</span><span>6.7 fresca</span></div></div>
+          <div class="ctl"><label>Cuajo (quimosina)</label><div class="seg" data-k="ren"><button data-v="0" class="on">Sin cuajo</button><button data-v="1">Con cuajo</button></div></div>
+          <div class="ctl"><label>Temperatura</label><div class="seg" data-k="heat"><button data-v="0" class="on">30–35 °C</button><button data-v="1">Calor intenso 85–90 °C</button></div></div>
         </div>
-        <div class="info-box" id="cheese-box" style="border-left-color: #f59e0b;">
-            <h3>🧀 Resultado Quesero y Textura</h3>
-            <div id="cheese-text"></div>
+        <div class="card">
+          <h3>📟 Estado de la micela</h3>
+          <div class="meter"><div class="k"><span>Calcio coloidal en la micela</span><b id="m-ccp"></b></div><div class="bar"><i id="b-ccp" style="background:#f59e0b"></i></div></div>
+          <div class="meter"><div class="k"><span>Carga negativa (repulsión)</span><b id="m-chg"></b></div><div class="bar"><i id="b-chg" style="background:#3b82f6"></i></div></div>
+          <div class="meter"><div class="k"><span>Capa de κ-caseína</span><b id="m-kap"></b></div><div class="bar"><i id="b-kap" style="background:#8b5cf6"></i></div></div>
+          <div style="margin-top:10px" id="state"></div>
         </div>
+      </div>
+      <div class="col">
+        <div class="views">
+          <div class="view"><b>🔍 Una micela de cerca</b><canvas id="cm" width="380" height="290"></canvas></div>
+          <div class="view"><b>🕸️ Lo que forman muchas micelas</b><canvas id="cn" width="380" height="290"></canvas></div>
+        </div>
+        <div class="legend">
+          <span><i class="lg" style="background:radial-gradient(circle at 35% 35%,#a9c8ff,#2f63c9)"></i>Micela / submicelas</span>
+          <span><i class="lg" style="background:#8b5cf6;height:3px;border-radius:0"></i>κ-caseína</span>
+          <span><i class="lg" style="background:#f59e0b"></i>Fosfato de calcio coloidal</span>
+          <span><i class="lg" style="background:#22c55e"></i>Ca²⁺ soluble</span>
+          <span><i class="lg" style="background:#ef4444"></i>H⁺ (acidez)</span>
+          <span><i class="lg" style="background:#d61f5c"></i>Quimosina</span>
+          <span><i class="lg" style="background:#9ca3af"></i>Proteínas del suero desnaturalizadas</span>
+        </div>
+        <div class="view"><b>📉 Lo que cambia con el pH</b><canvas id="cc" width="760" height="190"></canvas></div>
+        <div class="result">
+          <div class="card props"><h3>🧪 Propiedades de lo que se forma</h3><div id="props"></div></div>
+          <div class="card"><h3>🧀 Quesos que se elaboran así</h3><div id="cheeses"></div></div>
+        </div>
+        <div class="box"><h3>🔬 ¿Qué está pasando?</h3><div id="explain"></div><div class="book" id="book"></div></div>
+      </div>
     </div>
+  </div>
+
+  <!-- ===================== PESTAÑA 2 ===================== -->
+  <div class="pane" data-p="hil">
+    <div class="hgrid">
+      <div class="col">
+        <div class="card">
+          <h3>🧵 Prepara la prueba</h3>
+          <p style="font-size:13px;margin:0 0 10px">La cuajada se obtuvo con <b>cuajo</b> a pH de leche ≈ 6.5. Después se dejó <b>acidificar</b>. Elige en qué pH la pruebas y la temperatura del agua.</p>
+          <div class="ctl"><label>pH de la cuajada <span class="val" id="v-cpH">6.00</span></label><input type="range" id="cpH" min="4.6" max="6.4" step="0.05" value="6.0"><div class="phbar"></div><div class="scale"><span>4.6</span><span>5.3</span><span>6.4</span></div></div>
+          <div class="ctl"><label>Temperatura del agua <span class="val" id="v-wT">75 °C</span></label><input type="range" id="wT" min="45" max="90" step="1" value="75"></div>
+          <div style="display:flex;gap:8px"><button class="btn btn-accent" id="stretch">🧵 Estirar la cuajada</button><button class="btn btn-ghost" id="hReset">↺</button></div>
+          <div id="verdict"></div>
+        </div>
+        <div class="card"><h3>📒 Tus pruebas</h3><div class="tries" id="tries"><div style="color:var(--muted)">Aún no haces pruebas.</div></div></div>
+      </div>
+      <div class="col">
+        <div class="view"><b>Mesa de hilado</b><canvas id="ch" width="760" height="330"></canvas></div>
+        <div class="box"><h3>🔬 ¿Por qué depende del pH?</h3>
+          <p>Al acidificarse, la cuajada <b>pierde parte del fosfato de calcio</b> que une a las caseínas. Con la cantidad justa de calcio (pH cercano a 5.2–5.4), la red se vuelve <b>plástica</b> en agua caliente: las proteínas se deslizan, se alinean y forman hebras.</p>
+          <p>Con <b>demasiado calcio</b> (pH alto) la red es rígida y se rompe. Con <b>muy poco calcio</b> (pH bajo) la pasta pierde estructura y se deshace.</p>
+          <div class="book">📘 Tu CECYBOOK: Figura 4 (p. 4, queso Oaxaca de pasta hilada), Figura 22 (p. 24) y el simulador de coagulación del Laboratorio de pH.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PESTAÑA 3 ===================== -->
+  <div class="pane" data-p="cls">
+    <div class="box" style="margin-bottom:10px"><h3>🗂️ Arrastra cada queso a su tipo de coagulación</h3><p>En celular: toca un queso y luego toca la columna. Cuando termines, pulsa «Revisar». Tu CECYBOOK (p. 10) explica que hay quesos frescos de coagulación enzimática, ácida y ácido-térmica.</p></div>
+    <div class="pool" id="pool"></div>
+    <div class="bins" id="bins"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center"><button class="btn btn-primary" id="check">✅ Revisar</button><button class="btn btn-ghost" id="reshuf">↺ Volver a empezar</button><span id="score" style="font-weight:700;color:var(--navy)"></span></div>
+  </div>
+
+  <details class="teacher">
+    <summary>👩‍🏫 Notas para el docente</summary>
+    <ul>
+      <li><b>Uso sugerido (20 min):</b> recorrer los cinco escenarios del Laboratorio de pH observando el calcio coloidal y la carga; después, la Prueba de hilado para encontrar la ventana de pH; cerrar con la clasificación de quesos.</li>
+      <li><b>Ajustes respecto a la versión anterior:</b> (1) requesón y paneer se clasifican como <b>ácido-térmicos</b> (calor intenso + acidez), no como ácidos; (2) la coagulación enzimática incluye a los quesos frescos (fresco, panela, ranchero), no solo a los madurados; (3) el pH 5.2–5.4 del hilado corresponde a la <b>cuajada</b>, no a la leche al coagular; (4) la pérdida de calcio coloidal sigue una curva: es pequeña entre pH 6.7 y 6.0, rápida entre 6.0 y 5.0 y casi total cerca de 4.9; (5) la estabilidad de la micela se explica por la capa de κ-caseína (repulsión estérica) además de la carga.</li>
+      <li><b>Simplificaciones:</b> esquema no a escala; las propiedades del gel son comparativas, no mediciones.</li>
+    </ul>
+  </details>
+  <footer>Recurso didáctico complementario · CECYBOOK Semana 14 · 7.3 Proceso para la obtención de quesos.</footer>
 </div>
 
 <script>
-const canvas = document.getElementById('simCanvas');
-const ctx = canvas.getContext('2d');
-const canvasWrap = document.getElementById('canvas-wrap');
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const fmt=(v,d=2)=>Number(v).toFixed(d);
+function hiDPI(c,w,h){ const k=c.getContext('2d'), d=Math.min(2,window.devicePixelRatio||1); c.width=w*d; c.height=h*d; k.setTransform(d,0,0,d,0,0); return k; }
 
-let pH = 6.7;
-let temp = 32;
-let hasRennet = false;
+/* ===================== Modelo ===================== */
+const CCP_T=[[4.2,0],[4.6,0],[4.8,0.04],[5.0,0.14],[5.2,0.28],[5.3,0.36],[5.6,0.55],[6.0,0.78],[6.3,0.9],[6.7,1],[6.8,1]];
+function ccpOf(pH){ for(let i=1;i<CCP_T.length;i++) if(pH<=CCP_T[i][0]){ const [a,pa]=CCP_T[i-1],[b,pb]=CCP_T[i]; return pa+(pb-pa)*(pH-a)/(b-a); } return 1; }
+const chargeOf=pH=>(pH-4.6)/(6.7-4.6);           // >0 negativa, <0 positiva
+const extOf=pH=>clamp((pH-4.8)/(5.8-4.8),0.12,1); // extensión de la capa pilosa
+const S={pH:6.7,ren:0,heat:0};
+function state(){
+  const {pH,ren,heat}=S;
+  if(heat){ if(pH<=6.1) return 'termica'; return ren?'calor_cuajo':'calentada'; }
+  if(pH<4.4) return 'acida_baja';
+  if(pH<=4.95 && !ren) return 'acida';
+  if(ren){ if(pH>=6.2) return 'enz'; if(pH>=5.6) return 'enz_acida'; return 'mixta'; }
+  if(pH<=5.3) return 'inestable';
+  return 'liquida';
+}
+const ST={
+  liquida:{name:'Leche líquida y estable',sub:'Las micelas se repelen',col:'#475569',props:[0,0,0,null,0],ch:[],exp:'Las micelas están cubiertas por la <b>capa de κ-caseína</b>, hidrofílica y con carga negativa: se repelen y la leche sigue líquida.',book:'Figura 1 (p. 3) y Figura 10 (p. 11).'},
+  inestable:{name:'Leche acidificada, todavía líquida',sub:'Ya se perdió parte del calcio',col:'#d97706',props:[0.05,0,0,null,0],ch:[],exp:'El ácido ya disolvió una parte del <b>fosfato de calcio</b> de la micela y redujo su carga, pero todavía no es suficiente para formar un gel. Una leche así es inestable: si se calienta puede cortarse.',book:'Tabla 1 (p. 8): pH y acidez en la recepción.'},
+  enz:{name:'Gel enzimático',sub:'Firme, elástico y fácil de cortar y desuerar',col:'#2563eb',props:[0.9,0.85,0.85,null,0.1],ch:['Queso fresco','Panela','Ranchero/Botanero','Manchego','Chihuahua','Gouda'],exp:'La <b>quimosina corta la κ-caseína</b> y la micela pierde su capa protectora. Como el pH es alto, la micela <b>conserva casi todo su calcio</b>, que forma puentes entre micelas: la red es firme y elástica. Es la vía de la mayoría de los quesos, incluidos los frescos de esta semana.',book:'Figuras 11–13 (pp. 12–14) y Tabla 3 (p. 15).'},
+  enz_acida:{name:'Gel enzimático en leche ácida',sub:'Coagula más rápido pero es más frágil',col:'#4f46e5',props:[0.65,0.55,0.7,null,0.1],ch:['(Defecto de leche ácida)'],exp:'A pH más bajo el cuajo trabaja más rápido, pero la micela ya perdió parte de su calcio: la cuajada se forma pronto y queda <b>más frágil y granular</b>, con menor rendimiento (Tabla 3).',book:'Tabla 3 (p. 15): «pH muy bajo → cuajada frágil, granular y con menor rendimiento».'},
+  mixta:{name:'Gel láctico con poco cuajo',sub:'Suave, poco elástico',col:'#7c3aed',props:[0.45,0.3,0.45,null,0.1],ch:['Cottage','Quark','Quesos frescos lácticos de untar'],exp:'Aquí manda la <b>acidez</b>: el cultivo baja el pH y una pequeña dosis de cuajo solo da algo más de firmeza. La micela ya perdió buena parte de su calcio, así que el gel es suave y poco elástico.',book:'Fermentación láctica (simulador de esta semana) y p. 10.'},
+  acida:{name:'Gel ácido',sub:'Frágil, sin elasticidad, retiene el suero',col:'#dc2626',props:[0.35,0.1,0.25,null,0.1],ch:['Queso crema','Cottage','Quark','(El yogurt, en leches fermentadas)'],exp:'Cerca del <b>punto isoeléctrico (pH ≈ 4.6)</b> la caseína pierde su carga y su calcio coloidal se disuelve. Las micelas se agregan en racimos unidos por fuerzas débiles: el gel es frágil, no elástico y cuesta desuerarlo. No hace falta cuajo.',book:'p. 10: quesos frescos de coagulación ácida. Semana 13 (yogurt).'},
+  acida_baja:{name:'Gel ácido débil',sub:'Demasiado ácido',col:'#b91c1c',props:[0.2,0.05,0.2,null,0.1],ch:['(Sobreacidificación)'],exp:'Por debajo de pH ≈ 4.4 la caseína adquiere carga <b>positiva</b> y las micelas vuelven a repelerse: el gel se debilita y el sabor es demasiado ácido.',book:'Punto isoeléctrico de la caseína.'},
+  termica:{name:'Coagulación ácido-térmica',sub:'Se forman flóculos que se separan del suero',col:'#ea580c',props:[0.3,0.05,0.85,null,0.9],ch:['Requesón','Paneer','Ricotta'],exp:'El <b>calor intenso (85–90 °C)</b> desnaturaliza las proteínas del suero, que se unen a la caseína; al añadir ácido todo precipita en <b>flóculos</b> que se separan fácilmente. A diferencia de las otras vías, aquí se recuperan las proteínas del suero. El requesón se puede elaborar incluso a partir del lactosuero.',book:'p. 10: quesos ácido-térmicos. Tabla 2 (p. 9): el calor intenso afecta la coagulación con cuajo.'},
+  calentada:{name:'Leche calentada, sin coagular',sub:'Falta acidez',col:'#9a3412',props:[0,0,0,null,0.2],ch:[],exp:'El calor desnaturaliza las proteínas del suero y las une a la micela, pero sin bajar el pH la leche no coagula. Prueba bajar el pH a ≈ 5.5–6.0 con el calor encendido.',book:'Tabla 2 (p. 9).'},
+  calor_cuajo:{name:'Cuajo inactivado por el calor',sub:'No coagula',col:'#9a3412',props:[0,0,0,null,0.2],ch:[],exp:'A 85–90 °C la quimosina se <b>desnaturaliza</b> (Figura 15, p. 17). Además, las proteínas del suero unidas a la κ-caseína estorban la coagulación con cuajo.',book:'Figura 15 (p. 17) y Tabla 2 (p. 9).'}
+};
+const PROPS=['Firmeza del gel','Elasticidad','Facilidad de desuerado','Calcio en la cuajada','Proteínas del suero recuperadas'];
 
-let micelles = [];
-let protons = [];
-let enzymes = [];
-let serumCalciums = [];
-let cutHairs = [];
-
-const NUM_MICELLES = 20;
-
-class Micelle {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.vx = (Math.random() - 0.5) * 2;
-        this.vy = (Math.random() - 0.5) * 2;
-        this.radius = 22;
-        this.hairsCut = false;
-        this.hairCount = 12;
-        this.internalCalcium = 6; // Puntos azules de calcio adentro
-    }
-
-    update() {
-        const speedFactor = temp / 30;
-
-        // Cuánto calcio interno debe tener según el pH (a pH 4.6 se pierde casi todo al suero)
-        let targetCalcium = Math.round(Math.max(0, (pH - 4.5) / (6.7 - 4.5)) * 6);
-        if (this.internalCalcium > targetCalcium && Math.random() < 0.08) {
-            this.internalCalcium--;
-            serumCalciums.push({
-                x: this.x + (Math.random() - 0.5) * 15,
-                y: this.y + (Math.random() - 0.5) * 15,
-                vx: (Math.random() - 0.5) * 2,
-                vy: (Math.random() - 0.5) * 2
-            });
-        } else if (this.internalCalcium < targetCalcium && serumCalciums.length > 0 && Math.random() < 0.08) {
-            this.internalCalcium++;
-            serumCalciums.pop();
-        }
-
-        // Si ya coaguló (por ácido pH <= 4.9 o por cuajo sin pelos)
-        let isAcidCoagulated = pH <= 4.9;
-        let isEnzymeCoagulated = this.hairCount <= 2;
-
-        if (isEnzymeCoagulated) {
-            // Coagulación enzimática: atracción fuerte hacia el centro/fondo (red compacta)
-            this.vx += (canvas.width / 2 - this.x) * 0.0018;
-            this.vy += (canvas.height * 0.6 - this.y) * 0.0025;
-            this.vx *= 0.90;
-            this.vy *= 0.90;
-        } else if (isAcidCoagulated) {
-            // Coagulación ácida: floculación abierta (racimos porosos sin compactarse tanto)
-            this.vx *= 0.88;
-            this.vy *= 0.88;
-            this.vy += 0.02; // Ligera precipitación
-        } else {
-            // Movimiento browniano normal
-            if (Math.hypot(this.vx, this.vy) < 1.2 * speedFactor) {
-                this.vx += (Math.random() - 0.5) * 0.4 * speedFactor;
-                this.vy += (Math.random() - 0.5) * 0.4 * speedFactor;
-            }
-        }
-
-        this.x += this.vx;
-        this.y += this.vy;
-
-        // Bordes
-        if (this.x - this.radius < 10) { this.x = this.radius + 10; this.vx *= -1; }
-        if (this.x + this.radius > canvas.width - 10) { this.x = canvas.width - this.radius - 10; this.vx *= -1; }
-        if (this.y - this.radius < 10) { this.y = this.radius + 10; this.vy *= -1; }
-        if (this.y + this.radius > canvas.height - 10) { this.y = canvas.height - this.radius - 10; this.vy *= -1; }
-    }
-
-    draw() {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-
-        // Longitud de los pelos depende del pH (a pH 4.6 se colapsan/encogen contra la micela)
-        let phExtension = Math.max(0.15, (pH - 4.4) / (6.7 - 4.4));
-        let hairLen = 10 * phExtension;
-
-        if (this.hairCount > 0) {
-            ctx.strokeStyle = pH <= 4.9 ? '#f97316' : '#ef4444';
-            ctx.lineWidth = 2;
-            for (let i = 0; i < this.hairCount; i++) {
-                let angle = (i * 2 * Math.PI) / 12;
-                let x1 = Math.cos(angle) * this.radius;
-                let y1 = Math.sin(angle) * this.radius;
-                // Si el pH es ácido, los pelos se doblan/aplastan sobre la superficie
-                let bend = (1 - phExtension) * 0.6;
-                let x2 = Math.cos(angle + bend) * (this.radius + hairLen);
-                let y2 = Math.sin(angle + bend) * (this.radius + hairLen);
-
-                ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-                ctx.stroke();
-
-                // Mostrar carga negativa (-) solo cuando el pH es alto
-                if (pH > 5.4 && i % 4 === 0) {
-                    ctx.fillStyle = '#dc2626';
-                    ctx.font = 'bold 11px sans-serif';
-                    ctx.fillText('-', x2 - 3, y2 + 3);
-                }
-            }
-        }
-
-        // Cuerpo de la micela (más porosa/transparente si perdió calcio por ácido)
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.internalCalcium <= 2 ? 'rgba(241, 245, 249, 0.82)' : '#f8fafc';
-        ctx.fill();
-        ctx.strokeStyle = this.internalCalcium <= 2 ? '#cbd5e1' : '#64748b';
-        ctx.lineWidth = this.internalCalcium <= 2 ? 1.5 : 2.5;
-        ctx.stroke();
-
-        // Dibujar Fosfato de Calcio Coloidal (CCP) DENTRO de la micela
-        ctx.fillStyle = '#3b82f6';
-        for (let c = 0; c < this.internalCalcium; c++) {
-            let caAngle = (c * 2 * Math.PI) / 6;
-            let cx = Math.cos(caAngle) * 10;
-            let cy = Math.sin(caAngle) * 10;
-            ctx.beginPath();
-            ctx.arc(cx, cy, 3.2, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        ctx.restore();
-    }
+/* ===================== Micela de cerca ===================== */
+const cm=$('#cm'), mctx=hiDPI(cm,380,290), cn=$('#cn'), nctx=hiDPI(cn,380,290), cc=$('#cc'), cctx=hiDPI(cc,760,190);
+const MX=190, MY=150, MR=70;
+let SOL=[], HP=[], GMP=[], ENZ=[], WP=[];
+for(let i=0;i<40;i++) SOL.push({a:Math.random()*6.28,r:MR+30+Math.random()*60,v:(Math.random()-.5)*0.4});
+for(let i=0;i<50;i++) HP.push({x:Math.random()*380,y:Math.random()*290,vx:(Math.random()-.5)*30,vy:(Math.random()-.5)*30});
+for(let i=0;i<3;i++) ENZ.push({a:Math.random()*6.28,r:MR+40,s:0.4+Math.random()*0.3});
+const HAIRS=Array.from({length:24},(_,i)=>({a:i*Math.PI*2/24}));
+const SUBS=Array.from({length:14},(_,i)=>{ const a=i*2.39996, r=Math.sqrt((i+0.5)/14)*MR*0.72; return {x:Math.cos(a)*r,y:Math.sin(a)*r}; });
+const CCPS=Array.from({length:14},(_,i)=>{ const a=i*2.39996+1, r=Math.sqrt((i+0.5)/14)*MR*0.78; return {x:Math.cos(a)*r,y:Math.sin(a)*r}; });
+let cutF=0, heatF=0;
+function drawMicelle(t,dt){
+  const k=mctx, pH=S.pH, ccp=ccpOf(pH), chg=chargeOf(pH), ext=extOf(pH);
+  cutF+= ((S.ren&&!S.heat?1:0)-cutF)*Math.min(1,dt*1.2);
+  heatF+= ((S.heat?1:0)-heatF)*Math.min(1,dt*1.5);
+  const bg=k.createLinearGradient(0,0,0,290); bg.addColorStop(0,'#fffef8'); bg.addColorStop(1,'#fbf5e4'); k.fillStyle=bg; k.fillRect(0,0,380,290);
+  // H+
+  const nH=Math.round(clamp((6.8-pH)*18,0,48));
+  k.fillStyle='#ef4444'; HP.slice(0,nH).forEach(h=>{ h.x=(h.x+h.vx*dt+380)%380; h.y=(h.y+h.vy*dt+290)%290; k.beginPath(); k.arc(h.x,h.y,2.4,0,7); k.fill(); });
+  // Ca soluble
+  const nS=Math.round(8+(1-ccp)*30);
+  k.fillStyle='#22c55e'; SOL.slice(0,nS).forEach(s=>{ s.a+=s.v*dt; k.beginPath(); k.arc(MX+Math.cos(s.a)*s.r,MY+Math.sin(s.a)*s.r*0.75,3,0,7); k.fill(); });
+  // pelos de κ-caseína
+  const keep=Math.round(24*(1-0.85*cutF));
+  HAIRS.forEach((h,i)=>{
+    if(i%24>=keep && i%2===0) return;
+    const cut=i>=keep;
+    const L=cut?5:(6+22*ext), bend=(1-ext)*0.9;
+    const x1=MX+Math.cos(h.a)*MR, y1=MY+Math.sin(h.a)*MR;
+    const x2=MX+Math.cos(h.a+bend*0.4)*(MR+L), y2=MY+Math.sin(h.a+bend*0.4)*(MR+L);
+    k.strokeStyle='#8b5cf6'; k.lineWidth=2.4; k.beginPath(); k.moveTo(x1,y1); k.quadraticCurveTo(MX+Math.cos(h.a+bend)*(MR+L*0.6),MY+Math.sin(h.a+bend)*(MR+L*0.6),x2,y2); k.stroke();
+    if(!cut){ k.fillStyle='#7c3aed'; k.beginPath(); k.arc(x2,y2,2,0,7); k.fill(); }
+    if(i%3===0 && !cut){ const sx=MX+Math.cos(h.a)*(MR+L+9), sy=MY+Math.sin(h.a)*(MR+L+9);
+      if(chg>0.12){ k.fillStyle='#1d4ed8'; k.font='bold 13px sans-serif'; k.textAlign='center'; k.globalAlpha=clamp(chg,0.2,1); k.fillText('−',sx,sy+4); k.globalAlpha=1; }
+      else if(chg<-0.05){ k.fillStyle='#dc2626'; k.font='bold 12px sans-serif'; k.textAlign='center'; k.fillText('+',sx,sy+4); } k.textAlign='left'; }
+  });
+  // cuerpo
+  const por=1-ccp;
+  const rg=k.createRadialGradient(MX-MR*.35,MY-MR*.35,8,MX,MY,MR); rg.addColorStop(0,por>0.7?'#dbe7ff':'#b4ceff'); rg.addColorStop(1,por>0.7?'#8fb0ea':'#2f63c9');
+  k.fillStyle=rg; k.beginPath(); k.arc(MX,MY,MR,0,7); k.fill();
+  k.fillStyle=`rgba(255,255,255,${0.18+0.25*por})`; SUBS.forEach(s=>{ k.beginPath(); k.arc(MX+s.x,MY+s.y,13,0,7); k.fill(); });
+  const nC=Math.round(14*ccp); k.fillStyle='#f59e0b'; k.strokeStyle='#b45309'; k.lineWidth=1;
+  CCPS.slice(0,nC).forEach(c=>{ k.beginPath(); k.arc(MX+c.x,MY+c.y,4.5,0,7); k.fill(); k.stroke(); });
+  // proteínas del suero desnaturalizadas
+  if(heatF>0.05){ k.globalAlpha=heatF; k.fillStyle='#9ca3af'; for(let i=0;i<14;i++){ const a=i*0.45; k.beginPath(); k.arc(MX+Math.cos(a*2.1)*(MR+4),MY+Math.sin(a*2.1)*(MR+4),5.5,0,7); k.fill(); } k.globalAlpha=1; }
+  // GMP y quimosina
+  if(S.ren && !S.heat){
+    if(Math.random()<0.15 && GMP.length<30){ const a=Math.random()*6.28; GMP.push({x:MX+Math.cos(a)*(MR+10),y:MY+Math.sin(a)*(MR+10),vx:Math.cos(a)*30,vy:Math.sin(a)*30,l:1}); }
+    ENZ.forEach(e=>{ e.a+=e.s*dt; const x=MX+Math.cos(e.a)*(MR+30), y=MY+Math.sin(e.a)*(MR+30); const m=0.15+0.2*Math.abs(Math.sin(t*6));
+      k.save(); k.translate(x,y); k.rotate(e.a+Math.PI); k.fillStyle='#d61f5c'; k.beginPath(); k.moveTo(0,0); k.arc(0,0,9,m*Math.PI,(2-m)*Math.PI); k.closePath(); k.fill(); k.restore(); });
+  } else if(S.ren && S.heat){
+    ENZ.forEach(e=>{ const x=MX+Math.cos(e.a)*(MR+30), y=MY+Math.sin(e.a)*(MR+30); k.fillStyle='#9ca3af'; k.beginPath(); k.arc(x,y,8,0,7); k.fill(); });
+  }
+  GMP.forEach(g=>{ g.x+=g.vx*dt; g.y+=g.vy*dt; g.l-=dt*0.5; k.globalAlpha=clamp(g.l,0,1); k.strokeStyle='#d946ef'; k.lineWidth=2; k.beginPath(); k.moveTo(g.x,g.y); k.lineTo(g.x+5,g.y-3); k.lineTo(g.x+9,g.y+3); k.stroke(); k.globalAlpha=1; });
+  GMP=GMP.filter(g=>g.l>0);
+  if(heatF>0.5){ k.font='22px sans-serif'; k.fillText('🔥',12,280); }
+  k.fillStyle='rgba(255,255,255,.85)'; k.fillRect(6,6,250,22); k.fillStyle='#12306b'; k.font='600 11.5px Segoe UI, system-ui, sans-serif';
+  k.fillText(ccp>0.85?'Calcio coloidal casi completo':ccp>0.4?'Parte del calcio pasó al suero':ccp>0.05?'La micela perdió casi todo su calcio':'Sin calcio coloidal',12,21);
 }
 
-function initSim() {
-    micelles = [];
-    serumCalciums = [];
-    cutHairs = [];
-    for (let i = 0; i < NUM_MICELLES; i++) {
-        micelles.push(new Micelle(
-            50 + Math.random() * (canvas.width - 100),
-            50 + Math.random() * (canvas.height - 100)
-        ));
+/* ===================== Red de micelas ===================== */
+const NM=22; let NET=[];
+for(let i=0;i<NM;i++) NET.push({x:30+Math.random()*320,y:30+Math.random()*230,tx:0,ty:0,r:15+Math.random()*4,vx:0,vy:0,ph:Math.random()*6});
+let lastLayout='';
+function layout(st){
+  if(st===lastLayout) return; lastLayout=st;
+  const R=Math.random;
+  if(st==='enz'||st==='enz_acida'||st==='mixta'){
+    const cols=6; NET.forEach((m,i)=>{ const c=i%cols, r=Math.floor(i/cols); m.tx=40+c*58+(r%2)*22+(R()-.5)*12; m.ty=40+r*62+(R()-.5)*12; });
+  } else if(st==='acida'||st==='acida_baja'){
+    const cs=[[80,80],[260,70],[110,210],[290,200],[190,145]];
+    NET.forEach((m,i)=>{ const c=cs[i%cs.length], a=R()*6.28, d=10+R()*22; m.tx=c[0]+Math.cos(a)*d; m.ty=c[1]+Math.sin(a)*d; });
+  } else if(st==='termica'){
+    const cs=[[95,170],[215,150],[310,190]];
+    NET.forEach((m,i)=>{ const c=cs[i%cs.length], a=R()*6.28, d=R()*26; m.tx=c[0]+Math.cos(a)*d; m.ty=c[1]+40+Math.sin(a)*d*0.6; });
+  } else { NET.forEach(m=>{ m.tx=30+R()*320; m.ty=30+R()*230; }); }
+}
+function drawNet(t,dt){
+  const k=nctx, st=state(), sd=ST[st];
+  layout(st);
+  const liquid=['liquida','inestable','calentada','calor_cuajo'].includes(st);
+  const sep=st==='termica';
+  k.fillStyle=sep?'#eef3cf':'#fffdf4'; k.fillRect(0,0,380,290);
+  if(sep){ k.fillStyle='rgba(214,226,160,.6)'; k.fillRect(0,0,380,290); }
+  NET.forEach(m=>{
+    if(liquid){ m.vx+=(Math.random()-.5)*60*dt; m.vy+=(Math.random()-.5)*60*dt; m.vx*=0.95; m.vy*=0.95; m.x=clamp(m.x+m.vx*dt,m.r,380-m.r); m.y=clamp(m.y+m.vy*dt,m.r,290-m.r); }
+    else { m.x+=(m.tx-m.x)*Math.min(1,dt*2)+Math.sin(t*2+m.ph)*0.15; m.y+=(m.ty-m.y)*Math.min(1,dt*2)+Math.cos(t*2+m.ph)*0.15; }
+  });
+  // uniones
+  const maxD = st==='enz'?72: st==='enz_acida'?66: st==='mixta'?60: (st.startsWith('acida')?42: sep?40:0);
+  if(maxD){
+    for(let i=0;i<NM;i++) for(let j=i+1;j<NM;j++){ const a=NET[i], b=NET[j], d=Math.hypot(a.x-b.x,a.y-b.y); if(d>maxD) continue;
+      if(st==='enz'||st==='enz_acida'||st==='mixta'){ k.strokeStyle='rgba(245,158,11,.85)'; k.lineWidth=st==='enz'?3.5:st==='enz_acida'?2.5:1.6; k.setLineDash([5,3]); k.beginPath(); k.moveTo(a.x,a.y); k.lineTo(b.x,b.y); k.stroke(); k.setLineDash([]); if(st==='enz'){ k.fillStyle='#f59e0b'; k.beginPath(); k.arc((a.x+b.x)/2,(a.y+b.y)/2,3.5,0,7); k.fill(); } }
+      else { k.strokeStyle=sep?'rgba(156,163,175,.9)':'rgba(220,38,38,.45)'; k.lineWidth=sep?4:1.6; k.setLineDash(sep?[]:[2,3]); k.beginPath(); k.moveTo(a.x,a.y); k.lineTo(b.x,b.y); k.stroke(); k.setLineDash([]); }
     }
-    // Calcio libre base en el suero
-    for (let i = 0; i < 12; i++) {
-        serumCalciums.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            vx: (Math.random() - 0.5) * 1.5,
-            vy: (Math.random() - 0.5) * 1.5
-        });
-    }
-    updateControls();
+  }
+  const ccp=ccpOf(S.pH);
+  NET.forEach(m=>{
+    const rg=k.createRadialGradient(m.x-m.r*.35,m.y-m.r*.35,2,m.x,m.y,m.r); rg.addColorStop(0,ccp<0.3?'#dbe7ff':'#a9c8ff'); rg.addColorStop(1,ccp<0.3?'#8fb0ea':'#2f63c9');
+    k.fillStyle=rg; k.beginPath(); k.arc(m.x,m.y,m.r*(st.startsWith('acida')?0.92:1),0,7); k.fill();
+    if(!S.ren || S.heat){ const ext=extOf(S.pH); if(liquid||st==='inestable'){ k.strokeStyle='rgba(139,92,246,.7)'; k.lineWidth=1.4; for(let h=0;h<8;h++){ const a=h*0.785; k.beginPath(); k.moveTo(m.x+Math.cos(a)*m.r,m.y+Math.sin(a)*m.r); k.lineTo(m.x+Math.cos(a)*(m.r+4+6*ext),m.y+Math.sin(a)*(m.r+4+6*ext)); k.stroke(); } } }
+    if(S.heat){ k.fillStyle='#9ca3af'; for(let h=0;h<4;h++){ const a=h*1.57+m.ph; k.beginPath(); k.arc(m.x+Math.cos(a)*(m.r+2),m.y+Math.sin(a)*(m.r+2),3.5,0,7); k.fill(); } }
+  });
+  k.fillStyle='rgba(255,255,255,.88)'; k.fillRect(6,6,280,22); k.fillStyle=sd.col; k.font='700 12px Segoe UI, system-ui, sans-serif'; k.fillText(sd.name,12,21);
+  if(sep){ k.fillStyle='#4d7c0f'; k.font='600 11px Segoe UI, system-ui, sans-serif'; k.fillText('Lactosuero claro: los flóculos se separan',12,282); }
 }
 
-function toggleRennet() {
-    hasRennet = !hasRennet;
-    const btn = document.getElementById('rennet-btn');
-    if (hasRennet) {
-        btn.classList.add('active');
-        btn.innerText = '🧪 Añadir Cuajo (Quimosina): SÍ (Activo)';
-        enzymes = [];
-        for (let i = 0; i < 7; i++) {
-            enzymes.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 4,
-                vy: (Math.random() - 0.5) * 4
-            });
-        }
+/* ===================== Gráfica vs pH ===================== */
+function drawChart(){
+  const k=cctx, w=760,h=190,x0=44,x1=w-46,y0=h-26,y1=12;
+  const X=p=>x0+(p-4.2)/(6.8-4.2)*(x1-x0), Y=v=>y0-v*(y0-y1);
+  k.clearRect(0,0,w,h); k.fillStyle='#fff'; k.fillRect(0,0,w,h); k.font='11px Segoe UI, system-ui, sans-serif';
+  // zonas
+  k.fillStyle='rgba(220,38,38,.08)'; k.fillRect(X(4.4),y1,X(4.95)-X(4.4),y0-y1); k.fillStyle='#b91c1c'; k.fillText('gel ácido',X(4.42),y1+12);
+  k.fillStyle='rgba(124,58,237,.08)'; k.fillRect(X(5.2),y1,X(5.4)-X(5.2),y0-y1); k.fillStyle='#6d28d9'; k.fillText('hilado (cuajada)',X(5.12),y1+12);
+  k.fillStyle='rgba(37,99,235,.08)'; k.fillRect(X(6.2),y1,X(6.8)-X(6.2),y0-y1); k.fillStyle='#1d4ed8'; k.fillText('coagulación con cuajo',X(6.22),y1+12);
+  k.strokeStyle='#dc2626'; k.setLineDash([3,3]); k.beginPath(); k.moveTo(X(4.6),y1); k.lineTo(X(4.6),y0); k.stroke(); k.setLineDash([]); k.fillStyle='#dc2626'; k.fillText('pI 4.6',X(4.6)+3,y0-6);
+  k.strokeStyle='#94a3b8'; k.beginPath(); k.moveTo(x0,y1); k.lineTo(x0,y0); k.lineTo(x1,y0); k.stroke();
+  for(let p=4.2;p<=6.81;p+=0.4){ k.fillStyle='#64748b'; k.fillText(p.toFixed(1),X(p)-8,y0+14); }
+  [0,50,100].forEach(v=>{ k.fillStyle='#64748b'; k.fillText(v+'%',x0-34,Y(v/100)+4); });
+  k.lineWidth=3; k.strokeStyle='#f59e0b'; k.beginPath(); for(let p=4.2;p<=6.8;p+=0.02){ const y=Y(ccpOf(p)); p===4.2?k.moveTo(X(p),y):k.lineTo(X(p),y); } k.stroke();
+  k.strokeStyle='#3b82f6'; k.beginPath(); for(let p=4.2;p<=6.8;p+=0.02){ const y=Y(clamp(chargeOf(p),0,1)); p===4.2?k.moveTo(X(p),y):k.lineTo(X(p),y); } k.stroke();
+  k.strokeStyle='#0f1b33'; k.lineWidth=2; k.beginPath(); k.moveTo(X(S.pH),y1); k.lineTo(X(S.pH),y0); k.stroke();
+  [[ccpOf(S.pH),'#f59e0b'],[clamp(chargeOf(S.pH),0,1),'#3b82f6']].forEach(([v,c])=>{ k.fillStyle=c; k.beginPath(); k.arc(X(S.pH),Y(v),5,0,7); k.fill(); });
+  k.fillStyle='#b45309'; k.fillText('— calcio coloidal en la micela',x1-330,y0-24); k.fillStyle='#1d4ed8'; k.fillText('— carga negativa',x1-150,y0-24);
+}
+
+/* ===================== UI pestaña 1 ===================== */
+function refresh(){
+  const st=state(), sd=ST[st], ccp=ccpOf(S.pH), chg=chargeOf(S.pH);
+  $('#v-pH').textContent=fmt(S.pH);
+  $('#m-ccp').textContent=Math.round(ccp*100)+' %'; $('#b-ccp').style.width=ccp*100+'%';
+  $('#m-chg').textContent=chg<-0.03?'positiva':Math.round(clamp(chg,0,1)*100)+' %'; $('#b-chg').style.width=clamp(chg,0,1)*100+'%';
+  const kap=S.ren&&!S.heat?0.1:extOf(S.pH);
+  $('#m-kap').textContent=S.ren&&!S.heat?'cortada por el cuajo':kap>0.8?'extendida':kap>0.4?'parcialmente colapsada':'colapsada'; $('#b-kap').style.width=kap*100+'%';
+  $('#state').innerHTML=`<div class="state" style="background:${sd.col}">${sd.name}<small>${sd.sub}</small></div>`;
+  const vals=sd.props.map((v,i)=>i===3?(st==='liquida'||st==='inestable'||st==='calentada'||st==='calor_cuajo'?0:(st==='termica'?0.3:ccp)):v);
+  $('#props').innerHTML=PROPS.map((p,i)=>`<div class="row"><span>${p}</span><div class="bar" style="height:10px"><i style="width:${vals[i]*100}%;background:${sd.col}"></i></div></div>`).join('');
+  $('#cheeses').innerHTML=sd.ch.length?`<div class="cheeses">${sd.ch.map(c=>`<span class="cheese">${c}</span>`).join('')}</div>`:'<div style="color:var(--muted);font-size:13px">Todavía no se forma una cuajada.</div>';
+  $('#explain').innerHTML=`<p>${sd.exp}</p>`; $('#book').innerHTML='📘 <b>En tu CECYBOOK:</b> '+sd.book;
+  $$('.seg[data-k] button').forEach(b=>b.classList.toggle('on',b.dataset.v==String(S[b.parentElement.dataset.k])));
+  drawChart();
+}
+$('#pH').addEventListener('input',e=>{ S.pH=+e.target.value; $$('.presets .chip').forEach(c=>c.classList.remove('on')); refresh(); });
+$$('.seg[data-k]').forEach(seg=>seg.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; S[seg.dataset.k]=+b.dataset.v; $$('.presets .chip').forEach(c=>c.classList.remove('on')); refresh(); }));
+const PRE={fresca:[6.7,0,0],enz:[6.6,1,0],acida:[4.6,0,0],mixta:[4.75,1,0],termica:[5.6,0,1]};
+$$('.presets .chip').forEach(c=>c.addEventListener('click',()=>{ const p=PRE[c.dataset.s]; S.pH=p[0]; S.ren=p[1]; S.heat=p[2]; $('#pH').value=S.pH; $$('.presets .chip').forEach(x=>x.classList.toggle('on',x===c)); refresh(); }));
+
+/* ===================== Pestaña 2: hilado ===================== */
+const chc=$('#ch'), hctx=hiDPI(chc,760,330);
+const H={anim:null,tries:[]};
+function stretchability(pH,T){ const p=Math.exp(-Math.pow((pH-5.3)/0.17,2)); const t=1/(1+Math.exp(-(T-64)/2.5)); const over=T>85?0.8:1; return p*t*over; }
+function hiladoVerdict(pH,T){
+  const s=stretchability(pH,T);
+  if(T<60) return ['bad','La cuajada no se plastifica: el agua está demasiado fría.',s,'frio'];
+  if(pH>5.6) return ['bad','La cuajada se rompe: todavía conserva mucho calcio y la red es rígida.',s,'rompe'];
+  if(pH<5.0) return ['bad','La pasta se deshace y se pega: perdió demasiado calcio.',s,'deshace'];
+  if(s>0.6) return [T>85?'mid':'good',T>85?'Hila, pero el agua tan caliente hace perder grasa y rendimiento.':'¡Hila! Forma hebras largas, brillantes y elásticas.',s,'hila'];
+  return ['mid','Estira un poco, pero las hebras son cortas: estás cerca de la ventana.',s,'corto'];
+}
+function drawHilado(t){
+  const k=hctx; k.clearRect(0,0,760,330);
+  const bg=k.createLinearGradient(0,0,0,330); bg.addColorStop(0,'#f8fafc'); bg.addColorStop(1,'#e2e8f0'); k.fillStyle=bg; k.fillRect(0,0,760,330);
+  const T=+$('#wT').value, hot=clamp((T-45)/45,0,1);
+  k.fillStyle=`rgba(${Math.round(186+40*hot)},${Math.round(230-60*hot)},${Math.round(253-120*hot)},.55)`; k.fillRect(40,250,680,60);
+  k.strokeStyle='#94a3b8'; k.lineWidth=3; k.strokeRect(40,250,680,60);
+  for(let i=0;i<6;i++){ const x=80+i*110+Math.sin(t*2+i)*6; k.strokeStyle=`rgba(148,163,184,${0.2+0.5*hot})`; k.lineWidth=2; k.beginPath(); k.moveTo(x,246); k.quadraticCurveTo(x+8,226,x,206); k.stroke(); }
+  k.fillStyle='#475569'; k.font='600 12px Segoe UI, system-ui, sans-serif'; k.fillText(`Agua a ${T} °C`,52,302);
+  const A=H.anim;
+  const cheese='#fff6d8', edge='#e7d39a';
+  if(!A){
+    k.fillStyle=cheese; k.strokeStyle=edge; k.lineWidth=2; k.beginPath(); k.ellipse(380,215,90,38,0,0,7); k.fill(); k.stroke();
+    k.fillStyle='#64748b'; k.font='13px Segoe UI, system-ui, sans-serif'; k.textAlign='center'; k.fillText('Cuajada lista para la prueba',380,150); k.textAlign='left';
+    return;
+  }
+  const p=Math.min(1,(performance.now()-A.t0)/3000);
+  const maxL = A.kind==='hila'?300:A.kind==='corto'?120:A.kind==='rompe'?55:A.kind==='deshace'?90:20;
+  const L=maxL*Math.min(1,p*1.4);
+  const lx=380-60-L, rx=380+60+L;
+  // manos / pinzas
+  const hand=(x)=>{ k.fillStyle='#fcd9b6'; k.strokeStyle='#d6a77a'; k.lineWidth=2; k.beginPath(); k.ellipse(x,170,20,14,0,0,7); k.fill(); k.stroke(); };
+  if(A.kind==='deshace'){
+    // se escurre
+    k.fillStyle=cheese; k.strokeStyle=edge; k.beginPath(); k.ellipse(380,232+p*14,90+p*90,22-p*8,0,0,7); k.fill(); k.stroke();
+    for(let i=0;i<6;i++){ k.beginPath(); k.ellipse(300+i*32,250+p*8,6,10*p,0,0,7); k.fill(); }
+    hand(380-90-p*60); hand(380+90+p*60);
+  } else if(A.kind==='frio'){
+    k.fillStyle=cheese; k.strokeStyle=edge; k.beginPath(); k.ellipse(380,215,92,38,0,0,7); k.fill(); k.stroke();
+    k.strokeStyle='#cbd5e1'; for(let i=0;i<5;i++){ k.beginPath(); k.moveTo(320+i*30,195); k.lineTo(330+i*30,235); k.stroke(); }
+    hand(260); hand(500);
+  } else {
+    const broken = A.kind==='rompe' && p>0.45;
+    // masas en los extremos
+    k.fillStyle=cheese; k.strokeStyle=edge; k.lineWidth=2;
+    k.beginPath(); k.ellipse(lx,185,48,30,0,0,7); k.fill(); k.stroke();
+    k.beginPath(); k.ellipse(rx,185,48,30,0,0,7); k.fill(); k.stroke();
+    if(!broken){
+      const sag=A.kind==='hila'?10:18, th=A.kind==='hila'?Math.max(8,22-L*0.04):14;
+      const g=k.createLinearGradient(0,170,0,200); g.addColorStop(0,'#fffdf0'); g.addColorStop(.5,'#fff3c4'); g.addColorStop(1,'#f3dfa0');
+      k.fillStyle=g; k.beginPath(); k.moveTo(lx+30,185-th/2); k.quadraticCurveTo(380,185-th/2+sag,rx-30,185-th/2); k.lineTo(rx-30,185+th/2); k.quadraticCurveTo(380,185+th/2+sag,lx+30,185+th/2); k.closePath(); k.fill();
+      k.strokeStyle='rgba(214,180,100,.7)'; k.lineWidth=1;
+      const nf=A.kind==='hila'?6:3; for(let f=0;f<nf;f++){ const o=(f-(nf-1)/2)*th/(nf+1); k.beginPath(); k.moveTo(lx+32,185+o); k.quadraticCurveTo(380,185+o+sag,rx-32,185+o); k.stroke(); }
+      if(A.kind==='hila'){ k.fillStyle='rgba(255,255,255,.7)'; k.beginPath(); k.ellipse(380,180+sag*0.5,60,2.5,0,0,7); k.fill(); }
     } else {
-        btn.classList.remove('active');
-        btn.innerText = '🧪 Añadir Cuajo (Quimosina): NO';
-        enzymes = [];
-        cutHairs = [];
-        micelles.forEach(m => m.hairCount = 12);
+      k.fillStyle=cheese; k.strokeStyle=edge;
+      k.beginPath(); k.moveTo(lx+30,180); k.lineTo(lx+60,178); k.lineTo(lx+52,186); k.lineTo(lx+62,192); k.lineTo(lx+30,192); k.closePath(); k.fill(); k.stroke();
+      k.beginPath(); k.moveTo(rx-30,180); k.lineTo(rx-58,179); k.lineTo(rx-50,187); k.lineTo(rx-60,193); k.lineTo(rx-30,192); k.closePath(); k.fill(); k.stroke();
+      for(let i=0;i<5;i++){ k.fillRect(370+i*6-15,200+((i*37)%30)+p*30,4,4); }
     }
-    updateControls();
+    hand(lx-40); hand(rx+40);
+  }
+  const v=A.v; k.fillStyle=v[0]==='good'?'#15803d':v[0]==='mid'?'#b45309':'#b91c1c'; k.font='700 15px Segoe UI, system-ui, sans-serif'; k.textAlign='center';
+  k.fillText(v[3]==='hila'?'🧵 ¡Forma hebras!':v[3]==='rompe'?'💥 Se rompe':v[3]==='deshace'?'🫠 Se deshace':v[3]==='frio'?'🧊 No se plastifica':'↔ Estira poco',380,60);
+  k.font='12.5px Segoe UI, system-ui, sans-serif'; k.fillStyle='#475569'; k.fillText(`pH de la cuajada ${fmt(A.pH)} · calcio coloidal ≈ ${Math.round(ccpOf(A.pH)*100)} % del inicial`,380,82); k.textAlign='left';
 }
+$('#cpH').addEventListener('input',e=>{ $('#v-cpH').textContent=fmt(+e.target.value); H.anim=null; $('#verdict').innerHTML=''; });
+$('#wT').addEventListener('input',e=>{ $('#v-wT').textContent=e.target.value+' °C'; H.anim=null; $('#verdict').innerHTML=''; });
+$('#hReset').onclick=()=>{ H.anim=null; $('#verdict').innerHTML=''; };
+$('#stretch').onclick=()=>{
+  const pH=+$('#cpH').value, T=+$('#wT').value, v=hiladoVerdict(pH,T);
+  H.anim={t0:performance.now(),kind:v[3],v,pH};
+  $('#verdict').innerHTML=`<div class="verdict ${v[0]}">${v[1]}</div>`;
+  H.tries.unshift(`pH ${fmt(pH)} · ${T} °C → ${v[3]==='hila'?'✅ hila':v[3]==='corto'?'↔ estira poco':v[3]==='rompe'?'💥 se rompe':v[3]==='deshace'?'🫠 se deshace':'🧊 no plastifica'}`);
+  $('#tries').innerHTML=H.tries.slice(0,8).map(x=>`<div>${x}</div>`).join('');
+};
 
-function applyPreset(targetPH, targetTemp, rennetState) {
-    document.getElementById('ph-slider').value = targetPH;
-    document.getElementById('temp-slider').value = targetTemp;
-    if (hasRennet !== rennetState) {
-        toggleRennet();
-    }
-    if (!rennetState) {
-        micelles.forEach(m => m.hairCount = 12);
-    }
-    updateControls();
+/* ===================== Pestaña 3: clasificación ===================== */
+const BINS=[
+  {id:'enz',n:'Enzimática',d:'Cuajo a pH ≈ 6.5; red firme con calcio'},
+  {id:'hil',n:'Enzimática + acidificación para hilar',d:'Cuajada con cuajo que se acidifica a pH ≈ 5.2–5.4'},
+  {id:'acid',n:'Ácida (láctica)',d:'Acidez cercana al pH 4.6, poco o nada de cuajo'},
+  {id:'term',n:'Ácido-térmica',d:'Calor intenso + ácido; recupera proteínas del suero'}
+];
+const ITEMS=[
+  {n:'Queso fresco',b:'enz',w:'Se coagula con cuajo; es el modelo de la Semana 14.'},
+  {n:'Panela',b:'enz',w:'Coagulación con cuajo y desuerado ligero.'},
+  {n:'Ranchero/Botanero',b:'enz',w:'Cuajo, corte en cubos de ~1 cm y prensado ligero.'},
+  {n:'Manchego',b:'enz',w:'Cuajo y prensado; después se madura.'},
+  {n:'Oaxaca',b:'hil',w:'La cuajada enzimática se acidifica y se hila en agua caliente.'},
+  {n:'Mozzarella',b:'hil',w:'Pasta hilada, igual que el Oaxaca.'},
+  {n:'Queso crema',b:'acid',w:'Coagulación láctica cerca del punto isoeléctrico.'},
+  {n:'Cottage',b:'acid',w:'Coagulación principalmente ácida, a veces con un poco de cuajo.'},
+  {n:'Requesón',b:'term',w:'Se obtiene calentando el suero o la leche a 85–90 °C con ácido.'},
+  {n:'Paneer',b:'term',w:'Leche calentada y acidificada con ácido cítrico o jugo de limón.'}
+];
+let placed={}, selItem=null;
+function shuffle(a){ const b=a.slice(); for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+function buildCls(){
+  placed={}; selItem=null; $('#score').textContent='';
+  $('#pool').innerHTML=shuffle(ITEMS).map(it=>`<div class="item" draggable="true" data-n="${it.n}">${it.n}</div>`).join('');
+  $('#bins').innerHTML=BINS.map(b=>`<div class="bin" data-b="${b.id}"><h4>${b.n}</h4><small>${b.d}</small><div class="drop"></div></div>`).join('');
+  bindCls();
 }
-
-function updateControls() {
-    pH = parseFloat(document.getElementById('ph-slider').value);
-    temp = parseInt(document.getElementById('temp-slider').value);
-
-    document.getElementById('ph-val').innerText = pH.toFixed(1);
-    document.getElementById('temp-val').innerText = temp + ' °C';
-
-    // Ajustar cantidad de protones H+ visuales según el pH
-    let targetProtons = Math.round((6.7 - pH) * 28);
-    while (protons.length < targetProtons) {
-        protons.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            vx: (Math.random() - 0.5) * 3,
-            vy: (Math.random() - 0.5) * 3
-        });
-    }
-    while (protons.length > targetProtons) {
-        protons.pop();
-    }
-
-    // Cálculo de barras de estado
-    let chargePct = Math.round(Math.max(0, (pH - 4.6) / (6.7 - 4.6)) * 100);
-    if (hasRennet) chargePct = Math.min(chargePct, 20);
-    document.getElementById('charge-text').innerText = chargePct + '%';
-    document.getElementById('charge-bar').style.width = chargePct + '%';
-
-    let calcPct = Math.round(Math.max(5, (pH - 4.5) / (6.7 - 4.5)) * 100);
-    document.getElementById('calcium-text').innerText = calcPct + '%';
-    document.getElementById('calcium-bar').style.width = calcPct + '%';
-
-    // Textos explicativos dinámicos
-    const mechText = document.getElementById('mechanism-text');
-    const cheeseText = document.getElementById('cheese-text');
-    const gelText = document.getElementById('gel-text');
-    const gelBar = document.getElementById('gel-bar');
-
-    if (!hasRennet && pH > 5.2) {
-        canvasWrap.style.background = '#fffbeb';
-        gelText.innerText = 'Líquido (Estable)';
-        gelBar.style.width = '5%';
-        mechText.innerHTML = 'Las micelas tienen sus pelos de <strong>kappa-caseína</strong> extendidos con carga negativa (-). Además, el <strong>fosfato de calcio (puntos azules)</strong> permanece dentro de las micelas dándoles firmeza. Las micelas se repelen.';
-        cheeseText.innerHTML = '<strong>Estado: Leche líquida.</strong> A este pH sin cuajo no hay coagulación. Si estás entre pH 6.0 y 5.3, la leche apenas se está acidificando pero aún no cuaja.';
-    } 
-    else if (!hasRennet && pH <= 5.2) {
-        canvasWrap.style.background = '#fefce8';
-        gelText.innerText = 'Gel Ácido (Frágil)';
-        gelBar.style.width = '40%';
-        gelBar.style.background = '#f59e0b';
-        mechText.innerHTML = '<strong>Coagulación Ácida (Punto Isoeléctrico ~4.6):</strong> Los protones ácidos (<strong>H⁺</strong> naranjas) neutralizan la carga negativa de la kappa-caseína (los pelos se aplastan sin cortarse). Todo el <strong>calcio interno se disuelve y escapa al suero</strong>.';
-        cheeseText.innerHTML = '<strong>Quesos Ácidos (Cottage, Queso Crema, Requesón, Paneer):</strong> Como las micelas perdieron su calcio interno, se unen solo por enlaces hidrofóbicos débiles. El coágulo es <strong>frágil, poroso, no elástico</strong> y no se funde en hebras.';
-    } 
-    else if (hasRennet && pH >= 6.0) {
-        canvasWrap.style.background = '#f7fee7';
-        gelText.innerText = 'Gel Enzimático (Muy Firme)';
-        gelBar.style.width = '95%';
-        gelBar.style.background = '#10b981';
-        mechText.innerHTML = '<strong>Coagulación Enzimática Pura:</strong> La enzima <strong>quimosina</strong> corta los pelos de kappa-caseína. Como el pH es alto, las micelas <strong>conservan el 100% de su calcio interno</strong> y se unen con fuertes <strong>puentes de calcio (líneas azules)</strong>.';
-        cheeseText.innerHTML = '<strong>Quesos Madurados / Prensados (Manchego, Gouda, Cheddar, Chihuahua):</strong> La red de caseína + calcio es <strong>firme, elástica e impermeable</strong>. Retiene mucha grasa y calcio, permitiendo cortar la cuajada en cubos y prensarla.';
-    } 
-    else {
-        canvasWrap.style.background = '#ecfccb';
-        gelText.innerText = 'Gel Mixto / Pasta Hilada';
-        gelBar.style.width = '70%';
-        gelBar.style.background = '#3b82f6';
-        mechText.innerHTML = '<strong>Coagulación Mixta (Ácido + Cuajo):</strong> El pH ligeramente ácido acelera muchísimo a la enzima quimosina. Parte del calcio interno ha salido al suero (desmineralización parcial), dejando una red flexible.';
-        cheeseText.innerHTML = '<strong>Quesos de Pasta Hilada (Oaxaca, Mozzarella, Asadero):</strong> A pH ~5.2 - 5.4 las micelas tienen la cantidad exacta de calcio para que, al meter la cuajada en agua caliente, las proteínas resbalen y se estiren formando <strong>hebras</strong>.';
-    }
+function bindCls(){
+  $$('.item').forEach(it=>{
+    it.ondragstart=e=>{ e.dataTransfer.setData('text/plain',it.dataset.n); };
+    it.onclick=()=>{ $$('.item').forEach(x=>x.classList.remove('sel')); if(selItem===it){ selItem=null; return; } selItem=it; it.classList.add('sel'); };
+  });
+  const place=(name,target)=>{ const it=$$('.item').find(x=>x.dataset.n===name); if(!it) return; it.classList.remove('sel','right','wrong'); const w=it.querySelector('.why'); if(w) w.remove(); target.appendChild(it); selItem=null; };
+  $$('.bin').forEach(b=>{
+    b.ondragover=e=>{ e.preventDefault(); b.classList.add('over'); };
+    b.ondragleave=()=>b.classList.remove('over');
+    b.ondrop=e=>{ e.preventDefault(); b.classList.remove('over'); place(e.dataTransfer.getData('text/plain'),b.querySelector('.drop')); };
+    b.onclick=e=>{ if(selItem && !e.target.closest('.item')) place(selItem.dataset.n,b.querySelector('.drop')); };
+  });
+  const pool=$('#pool');
+  pool.ondragover=e=>e.preventDefault();
+  pool.ondrop=e=>{ e.preventDefault(); place(e.dataTransfer.getData('text/plain'),pool); };
+  pool.onclick=e=>{ if(selItem && !e.target.closest('.item')) place(selItem.dataset.n,pool); };
 }
+$('#check').onclick=()=>{
+  let ok=0, done=0;
+  $$('.bin').forEach(b=>b.querySelectorAll('.item').forEach(it=>{ done++; const I=ITEMS.find(x=>x.n===it.dataset.n); const good=I.b===b.dataset.b; if(good) ok++; it.classList.toggle('right',good); it.classList.toggle('wrong',!good);
+    let w=it.querySelector('.why'); if(!w){ w=document.createElement('div'); w.className='why'; it.appendChild(w); } w.textContent=good?I.w:'Revisa: '+I.w; }));
+  $('#score').textContent=`${ok} de ${ITEMS.length} correctos${done<ITEMS.length?` · faltan ${ITEMS.length-done} por colocar`:''}${ok===ITEMS.length?' 🏆':''}`;
+};
+$('#reshuf').onclick=buildCls;
 
-function handleInteractions() {
-    for (let i = 0; i < micelles.length; i++) {
-        for (let j = i + 1; j < micelles.length; j++) {
-            let m1 = micelles[i];
-            let m2 = micelles[j];
-            let dx = m2.x - m1.x;
-            let dy = m2.y - m1.y;
-            let dist = Math.hypot(dx, dy);
-
-            let isAcidCoag = pH <= 4.9;
-            let isEnzCoag = (m1.hairCount <= 3 && m2.hairCount <= 3);
-
-            let minDist = (!isAcidCoag && !isEnzCoag) ? m1.radius + m2.radius + 14 : m1.radius + m2.radius + 2;
-
-            if (dist < minDist && dist > 0) {
-                let angle = Math.atan2(dy, dx);
-                if (!isAcidCoag && !isEnzCoag) {
-                    // Repulsión electrostática
-                    let repulse = 0.7;
-                    m1.vx -= Math.cos(angle) * repulse;
-                    m1.vy -= Math.sin(angle) * repulse;
-                    m2.vx += Math.cos(angle) * repulse;
-                    m2.vy += Math.sin(angle) * repulse;
-                } else {
-                    // Colisión suave en el gel
-                    let overlap = minDist - dist;
-                    m1.x -= Math.cos(angle) * overlap * 0.4;
-                    m1.y -= Math.sin(angle) * overlap * 0.4;
-                    m2.x += Math.cos(angle) * overlap * 0.4;
-                    m2.y += Math.sin(angle) * overlap * 0.4;
-                }
-            }
-
-            // Dibujar enlaces entre micelas cercanas cuando hay coagulación
-            if (isEnzCoag && dist < 85 && pH > 5.0) {
-                // Puentes de calcio fuertes (Azules gruesos)
-                ctx.strokeStyle = 'rgba(59, 130, 246, 0.65)';
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                ctx.moveTo(m1.x, m1.y);
-                ctx.lineTo(m2.x, m2.y);
-                ctx.stroke();
-            } else if (isAcidCoag && dist < 78) {
-                // Enlaces hidrofóbicos débiles/porosos (Línea punteada naranja)
-                ctx.strokeStyle = 'rgba(249, 115, 22, 0.55)';
-                ctx.lineWidth = 2.5;
-                ctx.setLineDash([4, 4]);
-                ctx.beginPath();
-                ctx.moveTo(m1.x, m1.y);
-                ctx.lineTo(m2.x, m2.y);
-                ctx.stroke();
-                ctx.setLineDash([]);
-            }
-        }
-    }
+/* ===================== Pestañas y bucle ===================== */
+$$('.tab').forEach(t=>t.addEventListener('click',()=>{ $$('.tab').forEach(x=>x.classList.toggle('on',x===t)); $$('.pane').forEach(p=>p.classList.toggle('show',p.dataset.p===t.dataset.t)); }));
+let last=performance.now();
+function loop(now){
+  requestAnimationFrame(loop);
+  try{
+    const dt=Math.min(0.05,(now-last)/1000); last=now; const t=now/1000;
+    const pane=$('.pane.show').dataset.p;
+    if(pane==='lab'){ drawMicelle(t,dt); drawNet(t,dt); }
+    else if(pane==='hil') drawHilado(t);
+  }catch(err){ console.error(err); }
 }
-
-function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // 1. Calcio libre en el suero (azul)
-    serumCalciums.forEach(c => {
-        c.x += c.vx;
-        c.y += c.vy;
-        if (c.x < 0 || c.x > canvas.width) c.vx *= -1;
-        if (c.y < 0 || c.y > canvas.height) c.vy *= -1;
-        ctx.fillStyle = '#3b82f6';
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, 3, 0, Math.PI * 2);
-        ctx.fill();
-    });
-
-    // 2. Protones H+ de ácido láctico/cítrico (naranja)
-    protons.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-        ctx.fillStyle = '#f59e0b';
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-        ctx.fill();
-    });
-
-    // 3. Interacciones y enlaces de la red
-    handleInteractions();
-
-    // 4. Micelas de caseína
-    micelles.forEach(m => {
-        m.update();
-        m.draw();
-    });
-
-    // 5. Enzimas Quimosina (si se añadió cuajo)
-    if (hasRennet) {
-        // La quimosina trabaja más rápido si el pH es ligeramente ácido y a ~35-40°C
-        let enzymeActivity = (temp / 32) * (1 + (6.7 - pH) * 0.6);
-        enzymes.forEach(e => {
-            e.x += e.vx * (temp / 32);
-            e.y += e.vy * (temp / 32);
-            if (e.x < 10 || e.x > canvas.width - 10) e.vx *= -1;
-            if (e.y < 10 || e.y > canvas.height - 10) e.vy *= -1;
-
-            // Cortar kappa-caseína
-            micelles.forEach(m => {
-                if (Math.hypot(m.x - e.x, m.y - e.y) < m.radius + 12 && m.hairCount > 0) {
-                    if (Math.random() < 0.35 * enzymeActivity) {
-                        m.hairCount--;
-                    }
-                }
-            });
-
-            // Dibujar Pac-Man morado
-            ctx.save();
-            ctx.translate(e.x, e.y);
-            ctx.fillStyle = '#8b5cf6';
-            ctx.beginPath();
-            ctx.arc(0, 0, 9, 0.2 * Math.PI, 1.8 * Math.PI);
-            ctx.lineTo(0, 0);
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
-        });
-    }
-
-    requestAnimationFrame(animate);
-}
-
-initSim();
-animate();
+refresh(); buildCls(); requestAnimationFrame(loop);
 </script>
-
 </body>
 </html>

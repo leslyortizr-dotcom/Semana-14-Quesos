@@ -1,218 +1,277 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorio Virtual de Tecnología de Quesos - Semana 14</title>
-    <style>
-        :root {
-            --bg: #070b14;
-            --panel: #0d1527;
-            --card: #111b33;
-            --border: #1f2d4d;
-            --text: #f8fafc;
-            --muted: #94a3b8;
-            --accent: #0284c7;
-            --accent-hover: #0369a1;
-            --gold: #fcd34d;
-            --green-btn: #059669;
-            --green-btn-hover: #047857;
-        }
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 30px;
-            display: flex;
-            justify-content: center;
-        }
-        .container {
-            max-width: 1200px;
-            width: 100%;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-        h1 { 
-            margin: 0 0 8px 0; 
-            color: var(--gold); 
-            font-size: 28px; 
-            font-weight: 800;
-        }
-        p.subtitle { 
-            color: var(--muted); 
-            margin: 0; 
-            font-size: 15px; 
-        }
-        .grid-sims {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-            gap: 22px;
-            margin-bottom: 22px;
-        }
-        .sim-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            transition: transform 0.2s, border-color 0.2s;
-        }
-        .sim-card:hover { 
-            transform: translateY(-3px); 
-            border-color: var(--accent); 
-        }
-        .sim-card h3 { 
-            margin: 0 0 10px 0; 
-            color: #38bdf8; 
-            font-size: 17px; 
-            line-height: 1.35; 
-            font-weight: 700;
-        }
-        .sim-card p { 
-            color: var(--muted); 
-            font-size: 13.5px; 
-            line-height: 1.5; 
-            margin: 0 0 20px 0; 
-        }
-        .sim-btn {
-            background: var(--accent);
-            color: white;
-            text-decoration: none;
-            text-align: center;
-            padding: 11px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 13.5px;
-            transition: background 0.2s;
-        }
-        .sim-btn:hover { background: var(--accent-hover); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratorio Virtual de Tecnología de Quesos · Semana 14</title>
+<style>
+:root{
+  --navy:#12306b; --navy-2:#1d4196; --ink:#0f1b33; --text:#22304a; --muted:#64748b;
+  --bg:#eef2f8; --card:#ffffff; --line:#dbe3ef; --soft:#f6f8fc;
+  --orange:#f05a28; --magenta:#d61f5c;
+  --e1:#7c3aed; --e2:#0891b2; --e3:#16a34a;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+a{color:inherit}
 
-        /* Tarjeta de ancho completo inferior (Planes de Planta) */
-        .full-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 24px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            margin-bottom: 22px;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-        .full-card:hover {
-            transform: translateY(-3px);
-            border-color: #10b981;
-        }
-        .full-card h3 {
-            margin: 0 0 8px 0;
-            color: var(--gold);
-            font-size: 18px;
-            font-weight: 700;
-        }
-        .full-card p {
-            color: var(--muted);
-            font-size: 13.5px;
-            line-height: 1.5;
-            margin: 0 0 20px 0;
-        }
-        .full-btn {
-            background: var(--green-btn);
-            color: white;
-            text-decoration: none;
-            display: block;
-            text-align: center;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 14px;
-            transition: background 0.2s;
-        }
-        .full-btn:hover { background: var(--green-btn-hover); }
-    </style>
+/* Encabezado */
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#12306b 0%,#1d4196 60%,#2a56b8 100%);color:#fff;padding:34px 24px 74px}
+.hero::after{content:"";position:absolute;inset:auto -10% -60px -10%;height:120px;background:var(--bg);border-radius:50% 50% 0 0/100% 100% 0 0}
+.hero .bubble{position:absolute;border-radius:50%;background:rgba(255,255,255,.07)}
+.hero-in{position:relative;z-index:1;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:center}
+@media (max-width:860px){.hero-in{grid-template-columns:1fr}.hero-art{display:none}}
+.brand{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:700;letter-spacing:.3px}
+.brand i{width:8px;height:8px;border-radius:50%;background:linear-gradient(90deg,var(--orange),var(--magenta));display:inline-block}
+.hero h1{margin:14px 0 8px;font-size:clamp(28px,4vw,42px);line-height:1.1;letter-spacing:-.5px}
+.hero h1 span{background:linear-gradient(90deg,#ffb38f,#ff7aa8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:0;color:#dbe6ff;font-size:15.5px;max-width:620px}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.stat{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:8px 14px}
+.stat b{display:block;font-size:20px}
+.stat span{font-size:12px;color:#c9d7fb}
+.hero-art{display:flex;justify-content:center}
+.wheel{width:260px;height:260px;filter:drop-shadow(0 18px 30px rgba(0,0,0,.25))}
+
+/* Contenedor */
+.wrap{max-width:1180px;margin:-40px auto 0;padding:0 24px 30px;position:relative;z-index:2}
+
+/* Ruta */
+.route{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 30px rgba(15,27,51,.08);padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+@media (max-width:760px){.route{grid-template-columns:1fr}}
+.route h2{margin:0;font-size:15px;color:var(--navy)}
+.route small{color:var(--muted);font-size:12.5px}
+.steps{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.step{display:flex;align-items:center;gap:8px;text-decoration:none;border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;background:var(--soft);font-weight:700;font-size:13.5px;color:var(--ink);transition:.15s}
+.step:hover{transform:translateY(-1px);border-color:var(--navy-2)}
+.step .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px}
+.arrow{color:#94a3b8;font-weight:800}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:18px 0 4px}
+.f{border:1.5px solid var(--line);background:#fff;color:var(--muted);padding:6px 12px;border-radius:999px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit}
+.f.on{background:var(--navy);border-color:var(--navy);color:#fff}
+
+/* Secciones */
+section{margin-top:26px}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.sec-head .badge{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:18px;box-shadow:0 6px 14px rgba(0,0,0,.12)}
+.sec-head h2{margin:0;font-size:20px;color:var(--ink)}
+.sec-head p{margin:0;font-size:13.5px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){.grid{grid-template-columns:1fr}}
+
+/* Tarjetas */
+.card{position:relative;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 4px 14px rgba(15,27,51,.05);transition:transform .2s,box-shadow .2s,border-color .2s;overflow:hidden}
+.card:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(15,27,51,.12);border-color:#b8c8f0}
+.card::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:var(--c)}
+.top{display:flex;align-items:flex-start;gap:12px}
+.ico{flex:none;width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:26px;background:var(--cbg)}
+.card h3{margin:2px 0 0;font-size:16.5px;line-height:1.3;color:var(--ink)}
+.card .sub{font-size:12px;color:var(--muted);font-weight:600}
+.card p{margin:0;font-size:13.5px;color:#475569;flex:1}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--soft);border:1px solid var(--line);color:#475569}
+.tag.book{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:2px}
+.meta span{font-size:12px;color:var(--muted);font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:var(--c);color:#fff;font-weight:700;font-size:13.5px;padding:9px 14px;border-radius:10px;transition:filter .15s,transform .15s;white-space:nowrap}
+.btn:hover{filter:brightness(1.08);transform:translateX(2px)}
+.new{position:absolute;top:14px;right:14px;font-size:10.5px;font-weight:800;letter-spacing:.5px;color:#fff;background:linear-gradient(90deg,var(--orange),var(--magenta));padding:3px 8px;border-radius:999px}
+.visited{display:none;font-size:11px;font-weight:800;color:#16a34a}
+.card.seen .visited{display:inline}
+
+/* Tarjetas destacadas */
+.feature{grid-column:span 3;display:grid;grid-template-columns:1.3fr 1fr;gap:18px;align-items:center;padding:22px;background:linear-gradient(135deg,#ffffff 0%,var(--cbg) 100%)}
+@media (max-width:1000px){.feature{grid-column:span 2}}
+.feature.two{grid-column:span 2}
+@media (max-width:640px){.feature,.feature.two{grid-column:span 1;grid-template-columns:1fr}}
+.feature h3{font-size:20px}
+.feature .points{display:grid;gap:8px;margin-top:16px}
+.feature .pt{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 11px;font-size:13px}
+.feature .pt b{display:block;color:var(--ink);font-size:13.5px}
+
+/* Cómo usar */
+.how{margin-top:30px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:760px){.how{grid-template-columns:1fr}}
+.how div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;font-size:13.5px}
+.how b{display:block;color:var(--navy);margin-bottom:2px}
+footer{max-width:1180px;margin:0 auto;padding:10px 24px 30px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hidden{display:none!important}
+</style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>🧀 Laboratorio Virtual de Tecnología de Quesos</h1>
-        <p class="subtitle">CECyTE Guanajuato • Módulo II: Procesamiento de Leche y Derivados Lácteos</p>
-    </header>
-
-    <div class="grid-sims">
-        <!-- 1 -->
-        <div class="sim-card">
-            <div>
-                <h3>Coagulación de la leche para elaborar queso SEMANA 14</h3>
-                <p>Estabilidad coloidal de la caseína, acción hidrolítica del cuajo (quimosina) y formación de la cuajada por puentes de calcio.</p>
-            </div>
-            <a href="#" class="sim-btn">Abrir Simulador ➔</a>
-        </div>
-
-        <!-- 2 -->
-        <div class="sim-card">
-            <div>
-                <h3>Coagulación Ácida vs. Enzimática (El efecto del pH) SEMANA 14</h3>
-                <p>Desmineralización del calcio micelar según el pH y contraste estructural entre geles ácidos, enzimáticos y de pasta hilada.</p>
-            </div>
-            <a href="#" class="sim-btn">Abrir Simulador ➔</a>
-        </div>
-
-        <!-- 3 -->
-        <div class="sim-card">
-            <div>
-                <h3>Fermentación Láctica (Microbiología en acción) SEMANA 14</h3>
-                <p>Cinética y metabolismo de cultivos lácticos mesófilos y termófilos consumiendo lactosa y generando la curva de acidificación.</p>
-            </div>
-            <a href="#" class="sim-btn">Abrir Simulador ➔</a>
-        </div>
-
-        <!-- 4 -->
-        <div class="sim-card">
-            <div>
-                <h3>Corte de la Cuajada y Sinéresis (Expulsión del Suero) SEMANA 14</h3>
-                <p>Control del calibre de corte con la lira, temperatura de cocción y agitación para regular la humedad del grano de cuajada.</p>
-            </div>
-            <a href="#" class="sim-btn">Abrir Simulador ➔</a>
-        </div>
-
-        <!-- 5 -->
-        <div class="sim-card">
-            <div>
-                <h3>Prensado y Salado por Ósmosis (Salmuera) SEMANA 14</h3>
-                <p>Compactación en molde perforado, deformación de granos e intercambio osmótico de iones Na⁺/Cl⁻ en salmuera.</p>
-            </div>
-            <a href="#" class="sim-btn">Abrir Simulador ➔</a>
-        </div>
-
-        <!-- 6 -->
-        <div class="sim-card">
-            <div>
-                <h3>Planta Quesera Virtual SEMANA 14</h3>
-                <p>Consola SCADA para un lote de 1,000 L de leche: balance de materia en tiempo real con la ecuación de Van Slyke y auditoría de calidad.</p>
-            </div>
-            <a href="#" class="sim-btn">Abrir Simulador ➔</a>
-        </div>
+<header class="hero">
+  <div class="bubble" style="width:280px;height:280px;left:-80px;top:-90px"></div>
+  <div class="bubble" style="width:160px;height:160px;right:8%;top:20px"></div>
+  <div class="hero-in">
+    <div>
+      <span class="brand"><i></i>CECyTE Guanajuato · Módulo II: Procesamiento de Leche y Derivados Lácteos</span>
+      <h1>Laboratorio Virtual de <span>Tecnología de Quesos</span></h1>
+      <p>Semana 14 · Unidad 7: Procesos de transformación para la obtención de derivados de la leche. Simula, experimenta y toma decisiones como en una planta quesera real.</p>
+      <div class="stats">
+        <div class="stat"><b>9</b><span>recursos interactivos</span></div>
+        <div class="stat"><b>3</b><span>etapas de aprendizaje</span></div>
+        <div class="stat"><b>7.3</b><span>Proceso para la obtención de quesos</span></div>
+      </div>
     </div>
-
-    <!-- Plano Interactivo de Distribución de Planta (Original de la imagen) -->
-    <div class="full-card">
-        <h3>Plano Interactivo de Distribución de Planta (Plant Layout) por Áreas Operativas SEMANA 14</h3>
-        <p>Distribución arquitectónica e industrial de 8 áreas operativas, flujos de tuberías sanitarias, puntos críticos de control (PCC) y zonificación BPM.</p>
-        <a href="#" class="full-btn">Explorar Plano Industrial ➔</a>
+    <div class="hero-art">
+      <svg class="wheel" viewBox="0 0 260 260" aria-hidden="true">
+        <defs>
+          <linearGradient id="ch" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff6d6"/><stop offset="1" stop-color="#f7d77a"/></linearGradient>
+          <linearGradient id="sd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3c955"/><stop offset="1" stop-color="#d9a92e"/></linearGradient>
+        </defs>
+        <ellipse cx="130" cy="190" rx="105" ry="34" fill="url(#sd)"/>
+        <rect x="25" y="118" width="210" height="72" fill="url(#sd)"/>
+        <ellipse cx="130" cy="118" rx="105" ry="34" fill="url(#ch)"/>
+        <path d="M130 118 L235 118 A105 34 0 0 1 200 143 Z" fill="#f2c64d" opacity=".9"/>
+        <circle cx="80" cy="150" r="9" fill="#e0b13f"/><circle cx="160" cy="165" r="12" fill="#e0b13f"/><circle cx="115" cy="175" r="6" fill="#e0b13f"/><circle cx="205" cy="160" r="7" fill="#e0b13f"/>
+        <circle cx="95" cy="112" r="7" fill="#f2d27a"/><circle cx="150" cy="120" r="5" fill="#f2d27a"/>
+        <g transform="translate(176 40)"><circle r="30" fill="rgba(255,255,255,.18)"/><text x="0" y="10" text-anchor="middle" font-size="30">🔬</text></g>
+        <g transform="translate(52 52)"><circle r="24" fill="rgba(255,255,255,.18)"/><text x="0" y="8" text-anchor="middle" font-size="24">🥛</text></g>
+      </svg>
     </div>
+  </div>
+</header>
 
-    <!-- NUEVA TARJETA: Recorrido Guiado con Flujo Continuo para la Semana 14 -->
-    <div class="full-card" style="border-color: #287da5; background: linear-gradient(135deg, #18384f, #0d1527);">
-        <h3 style="color:#e9ca79;">🗺️ Recorrido Guiado y Mapa de Planta con Flujo Continuo (Semana 14)</h3>
-        <p>Sigue el recorrido interactivo paso a paso por las operaciones unitarias de quesos y leches fermentadas. Las tuberías muestran caudales independientes por color para Queso Fresco, Queso Oaxaca (Pasta Hilada) y Yogurt Batido sin cruces incorrectos, acompañados de preguntas de evaluación y retroalimentación técnica.</p>
-        <a href="recorrido_semana14.html" class="full-btn" style="background:#287da5;">Iniciar Recorrido Guiado (Semana 14) ➔</a>
+<main class="wrap">
+  <div class="route">
+    <div><h2>🧭 Ruta sugerida</h2><small>Sigue el orden del proceso de tu CECYBOOK</small></div>
+    <div class="steps">
+      <a class="step" href="#etapa1"><span class="n" style="background:var(--e1)">1</span>Fundamentos</a><span class="arrow">→</span>
+      <a class="step" href="#etapa2"><span class="n" style="background:var(--e2)">2</span>Proceso en la tina</a><span class="arrow">→</span>
+      <a class="step" href="#etapa3"><span class="n" style="background:var(--e3)">3</span>Planta, inocuidad y evaluación</a>
     </div>
-</div>
+  </div>
 
+  <div class="filters" id="filters">
+    <button class="f on" data-f="all">Todos</button>
+    <button class="f" data-f="sim">🔬 Simuladores</button>
+    <button class="f" data-f="reto">🎯 Con retos</button>
+    <button class="f" data-f="eval">📝 Evaluación</button>
+  </div>
+
+  <!-- ===================== ETAPA 1 ===================== -->
+  <section id="etapa1">
+    <div class="sec-head"><div class="badge" style="background:var(--e1)">1</div><div><h2>Fundamentos: ¿qué le pasa a la leche?</h2><p>Lo que ocurre con la caseína, el calcio y las bacterias antes de que exista una cuajada.</p></div></div>
+    <div class="grid">
+      <article class="card" data-k="sim reto" style="--c:#7c3aed;--cbg:#f3e8ff">
+        <div class="top"><div class="ico">🧀</div><div><div class="sub">Simulador <span class="visited">· ✓ visitado</span></div><h3>Coagulación enzimática de la leche</h3></div></div>
+        <p>Del cuajo a la cuajada, molécula por molécula: línea de tiempo, lupa sobre la κ-caseína y experimentos de cuajo en frío y sin calcio.</p>
+        <div class="tags"><span class="tag book">Figuras 12–14</span><span class="tag">6 etapas</span><span class="tag">Preguntas</span></div>
+        <div class="meta"><span>⏱ 15–20 min</span><a class="btn" href="coagulacion.html">Abrir ➔</a></div>
+      </article>
+      <article class="card" data-k="sim" style="--c:#7c3aed;--cbg:#f3e8ff">
+        <div class="top"><div class="ico">⚖️</div><div><div class="sub">Simulador <span class="visited">· ✓ visitado</span></div><h3>Coagulación ácida vs. enzimática</h3></div></div>
+        <p>El efecto del pH sobre el calcio de la micela y la diferencia entre geles ácidos, enzimáticos y de pasta hilada.</p>
+        <div class="tags"><span class="tag book">pp. 13–15</span><span class="tag">pH</span><span class="tag">Pasta hilada</span></div>
+        <div class="meta"><span>⏱ 10 min</span><a class="btn" href="acida_vs_enzimatica.html">Abrir ➔</a></div>
+      </article>
+      <article class="card" data-k="sim reto" style="--c:#7c3aed;--cbg:#f3e8ff">
+        <div class="top"><div class="ico">🦠</div><div><div class="sub">Simulador <span class="visited">· ✓ visitado</span></div><h3>Fermentación láctica: el cultivo en la tina</h3></div></div>
+        <p>Microscopio, curvas de crecimiento y de pH con acidez titulable. Casos de leche con antibióticos y contaminación con coliformes.</p>
+        <div class="tags"><span class="tag book">Figura 8 · Tabla 1 · Tabla 4</span><span class="tag">Retos</span></div>
+        <div class="meta"><span>⏱ 20 min</span><a class="btn" href="fermentacion_lactica.html">Abrir ➔</a></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===================== ETAPA 2 ===================== -->
+  <section id="etapa2">
+    <div class="sec-head"><div class="badge" style="background:var(--e2)">2</div><div><h2>Proceso en la tina</h2><p>Decide cuándo cortar, cómo desuerar, prensar y salar, y observa el resultado.</p></div></div>
+    <div class="grid">
+      <article class="card feature" data-k="sim reto" style="--c:#0891b2;--cbg:#e0f7fb">
+        <span class="new">NUEVO</span>
+        <div>
+          <div class="top"><div class="ico" style="width:60px;height:60px;font-size:30px">🏭</div><div><div class="sub">Simulador integrador <span class="visited">· ✓ visitado</span></div><h3>Tina Quesera Virtual</h3></div></div>
+          <p style="margin:10px 0">Elabora un lote completo de queso fresco: acondiciona la leche, sigue la cinética de coagulación, decide el punto de corte y descubre por qué cambia el rendimiento.</p>
+          <div class="tags" style="margin-bottom:12px"><span class="tag book">pp. 7–28</span><span class="tag">Caso de la p. 31</span><span class="tag">Bitácora de lotes</span><span class="tag">Retos</span></div>
+          <div class="meta"><span>⏱ 25–30 min</span><a class="btn" href="tina_quesera_virtual.html">Entrar a la tina ➔</a></div>
+        </div>
+        <div class="points">
+          <div class="pt">🧪<div><b>Acondiciona</b>Pasteurización, temperatura, CaCl₂, pH y cuajo.</div></div>
+          <div class="pt">📈<div><b>Coagula</b>Firmeza del gel en tiempo real y prueba de corte.</div></div>
+          <div class="pt">🔪<div><b>Corta y desuera</b>Grano, reposo, agitación y prensado.</div></div>
+          <div class="pt">📋<div><b>Diagnostica</b>Rendimiento, humedad y defectos según la Tabla 4.</div></div>
+        </div>
+      </article>
+      <article class="card" data-k="sim reto" style="--c:#0891b2;--cbg:#e0f7fb">
+        <div class="top"><div class="ico">🔪</div><div><div class="sub">Simulador <span class="visited">· ✓ visitado</span></div><h3>Corte y sinéresis: Equipo A vs. Equipo B</h3></div></div>
+        <p>Dos tinas lado a lado con la misma cuajada. Compara tamaño de grano, reposo, agitación y cocción. Responde con evidencia la pregunta de la p. 20.</p>
+        <div class="tags"><span class="tag book">Figuras 18–21</span><span class="tag">Comparaciones</span></div>
+        <div class="meta"><span>⏱ 20 min</span><a class="btn" href="corte_y_sineresis.html">Abrir ➔</a></div>
+      </article>
+      <article class="card" data-k="sim reto" style="--c:#0891b2;--cbg:#e0f7fb">
+        <div class="top"><div class="ico">🧂</div><div><div class="sub">Simulador <span class="visited">· ✓ visitado</span></div><h3>Prensado y salado</h3></div></div>
+        <p>Mira el queso por dentro: cómo sale el suero en el molde y cómo viaja la sal desde la superficie al centro. Seco vs. salmuera.</p>
+        <div class="tags"><span class="tag book">Figura 22</span><span class="tag">Defectos</span><span class="tag">Metas</span></div>
+        <div class="meta"><span>⏱ 20 min</span><a class="btn" href="prensado_y_salmuera.html">Abrir ➔</a></div>
+      </article>
+      <article class="card" data-k="sim eval" style="--c:#0891b2;--cbg:#e0f7fb">
+        <div class="top"><div class="ico">⚖️</div><div><div class="sub">Laboratorio de cálculo <span class="visited">· ✓ visitado</span></div><h3>Rendimiento y balance de materia</h3></div></div>
+        <p>¿A dónde va cada kilogramo de leche? Van Slyke, rendimiento ajustado a humedad, costo del lote y ejercicio autocorregible.</p>
+        <div class="tags"><span class="tag book">Pregunta detonadora p. 8</span><span class="tag">Ejercicio</span></div>
+        <div class="meta"><span>⏱ 25 min</span><a class="btn" href="planta_quesera_virtual.html">Abrir ➔</a></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===================== ETAPA 3 ===================== -->
+  <section id="etapa3">
+    <div class="sec-head"><div class="badge" style="background:var(--e3)">3</div><div><h2>Planta, inocuidad y evaluación</h2><p>De la recepción al embarque: flujos, zonas sanitarias y decisiones de liberación.</p></div></div>
+    <div class="grid">
+      <article class="card" data-k="sim reto" style="--c:#16a34a;--cbg:#dcfce7">
+        <div class="top"><div class="ico">🗺️</div><div><div class="sub">Plano interactivo <span class="visited">· ✓ visitado</span></div><h3>Planta quesera: áreas, flujos e inocuidad</h3></div></div>
+        <p>Explora las áreas y los flujos de producto, suero y personal. En modo auditoría, encuentra las 8 no conformidades sanitarias.</p>
+        <div class="tags"><span class="tag book">Figura 8 · pp. 26–27</span><span class="tag">Auditoría</span></div>
+        <div class="meta"><span>⏱ 25 min</span><a class="btn" href="planta_quesera_areas.html">Abrir ➔</a></div>
+      </article>
+      <article class="card feature two" data-k="eval reto" style="--c:#16a34a;--cbg:#dcfce7">
+        <div>
+          <div class="top"><div class="ico" style="width:60px;height:60px;font-size:30px">🧭</div><div><div class="sub">Evaluación final <span class="visited">· ✓ visitado</span></div><h3>Recorrido guiado por la planta</h3></div></div>
+          <p style="margin:10px 0">Elige queso fresco, Oaxaca o yogurt y toma en cada etapa la decisión de un técnico: aceptar una pipa, cortar en punto, liberar un lote. Al final obtienes tu constancia.</p>
+          <div class="tags" style="margin-bottom:12px"><span class="tag book">A.C.5 · A.C.6 · A.C.7</span><span class="tag">Constancia imprimible</span></div>
+          <div class="meta"><span>⏱ 20–25 min</span><a class="btn" href="recorrido_semana14.html">Iniciar recorrido ➔</a></div>
+        </div>
+        <div class="points">
+          <div class="pt">✅<div><b>Decide</b>Aceptar, rechazar, liberar o retener.</div></div>
+          <div class="pt">🎚️<div><b>Ajusta</b>Temperaturas, CaCl₂ y sal.</div></div>
+          <div class="pt">⏱️<div><b>Actúa a tiempo</b>Corte, hilado y fin de la incubación.</div></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <div class="how">
+    <div><b>1 · Lee tu CECYBOOK</b>Cada tarjeta indica las páginas y figuras con las que se relaciona.</div>
+    <div><b>2 · Experimenta</b>Cambia una sola variable a la vez y registra lo que observas.</div>
+    <div><b>3 · Demuestra lo aprendido</b>Termina con el recorrido guiado e imprime tu constancia.</div>
+  </div>
+</main>
+
+<footer>
+  <span>CECyTE Guanajuato · CECYBOOK Semana 14 · 7.3 Proceso para la obtención de quesos</span>
+  <span>Recursos didácticos complementarios</span>
+</footer>
+
+<script>
+// Filtros por tipo de recurso
+document.querySelectorAll('.f').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.f').forEach(x=>x.classList.toggle('on',x===b));
+  const f=b.dataset.f;
+  document.querySelectorAll('article.card').forEach(c=>c.classList.toggle('hidden',f!=='all'&&!c.dataset.k.split(' ').includes(f)));
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('hidden',!s.querySelector('article.card:not(.hidden)')));
+}));
+// Marca "visitado" en este navegador (opcional; no afecta si el navegador lo bloquea)
+const KEY='s14_visitados';
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
+function save(v){ try{ localStorage.setItem(KEY,JSON.stringify(v)); }catch(e){} }
+const seen=load();
+document.querySelectorAll('article.card').forEach(c=>{
+  const a=c.querySelector('a.btn'); if(!a) return; const h=a.getAttribute('href');
+  if(seen.includes(h)) c.classList.add('seen');
+  a.addEventListener('click',()=>{ const v=load(); if(!v.includes(h)){ v.push(h); save(v); } });
+});
+</script>
 </body>
 </html>

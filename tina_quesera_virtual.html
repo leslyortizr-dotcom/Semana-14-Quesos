@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tina Quesera Virtual · Semana 14</title>
+<style>
+:root{
+  --navy:#12306b; --navy-2:#1d4196; --ink:#0f1b33; --text:#22304a; --muted:#64748b;
+  --bg:#eef2f8; --card:#ffffff; --line:#dbe3ef; --soft:#f6f8fc;
+  --orange:#f05a28; --magenta:#d61f5c;
+  --kappa:#8b5cf6; --caB:#f59e0b; --caS:#22c55e; --enz:#d61f5c;
+  --ok:#16a34a; --warn:#d97706; --bad:#dc2626;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--text);padding:18px;line-height:1.45}
+.app{max-width:1200px;margin:0 auto;background:var(--card);border-radius:18px;box-shadow:0 12px 34px rgba(15,27,51,.10);overflow:hidden}
+.topbar{height:6px;background:linear-gradient(90deg,var(--orange),var(--magenta))}
+header{padding:16px 24px 6px}
+.back{display:inline-flex;align-items:center;gap:6px;background:#334155;color:#f8fafc;text-decoration:none;padding:8px 14px;border-radius:8px;font-weight:600;font-size:13px;border:1px solid #475569;margin-bottom:12px}
+.back:hover{background:#1e293b}
+.title-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+h1{margin:0;color:var(--navy);font-size:26px;letter-spacing:-.3px}
+.subtitle{color:var(--muted);font-size:14px;margin-top:2px}
+.week-tag{background:var(--navy);color:#fff;font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;white-space:nowrap}
+.week-tag b{color:#ffb38f}
+
+/* Retos */
+.retos{padding:10px 24px 4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.retos .lbl{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-right:4px}
+.chip{border:1.5px solid var(--line);background:#fff;color:var(--text);padding:7px 12px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--navy-2)}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.goal{margin:8px 24px 0;padding:12px 14px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;font-size:14px;display:none}
+.goal.show{display:block}
+.goal h4{margin:0 0 4px;color:#9a3412;font-size:14px}
+.goal ul{margin:6px 0 0;padding-left:0;list-style:none}
+.goal li{margin:2px 0}
+.goal li .st{display:inline-block;width:20px;font-weight:700}
+
+/* Stepper */
+.stepper{display:flex;gap:6px;padding:14px 24px 10px;flex-wrap:wrap}
+.st-item{flex:1;min-width:150px;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--soft);border:1px solid var(--line);color:var(--muted);font-weight:600;font-size:13.5px}
+.st-item .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#dfe6f1;color:#475569;font-size:13px;flex:none}
+.st-item.on{background:#eef3ff;border-color:#b8c8f0;color:var(--navy)}
+.st-item.on .n{background:var(--navy);color:#fff}
+.st-item.done .n{background:var(--ok);color:#fff}
+.st-item.done{color:#166534}
+
+/* Layout */
+.main{display:grid;grid-template-columns:340px 1fr;gap:18px;padding:6px 24px 18px}
+@media (max-width:940px){.main{grid-template-columns:1fr}}
+.panel{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:16px;display:none;flex-direction:column;gap:14px;align-self:start}
+.panel.show{display:flex}
+.panel h3{margin:0;font-size:15px;color:var(--navy)}
+.panel .hint{font-size:12.5px;color:var(--muted);margin-top:-8px}
+.ctl label{display:flex;justify-content:space-between;align-items:baseline;font-weight:600;font-size:13.5px;margin-bottom:5px;gap:8px}
+.ctl label .val{color:var(--navy);font-size:15px;font-weight:700;white-space:nowrap}
+.ctl input[type=range]{width:100%;accent-color:var(--navy);cursor:pointer}
+.ctl .zone{font-size:12px;margin-top:3px;font-weight:600}
+.ctl .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;background:#e6ecf5;border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:transparent;padding:7px 4px;border-radius:8px;font-weight:600;font-size:12.5px;color:#475569;cursor:pointer;line-height:1.2}
+.seg button.on{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.seg button:disabled{opacity:.45;cursor:not-allowed}
+.refbar{position:relative;height:8px;border-radius:4px;background:#e2e8f0;margin-top:6px}
+.refbar .band{position:absolute;top:0;bottom:0;background:#bbf7d0;border-radius:4px}
+.refbar .mark{position:absolute;top:-4px;width:3px;height:16px;background:var(--navy);border-radius:2px;transform:translateX(-1px)}
+.btn{white-space:nowrap;border:0;border-radius:10px;padding:11px 14px;font-weight:700;font-size:14px;cursor:pointer;transition:.15s}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--navy-2)}
+.btn-accent{background:linear-gradient(90deg,var(--orange),var(--magenta));color:#fff}
+.btn-ghost{background:#fff;border:1.5px solid var(--line);color:var(--text)}
+.btn-ghost:hover:not(:disabled){border-color:var(--navy-2)}
+.btn-warn{background:#fff;border:1.5px dashed #f59e0b;color:#b45309;font-size:13px}
+.row{display:flex;gap:8px;align-items:center}
+.row > *{flex:1}
+.pred{display:flex;align-items:center;gap:8px;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.pred input{width:64px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;font-size:14px;font-weight:700;color:var(--navy)}
+.readouts{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ro .k{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.ro .v{font-size:20px;font-weight:800;color:var(--ink)}
+.ro .v small{font-size:12px;font-weight:600;color:var(--muted)}
+.ro.full{grid-column:1/-1}
+.bar{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;width:0;border-radius:4px;transition:width .2s}
+.state-pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12.5px;font-weight:700}
+.log{font-size:12.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;max-height:120px;overflow:auto}
+.log div{padding:3px 0;border-bottom:1px dashed #e5e9f1}
+.log div:last-child{border:0}
+.toggle{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);cursor:pointer}
+.toggle input{accent-color:var(--navy)}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kpi .k{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.kpi .v{font-size:22px;font-weight:800;color:var(--ink)}
+.kpi .v small{font-size:12px;color:var(--muted);font-weight:600}
+.kpi.big{grid-column:1/-1;background:linear-gradient(135deg,#12306b,#1d4196);color:#fff;border:0}
+.kpi.big .k{color:#c7d4f5}.kpi.big .v{color:#fff;font-size:28px}.kpi.big .v small{color:#c7d4f5}
+.swatch{display:inline-block;width:16px;height:16px;border-radius:4px;border:1px solid #cbd5e1;vertical-align:-3px;margin-right:6px}
+
+/* Stage */
+.stage{display:flex;flex-direction:column;gap:12px;min-width:0}
+.view-tabs{display:flex;gap:6px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.view-tabs .seg{max-width:360px;flex:1}
+.clock{font-weight:700;color:var(--navy);font-size:14px;background:#eef3ff;padding:6px 12px;border-radius:999px}
+.canvas-box{border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#fffdf6;position:relative}
+canvas{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;font-size:12px;background:var(--soft);padding:8px 10px;border-radius:10px;border:1px solid var(--line)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.lg{width:12px;height:12px;border-radius:50%;display:inline-block}
+.chart-box{border:1px solid var(--line);border-radius:14px;background:#fff;padding:8px 8px 4px}
+.chart-head{display:flex;justify-content:space-between;align-items:center;padding:2px 6px 4px;flex-wrap:wrap;gap:6px}
+.chart-head b{font-size:13.5px;color:var(--navy)}
+
+/* Explicación */
+.explain{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;padding:0 24px 18px}
+@media (max-width:940px){.explain{grid-template-columns:1fr}}
+.box{padding:14px 16px;border-radius:12px;background:var(--soft);border-left:5px solid var(--navy);font-size:14px}
+.box h3{margin:0 0 6px;font-size:15.5px;color:var(--navy)}
+.box.book{border-left-color:var(--orange)}
+.box.book h3{color:#c2410c}
+.box p{margin:6px 0}
+.diag{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin:8px 0}
+.diag .t{font-weight:700}
+.diag.bad{border-left:4px solid var(--bad)} .diag.warn{border-left:4px solid var(--warn)} .diag.ok{border-left:4px solid var(--ok)}
+.diag .m{font-size:13px;color:#475569;margin-top:2px}
+.diag .m b{color:var(--text)}
+
+/* Bitácora */
+.logbook{padding:0 24px 18px}
+.logbook .head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.logbook h3{margin:0;color:var(--navy);font-size:16px}
+.logbook .q{font-size:13px;color:var(--muted)}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:900px}
+th{background:var(--navy);color:#fff;text-align:left;padding:8px;font-weight:600;white-space:nowrap}
+td{padding:7px 8px;border-top:1px solid var(--line);white-space:nowrap}
+tr:nth-child(even) td{background:#f8fafc}
+.empty{padding:14px;text-align:center;color:var(--muted);font-size:13px}
+details.teacher{margin:0 24px 22px;border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:#fbfcfe;font-size:13.5px}
+details.teacher summary{cursor:pointer;font-weight:700;color:var(--navy)}
+details.teacher li{margin:3px 0}
+footer{padding:0 24px 18px;font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar"></div>
+  <header>
+    <a class="back" href="index.html">⬅ Volver al Menú Principal</a>
+    <div class="title-row">
+      <div>
+        <h1>🧀 Tina Quesera Virtual</h1>
+        <div class="subtitle">Elabora un lote de queso fresco: acondiciona la leche, sigue la cinética de coagulación, decide el punto de corte y descubre por qué cambia el rendimiento.</div>
+      </div>
+      <div class="week-tag">Semana 14 · <b>7.3 Proceso para la obtención de quesos</b></div>
+    </div>
+  </header>
+
+  <div class="retos">
+    <span class="lbl">Modo</span>
+    <button class="chip on" data-reto="libre">🔬 Exploración libre</button>
+    <button class="chip" data-reto="ranchero">🎯 Reto: Ranchero en punto</button>
+    <button class="chip" data-reto="caso31">🕵️ Caso de la p. 31</button>
+    <button class="chip" data-reto="humedo">💧 Reto: queso más húmedo</button>
+    <button class="chip" data-reto="uht">🥛 Reto: leche UHT</button>
+  </div>
+  <div class="goal" id="goal"></div>
+
+  <div class="stepper">
+    <div class="st-item" data-s="1"><span class="n">1</span>Acondicionar la leche</div>
+    <div class="st-item" data-s="2"><span class="n">2</span>Coagular y punto de corte</div>
+    <div class="st-item" data-s="3"><span class="n">3</span>Cortar, agitar y desuerar</div>
+    <div class="st-item" data-s="4"><span class="n">4</span>Resultados y diagnóstico</div>
+  </div>
+
+  <div class="main">
+    <!-- PASO 1 -->
+    <div class="panel" data-panel="1">
+      <h3>1 · Acondicionamiento</h3>
+      <div class="hint">Recepción → pasteurización → enfriamiento → CaCl₂. Ajusta y observa la vista microscópica.</div>
+      <div class="two">
+        <div class="ctl"><label>Grasa <span class="val" id="v-fat">3.5 %</span></label><input type="range" id="fat" min="2.8" max="4.2" step="0.1" value="3.5"></div>
+        <div class="ctl"><label>Proteína <span class="val" id="v-prot">3.3 %</span></label><input type="range" id="prot" min="2.8" max="3.8" step="0.1" value="3.3"></div>
+      </div>
+      <div class="ctl">
+        <label>Tratamiento térmico</label>
+        <div class="seg" data-key="heat">
+          <button data-v="LTLT" class="on">LTLT<br><small>63 °C · 30 min</small></button>
+          <button data-v="HTST">HTST<br><small>72 °C · 15 s</small></button>
+          <button data-v="UHT">UHT<br><small>140 °C · 4 s</small></button>
+        </div>
+      </div>
+      <div class="ctl">
+        <label>Temperatura de cuajado <span class="val" id="v-T">32 °C</span></label>
+        <input type="range" id="T" min="15" max="60" step="1" value="32">
+        <div class="zone" id="z-T"></div>
+      </div>
+      <div class="ctl">
+        <label>CaCl₂ <span class="val" id="v-ca">0.15 g/L</span></label>
+        <input type="range" id="ca" min="0" max="0.30" step="0.01" value="0.15">
+        <div class="refbar"><div class="band" style="left:16.7%;width:50%"></div><div class="mark" id="ca-mark"></div></div>
+        <div class="sub" id="s-ca"></div>
+      </div>
+      <div class="ctl">
+        <label>pH de la leche <span class="val" id="v-pH">6.60</span></label>
+        <input type="range" id="pH" min="6.0" max="6.9" step="0.05" value="6.6">
+        <div class="zone" id="z-pH"></div>
+      </div>
+      <div class="ctl">
+        <label>Dosis de cuajo</label>
+        <div class="seg" data-key="dose">
+          <button data-v="0.5">Baja<br><small>0.5×</small></button>
+          <button data-v="1" class="on">Adecuada<br><small>1×</small></button>
+          <button data-v="2">Alta<br><small>2×</small></button>
+        </div>
+      </div>
+      <div class="ctl">
+        <label>Volumen del lote</label>
+        <div class="seg" data-key="vol">
+          <button data-v="10" class="on">10 L</button><button data-v="20">20 L</button><button data-v="50">50 L</button><button data-v="100">100 L</button>
+        </div>
+      </div>
+      <div class="pred">🤔 Mi predicción: estará lista para cortar al minuto <input type="number" id="pred" min="1" max="90" placeholder="?"></div>
+      <button class="btn btn-primary" id="go2" style="white-space:normal">Listo: pasar a la tina de coagulación →</button>
+    </div>
+
+    <!-- PASO 2 -->
+    <div class="panel" data-panel="2">
+      <h3>2 · Coagulación enzimática</h3>
+      <div class="hint">Agrega el cuajo, deja la leche inmóvil y decide cuándo cortar.</div>
+      <button class="btn btn-accent" id="addRennet" style="white-space:normal">🧪 Añadir cuajo diluido y mezclar 30–60 s</button>
+      <div class="row">
+        <button class="btn btn-ghost" id="play" disabled>⏸ Pausa</button>
+        <div class="seg" data-key="speed">
+          <button data-v="0.5">×30</button><button data-v="1" class="on">×60</button><button data-v="2">×120</button>
+        </div>
+      </div>
+      <div class="readouts">
+        <div class="ro"><div class="k">Tiempo</div><div class="v" id="r-t">0.0 <small>min</small></div></div>
+        <div class="ro"><div class="k">κ-caseína hidrolizada</div><div class="v" id="r-h">0 <small>%</small></div><div class="bar"><i id="b-h" style="background:var(--kappa)"></i></div></div>
+        <div class="ro full" id="ro-G"><div class="k">Firmeza del gel (sensor reológico)</div><div class="v" id="r-G">0 <small>Pa</small></div><div class="bar"><i id="b-G" style="background:var(--navy)"></i></div></div>
+        <div class="ro full"><div class="k">Estado</div><div id="r-state"><span class="state-pill" style="background:#e2e8f0">Leche sin cuajo</span></div></div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="sensor" checked> Usar sensor de firmeza (desactívalo para decidir solo con la prueba manual)</label>
+      <button class="btn btn-ghost" id="cutTest" disabled style="white-space:normal">🔪 Prueba de corte (fractura limpia)</button>
+      <button class="btn btn-warn" id="stir" disabled style="white-space:normal">🥄 Mover la tina durante la gelificación</button>
+      <div class="log" id="testlog"><div style="color:var(--muted)">Aquí se registran tus pruebas de corte.</div></div>
+      <button class="btn btn-primary" id="go3" disabled>Cortar la cuajada ahora →</button>
+      <button class="btn btn-ghost" id="back1" style="font-size:12.5px;padding:8px">← Reiniciar y volver a acondicionar</button>
+    </div>
+
+    <!-- PASO 3 -->
+    <div class="panel" data-panel="3">
+      <h3>3 · Corte, reposo, agitación y desuerado</h3>
+      <div class="hint" id="cutinfo"></div>
+      <div class="ctl"><label>Tamaño del grano (lira)</label>
+        <div class="seg" data-key="grain"><button data-v="0.5">0.5 cm</button><button data-v="1" class="on">1 cm</button><button data-v="2">2 cm</button></div></div>
+      <div class="ctl"><label>Reposo tras el corte (cicatrización)</label>
+        <div class="seg" data-key="rest"><button data-v="0">0 min</button><button data-v="5" class="on">5 min</button><button data-v="10">10 min</button></div></div>
+      <div class="ctl"><label>Agitación</label>
+        <div class="seg" data-key="agit"><button data-v="suave" class="on">Suave</button><button data-v="moderada">Moderada</button><button data-v="fuerte">Fuerte</button></div></div>
+      <div class="ctl"><label>Prensado</label>
+        <div class="seg" data-key="press"><button data-v="ligero">Ligero</button><button data-v="medio" class="on">Medio</button><button data-v="fuerte">Fuerte</button></div></div>
+      <div class="sub" id="s-grain" style="font-size:12.5px;color:var(--muted)"></div>
+      <button class="btn btn-accent" id="exec" style="white-space:normal">▶ Ejecutar corte, reposo, agitación y desuerado</button>
+    </div>
+
+    <!-- PASO 4 -->
+    <div class="panel" data-panel="4">
+      <h3>4 · Resultados del lote <span id="lotN"></span></h3>
+      <div class="kpis" id="kpis"></div>
+      <button class="btn btn-primary" id="newLot" style="white-space:normal">🔁 Nuevo lote (misma leche, ajusta una variable)</button>
+      <div class="hint" style="margin-top:0">Consejo: cambia <b>una sola variable</b> por lote y compara en la bitácora.</div>
+    </div>
+
+    <!-- ESCENARIO -->
+    <div class="stage">
+      <div class="view-tabs">
+        <div class="seg" id="viewSeg">
+          <button data-view="micro" class="on">🔬 Vista microscópica</button>
+          <button data-view="tina">🫕 Vista de la tina</button>
+        </div>
+        <span class="clock" id="clock">t = 0.0 min</span>
+      </div>
+      <div class="canvas-box"><canvas id="cv" width="720" height="420"></canvas></div>
+      <div class="legend" id="legend"></div>
+      <div class="chart-box">
+        <div class="chart-head">
+          <b>Cinética de coagulación: hidrólisis de κ-caseína y firmeza del gel</b>
+          <label class="toggle"><input type="checkbox" id="compare" checked> Comparar con lotes anteriores</label>
+        </div>
+        <canvas id="ch" width="720" height="230"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <div class="box" id="exA"><h3>🔬 ¿Qué está pasando?</h3><div id="exA-body"></div></div>
+    <div class="box book" id="exB"><h3>📘 Conecta con tu CECYBOOK</h3><div id="exB-body"></div></div>
+  </div>
+
+  <div class="logbook">
+    <div class="head">
+      <div><h3>📒 Bitácora de lotes</h3><div class="q">Pregunta detonadora (p. 8): si dos equipos reciben la misma leche, ¿por qué uno obtiene más queso que el otro?</div></div>
+      <div class="row" style="flex:none;gap:8px"><button class="btn btn-ghost" id="csv" style="padding:8px 12px;font-size:13px">⬇ Exportar CSV</button><button class="btn btn-ghost" id="clearLog" style="padding:8px 12px;font-size:13px">🗑 Borrar</button></div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Lote</th><th>Tratam.</th><th>T (°C)</th><th>CaCl₂ (g/L)</th><th>pH</th><th>Cuajo</th><th>Corte (min)</th><th>Firmeza (Pa)</th><th>Grano</th><th>Reposo</th><th>Agitación</th><th>Prensado</th><th>Suero</th><th>Humedad</th><th>Rend. (kg/100 L)</th><th>Diagnóstico principal</th></tr></thead>
+      <tbody id="tbody"><tr><td colspan="16" class="empty">Aún no hay lotes. Completa tu primer lote para registrarlo.</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <details class="teacher">
+    <summary>👩‍🏫 Notas para el docente</summary>
+    <ul>
+      <li><b>Qué es:</b> una simulación didáctica con un modelo simplificado. Las tendencias siguen las fuentes del CECYBOOK (Fox et al., 2017; Gregersen y Lucey, 2016; Fagan et al., 2007; Nájera et al., 2003; Tetra Pak, 2025a), pero los valores numéricos son orientativos y no sustituyen la práctica en planta piloto.</li>
+      <li><b>Secuencia sugerida (25–30 min):</b> (1) Reto «Ranchero en punto» como lote base; (2) «Caso de la p. 31»: reproducirlo y luego corregirlo cambiando una sola variable; (3) «Queso más húmedo» para responder la Salida rápida (p. 28); (4) «Leche UHT» como discusión de cierre.</li>
+      <li><b>Para evaluar:</b> pide a los equipos exportar la bitácora (CSV) y justificar cada cambio con una figura o tabla del CECYBOOK.</li>
+      <li><b>Simplificaciones:</b> la firmeza se expresa en una escala relativa (Pa); el rendimiento se estima con un balance de grasa y caseína retenidas más la humedad final; no se modelan el cultivo láctico, la acidificación en tina ni la distribución de sal.</li>
+      <li><b>Para integrarlo:</b> archivo único, sin dependencias externas; funciona sin internet. El botón superior enlaza a <code>index.html</code>, igual que tus otros simuladores.</li>
+    </ul>
+  </details>
+  <footer>Recurso didáctico complementario · CECYBOOK Semana 14 · Unidad 7: Procesos de transformación para la obtención de derivados de la leche.</footer>
+</div>
+
+<script>
+/* ============================================================
+   Utilidades
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const sig = x => 1/(1+Math.exp(-x));
+const fmt = (v,d=1) => Number(v).toFixed(d);
+function hex2rgb(h){h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+function mix(a,b,t){const A=hex2rgb(a),B=hex2rgb(b);return `rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')})`;}
+
+/* ============================================================
+   Estado
+   ============================================================ */
+const S = {
+  step:1, reto:'libre', view:'micro',
+  fat:3.5, prot:3.3, heat:'LTLT', T:32, cacl2:0.15, pH:6.6, dose:1, vol:10,
+  started:false, running:false, t:0, speed:1, damage:1, hetero:false,
+  P:null, curve:[], tests:[], cut:null, pred:null, sensor:true,
+  grain:1, rest:5, agit:'suave', press:'medio',
+  result:null, lots:[], compare:true, anim:null, testAnim:null, lotCount:0
+};
+
+const HEAT = {
+  LTLT:{name:'LTLT', ca:0.88, ke:1.00, ka:1.00, g:1.00},
+  HTST:{name:'HTST', ca:0.86, ke:0.97, ka:0.95, g:0.96},
+  UHT: {name:'UHT',  ca:0.80, ke:0.70, ka:0.18, g:0.22}
+};
+const DOSE = {0.5:{ka:0.8,g:1.0,name:'Baja'}, 1:{ka:1,g:1,name:'Adecuada'}, 2:{ka:1.25,g:0.9,name:'Alta'}};
+const CUT_LO = 30, CUT_HI = 65;
+
+/* Modelo semiempírico de coagulación */
+function params(){
+  const H=HEAT[S.heat], D=DOSE[S.dose], T=S.T, pH=S.pH;
+  const caEff = H.ca + S.cacl2*2;
+  const fCa = clamp((caEff-0.45)/0.73, 0.1, 1.08);
+  const casein = S.prot*0.8;
+  const fCas = casein/2.64;
+  const inact = 1/(1+Math.exp((T-50)/2));                 // inactivación térmica de la quimosina
+  const ke = 0.19*Math.pow(2,(T-32)/10)*inact*Math.exp(-(pH-6.6)*1.6)*S.dose*H.ke;   // hidrólisis (1/min)
+  const ka = 0.031*Math.pow(3,(T-32)/10)*sig((T-18)/1.5)*fCa*Math.exp(-(pH-6.6)*1.2)*H.ka*D.ka*Math.sqrt(fCas); // agregación
+  let fT = T<30 ? 1-0.03*(30-T) : (T<=37 ? 1 : Math.exp(-Math.pow((T-37)/8,2)));
+  fT = Math.max(0,fT);
+  const fpH = pH<6.4 ? 1-(6.4-pH)*0.6 : (pH>6.7 ? 1-(pH-6.7)*1.2 : 1);
+  const Gmax = 100*fT*Math.min(fCa,1.05)*fpH*H.g*Math.pow(fCas,1.3)*D.g;
+  const tg = 1.897/ke;  // tiempo para ~85 % de κ-caseína hidrolizada
+  return {caEff,fCa,ke,ka,Gmax,tg,inact,casein};
+}
+const hyd = (t,P) => 1-Math.exp(-P.ke*t);
+const firm = (t,P) => t<=P.tg ? 0 : P.Gmax*S.damage*Math.pow(1-Math.exp(-P.ka*(t-P.tg)),1.5);
+function timeTo(G,P){ const Gm=P.Gmax*S.damage; if(Gm<=G) return null; const x=Math.pow(G/Gm,1/1.5); const t=P.tg - Math.log(1-x)/P.ka; return t<=90?t:null; }
+function gelState(G){
+  if(G<1)  return {k:'liq',  txt:'Líquida',            bg:'#e2e8f0', fg:'#334155'};
+  if(G<10) return {k:'inc',  txt:'Gel incipiente',     bg:'#e0e7ff', fg:'#3730a3'};
+  if(G<CUT_LO) return {k:'no', txt:'Gel débil · no listo', bg:'#fee2e2', fg:'#991b1b'};
+  if(G<=CUT_HI) return {k:'ok', txt:'En punto de corte', bg:'#dcfce7', fg:'#166534'};
+  return {k:'over', txt:'Pasado (sobrecoagulado)', bg:'#fef3c7', fg:'#92400e'};
+}
+
+/* ============================================================
+   Canvas principal (vista microscópica y de tina)
+   ============================================================ */
+const cv=$('#cv'), ctx=cv.getContext('2d');
+const ch=$('#ch'), cx2=ch.getContext('2d');
+const W=720, H=420, CW=720, CH=230;
+function setupDPR(){
+  const d=Math.min(2, window.devicePixelRatio||1);
+  cv.width=W*d; cv.height=H*d; ctx.setTransform(d,0,0,d,0,0);
+  ch.width=CW*d; ch.height=CH*d; cx2.setTransform(d,0,0,d,0,0);
+}
+setupDPR();
+
+let MIC=[], FATG=[], ENZ=[], GMP=[], SOL=[], BONDS=[], BONDSET=new Set();
+function initMicro(){
+  MIC=[]; BONDS=[]; BONDSET=new Set(); GMP=[];
+  for(let i=0;i<22;i++){
+    const r=15+Math.random()*7, n=14, hairs=[];
+    for(let k=0;k<n;k++) hairs.push({a:k*2*Math.PI/n+Math.random()*0.2, thr:0.02+Math.random()*0.96, cut:false});
+    let x,y,tries=0;
+    do{ x=40+Math.random()*(W-80); y=40+Math.random()*(H-80); tries++; }
+    while(tries<80 && MIC.some(m=>Math.hypot(m.x-x,m.y-y)<m.r+r+26));
+    MIC.push({x,y,vx:0,vy:0,r,hairs,nb:0,rot:Math.random()*6,free:false,cutFrac:0});
+  }
+  FATG=[]; for(let i=0;i<4;i++) FATG.push({x:60+Math.random()*(W-120), y:60+Math.random()*(H-120), r:20+Math.random()*10, vx:0, vy:0});
+  ENZ=[]; for(let i=0;i<6;i++) ENZ.push({x:Math.random()*W, y:Math.random()*H, vx:0, vy:0, target:null, m:0});
+  SOL=[]; syncSol();
+}
+function syncSol(){
+  const target=Math.round(8+S.cacl2*70);
+  while(SOL.length<target) SOL.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*30,vy:(Math.random()-.5)*30});
+  while(SOL.length>target) SOL.pop();
+}
+function damageGel(){
+  // romper ~60 % de los enlaces
+  const keep=[]; BONDSET=new Set(); MIC.forEach(m=>m.nb=0);
+  BONDS.forEach(b=>{ if(Math.random()<0.4){ keep.push(b); BONDSET.add(b.i*100+b.j); MIC[b.i].nb++; MIC[b.j].nb++; } });
+  BONDS=keep;
+  MIC.forEach(m=>{m.vx+=(Math.random()-.5)*120; m.vy+=(Math.random()-.5)*120;});
+}
+
+function updateMicro(dt, dtSim, h, G){
+  const P=S.P||params();
+  const active=S.started;
+  const amp = 45*(1-Math.min(0.94,G/45));
+  MIC.forEach(m=>{
+    if(active){
+      let c=0;
+      m.hairs.forEach(hh=>{
+        if(!hh.cut && h>hh.thr){
+          hh.cut=true;
+          const a=hh.a+m.rot;
+          if(GMP.length<260) GMP.push({x:m.x+Math.cos(a)*(m.r+8), y:m.y+Math.sin(a)*(m.r+8), vx:Math.cos(a)*25, vy:Math.sin(a)*25, life:4, a});
+        }
+        if(hh.cut) c++;
+      });
+      m.cutFrac=c/m.hairs.length;
+    } else { m.cutFrac=0; }
+    m.free = m.cutFrac>0.72;
+    m.vx += (Math.random()-.5)*amp*dt*6;
+    m.vy += (Math.random()-.5)*amp*dt*6;
+  });
+  // interacciones entre pares
+  const bondP = 1-Math.exp(-P.ka*30*dtSim);
+  for(let i=0;i<MIC.length;i++){
+    const a=MIC[i];
+    for(let j=i+1;j<MIC.length;j++){
+      const b=MIC[j];
+      let dx=b.x-a.x, dy=b.y-a.y, d=Math.hypot(dx,dy)||0.01;
+      const steric = !(a.free && b.free);
+      const minD = a.r+b.r+(steric?16:2);
+      if(d<minD){
+        const push=(minD-d)*(steric?4:8)*dt*10;
+        a.vx-=dx/d*push; a.vy-=dy/d*push; b.vx+=dx/d*push; b.vy+=dy/d*push;
+      }
+      if(active && !steric){
+        if(d<120){ const at=P.ka*90*(1-d/120)*dt; a.vx+=dx/d*at; a.vy+=dy/d*at; b.vx-=dx/d*at; b.vy-=dy/d*at; }
+        const key=i*100+j;
+        if(d<a.r+b.r+22 && a.nb<3 && b.nb<3 && !BONDSET.has(key) && Math.random()<bondP){
+          BONDS.push({i,j}); BONDSET.add(key); a.nb++; b.nb++;
+        }
+      }
+    }
+  }
+  BONDS.forEach(bd=>{
+    const a=MIC[bd.i], b=MIC[bd.j];
+    const dx=b.x-a.x, dy=b.y-a.y, d=Math.hypot(dx,dy)||0.01, rest=a.r+b.r+5;
+    const f=(d-rest)*6*dt;
+    a.vx+=dx/d*f; a.vy+=dy/d*f; b.vx-=dx/d*f; b.vy-=dy/d*f;
+  });
+  MIC.forEach(m=>{
+    const damp = m.nb>0 ? (1-5*dt) : (1-1.6*dt);
+    m.vx*=damp; m.vy*=damp;
+    const sp=Math.hypot(m.vx,m.vy); if(sp>35){m.vx*=35/sp; m.vy*=35/sp;}
+    m.x+=m.vx*dt; m.y+=m.vy*dt;
+    const pad=m.r+12;
+    if(m.x<pad){m.x=pad;m.vx=Math.abs(m.vx);} if(m.x>W-pad){m.x=W-pad;m.vx=-Math.abs(m.vx);}
+    if(m.y<pad){m.y=pad;m.vy=Math.abs(m.vy);} if(m.y>H-pad){m.y=H-pad;m.vy=-Math.abs(m.vy);}
+  });
+  // GMP
+  GMP.forEach(g=>{g.x+=g.vx*dt; g.y+=g.vy*dt; g.vx*=0.985; g.vy*=0.985; g.vx+=(Math.random()-.5)*20*dt; g.vy+=(Math.random()-.5)*20*dt; g.life-=dt*0.7;});
+  GMP=GMP.filter(g=>g.life>0);
+  // Enzimas
+  if(active){
+    const act=clamp(P.inact,0,1);
+    ENZ.forEach(e=>{
+      if(!e.target || Math.random()<0.006) {
+        const cands=MIC.filter(m=>m.cutFrac<1);
+        e.target=cands.length? cands[Math.floor(Math.random()*cands.length)] : MIC[Math.floor(Math.random()*MIC.length)];
+      }
+      const dx=e.target.x-e.x, dy=e.target.y-e.y, d=Math.hypot(dx,dy)||1;
+      const v=(25+55*act)*clamp(S.T/32,0.4,1.6);
+      e.vx+= (dx/d*v - e.vx)*dt*1.5 + (Math.random()-.5)*30*dt;
+      e.vy+= (dy/d*v - e.vy)*dt*1.5 + (Math.random()-.5)*30*dt;
+      if(d<e.target.r+10 && Math.random()<0.03) e.target=null;
+      e.x+=e.vx*dt; e.y+=e.vy*dt; e.m+=dt*10*act;
+      e.x=clamp(e.x,8,W-8); e.y=clamp(e.y,8,H-8);
+    });
+  }
+  // Ca soluble
+  SOL.forEach(c=>{ c.vx+=(Math.random()-.5)*60*dt; c.vy+=(Math.random()-.5)*60*dt; c.vx=clamp(c.vx,-30,30); c.vy=clamp(c.vy,-30,30); c.x+=c.vx*dt; c.y+=c.vy*dt;
+    if(c.x<4||c.x>W-4)c.vx*=-1; if(c.y<4||c.y>H-4)c.vy*=-1; c.x=clamp(c.x,4,W-4); c.y=clamp(c.y,4,H-4);});
+  // Glóbulos de grasa
+  FATG.forEach(f=>{ f.vx+=(Math.random()-.5)*amp*dt*2; f.vy+=(Math.random()-.5)*amp*dt*2; f.vx*=1-1.5*dt; f.vy*=1-1.5*dt; f.x=clamp(f.x+f.vx*dt,f.r,W-f.r); f.y=clamp(f.y+f.vy*dt,f.r,H-f.r);});
+}
+
+function drawMicro(h,G){
+  const P=S.P||params();
+  const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#fffef8'); g.addColorStop(1,'#fbf5e4');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  // grasa
+  FATG.forEach(f=>{
+    const rg=ctx.createRadialGradient(f.x-f.r*.3,f.y-f.r*.3,2,f.x,f.y,f.r);
+    rg.addColorStop(0,'#fffbe6'); rg.addColorStop(1,'#f6dc8c');
+    ctx.globalAlpha=.85; ctx.fillStyle=rg; ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,7); ctx.fill();
+    ctx.globalAlpha=1; ctx.strokeStyle='#e7c766'; ctx.lineWidth=1.2; ctx.stroke();
+  });
+  // Ca soluble
+  ctx.fillStyle='#22c55e';
+  SOL.forEach(c=>{ctx.beginPath(); ctx.arc(c.x,c.y,3.2,0,7); ctx.fill();});
+  // Puentes de calcio
+  BONDS.forEach(bd=>{
+    const a=MIC[bd.i], b=MIC[bd.j];
+    ctx.strokeStyle='rgba(245,158,11,.85)'; ctx.lineWidth=2+Math.min(4,G/25);
+    ctx.setLineDash([5,3]); ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); ctx.setLineDash([]);
+    const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+    ctx.fillStyle='#f59e0b'; ctx.strokeStyle='#b45309'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(mx,my,4,0,7); ctx.fill(); ctx.stroke();
+  });
+  // Micelas
+  const uht = S.heat==='UHT';
+  MIC.forEach(m=>{
+    // pelos de κ-caseína
+    m.hairs.forEach(hh=>{
+      if(hh.cut) return;
+      const a=hh.a+m.rot, x1=m.x+Math.cos(a)*m.r, y1=m.y+Math.sin(a)*m.r, x2=m.x+Math.cos(a)*(m.r+9), y2=m.y+Math.sin(a)*(m.r+9);
+      ctx.strokeStyle='#8b5cf6'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.fillStyle='#7c3aed'; ctx.beginPath(); ctx.arc(x2,y2,1.8,0,7); ctx.fill();
+    });
+    const rg=ctx.createRadialGradient(m.x-m.r*.35,m.y-m.r*.35,2,m.x,m.y,m.r);
+    rg.addColorStop(0,'#a9c8ff'); rg.addColorStop(1,'#2f63c9');
+    ctx.fillStyle=rg; ctx.beginPath(); ctx.arc(m.x,m.y,m.r,0,7); ctx.fill();
+    // submicelas
+    ctx.fillStyle='rgba(255,255,255,.20)';
+    for(let k=0;k<5;k++){const a=k*1.256+m.rot; ctx.beginPath(); ctx.arc(m.x+Math.cos(a)*m.r*.45,m.y+Math.sin(a)*m.r*.45,m.r*.3,0,7); ctx.fill();}
+    // Ca asociado (fosfato de calcio coloidal)
+    ctx.fillStyle='#f59e0b';
+    for(let k=0;k<4;k++){const a=k*1.571+m.rot+0.6; ctx.beginPath(); ctx.arc(m.x+Math.cos(a)*m.r*.6,m.y+Math.sin(a)*m.r*.6,2.6,0,7); ctx.fill();}
+    if(uht){
+      ctx.fillStyle='#9ca3af';
+      for(let k=0;k<6;k++){const a=k*1.047+m.rot; ctx.beginPath(); ctx.arc(m.x+Math.cos(a)*(m.r+3),m.y+Math.sin(a)*(m.r+3),4,0,7); ctx.fill();}
+    }
+  });
+  // GMP
+  GMP.forEach(gm=>{
+    ctx.globalAlpha=clamp(gm.life,0,1); ctx.strokeStyle='#a855f7'; ctx.lineWidth=1.8;
+    ctx.beginPath(); const c=Math.cos(gm.a), s=Math.sin(gm.a);
+    ctx.moveTo(gm.x,gm.y); ctx.lineTo(gm.x+c*4-s*3,gm.y+s*4+c*3); ctx.lineTo(gm.x+c*8+s*3,gm.y+s*8-c*3); ctx.lineTo(gm.x+c*12,gm.y+s*12); ctx.stroke();
+    ctx.globalAlpha=1;
+  });
+  // Quimosina
+  if(S.started){
+    const inactive=P.inact<0.3;
+    ENZ.forEach(e=>{
+      const mouth=0.15+0.2*Math.abs(Math.sin(e.m)); const ang=Math.atan2(e.vy,e.vx);
+      ctx.save(); ctx.translate(e.x,e.y); ctx.rotate(ang);
+      ctx.fillStyle=inactive?'#9ca3af':'#d61f5c';
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,8,mouth*Math.PI,(2-mouth)*Math.PI); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    });
+  }
+  // rótulo
+  ctx.fillStyle='rgba(255,255,255,.85)'; ctx.fillRect(6,6,470,40);
+  ctx.fillStyle='rgba(18,48,107,.85)'; ctx.font='600 12px Segoe UI, system-ui, sans-serif';
+  ctx.fillText('Vista microscópica esquemática (no a escala)',12,20);
+  let note='';
+  if(!S.started) note = uht ? 'Proteínas del suero desnaturalizadas (gris) se adhieren a la κ-caseína' : 'Micelas estables: la κ-caseína las mantiene separadas (repulsión estérica)';
+  else if(P.inact<0.3) note='La temperatura inactivó a la quimosina: casi no corta κ-caseína';
+  else if(h<0.85) note=`Fase enzimática: ${Math.round(h*100)} % de κ-caseína hidrolizada · GMP al suero`;
+  else if(G<CUT_LO) note='Agregación: el Ca²⁺ forma puentes entre micelas desestabilizadas';
+  else note='Red tridimensional de caseína: atrapa agua y grasa';
+  ctx.fillStyle='#475569'; ctx.font='12px Segoe UI, system-ui, sans-serif'; ctx.fillText(note,12,38);
+}
+
+/* ---------- Vista de la tina ---------- */
+const VX=360, VY=212, VR=180;
+const WHEY={claro:'#dfe6a6', turbio:'#ecebcf', blanco:'#f7f5ee'};
+function vatRim(){
+  const bg=ctx.createRadialGradient(VX,VY,40,VX,VY,420); bg.addColorStop(0,'#f1f4f8'); bg.addColorStop(1,'#d9e0ea');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+  const rim=ctx.createLinearGradient(VX-VR,VY-VR,VX+VR,VY+VR);
+  rim.addColorStop(0,'#eef1f5'); rim.addColorStop(.5,'#8f99a7'); rim.addColorStop(1,'#e6eaef');
+  ctx.fillStyle=rim; ctx.beginPath(); ctx.arc(VX,VY,VR+13,0,7); ctx.fill();
+}
+function drawMacro(dt,G){
+  if(S.step===4 && S.result){ drawFinal(); return; }
+  vatRim();
+  ctx.save(); ctx.beginPath(); ctx.arc(VX,VY,VR,0,7); ctx.clip();
+  if(S.anim){ const lb=S.anim.label; drawCutAnim(dt); ctx.restore(); if(S.anim) vatLabel(S.anim.label||lb); return; }
+  // leche / gel
+  ctx.fillStyle='#fbf7ea'; ctx.fillRect(VX-VR,VY-VR,VR*2,VR*2);
+  const gl=Math.min(1,G/60);
+  if(G>0.5){
+    const sh=ctx.createRadialGradient(VX-60,VY-70,10,VX,VY,VR);
+    sh.addColorStop(0,`rgba(255,255,255,${0.75*gl})`); sh.addColorStop(1,`rgba(236,226,196,${0.5*gl})`);
+    ctx.fillStyle=sh; ctx.fillRect(VX-VR,VY-VR,VR*2,VR*2);
+  } else if(S.started && S.running){
+    // leve movimiento de líquido
+    const tt=performance.now()/900;
+    ctx.strokeStyle='rgba(200,190,160,.25)'; ctx.lineWidth=1;
+    for(let k=1;k<5;k++){ctx.beginPath(); ctx.arc(VX+Math.sin(tt+k)*6,VY+Math.cos(tt+k)*4,k*38,0,7); ctx.stroke();}
+  }
+  if(S.step===3){
+    const sp={0.5:9,1:15,2:26}[S.grain];
+    ctx.strokeStyle='rgba(120,110,80,.35)'; ctx.setLineDash([4,4]); ctx.lineWidth=1;
+    for(let x=VX-VR;x<VX+VR;x+=sp){ctx.beginPath();ctx.moveTo(x,VY-VR);ctx.lineTo(x,VY+VR);ctx.stroke();}
+    for(let y=VY-VR;y<VY+VR;y+=sp){ctx.beginPath();ctx.moveTo(VX-VR,y);ctx.lineTo(VX+VR,y);ctx.stroke();}
+    ctx.setLineDash([]);
+  }
+  if(S.testAnim) drawTest();
+  ctx.restore();
+  const st=gelState(G);
+  vatLabel(S.step===3 ? 'Vista previa de la lira: '+S.grain+' cm' : (S.started ? 'Superficie: '+(st.k==='liq'?'líquida':st.k==='inc'?'aumenta la viscosidad':'gelificada') : 'Leche acondicionada, sin cuajo'));
+}
+function vatLabel(t){
+  ctx.fillStyle='rgba(18,48,107,.9)'; ctx.font='600 13px Segoe UI, system-ui, sans-serif';
+  ctx.fillText('Tina vista desde arriba',14,22);
+  ctx.fillStyle='#334155'; ctx.font='13px Segoe UI, system-ui, sans-serif'; ctx.fillText(t,14,41);
+}
+function drawTest(){
+  const ta=S.testAnim, el=(performance.now()-ta.t0)/1000;
+  if(el>4){S.testAnim=null; return;}
+  const p=Math.min(1,el/0.8), a=ta.ang;
+  const L=VR*1.6, x0=VX-Math.cos(a)*L/2, y0=VY-Math.sin(a)*L/2;
+  const x1=x0+Math.cos(a)*L*p, y1=y0+Math.sin(a)*L*p;
+  const nx=-Math.sin(a), ny=Math.cos(a);
+  const k=ta.cls.k;
+  if(k==='liq'||k==='inc'){
+    ctx.strokeStyle='rgba(180,170,140,.5)'; ctx.lineWidth=1.5;
+    for(let r=1;r<4;r++){ctx.beginPath(); ctx.arc(x1,y1,r*14*(0.5+el*0.3),0,7); ctx.stroke();}
+  } else {
+    const gap = k==='ok'?7:(k==='no'?4:6);
+    const col = k==='ok'?WHEY.claro:(k==='no'?WHEY.blanco:'#e6e9c2');
+    ctx.fillStyle=col; ctx.strokeStyle= k==='ok'?'#c3cf86':'#d9d4c0'; ctx.lineWidth=1.2;
+    ctx.beginPath();
+    const steps=40;
+    for(let i=0;i<=steps;i++){const f=i/steps; const x=x0+(x1-x0)*f, y=y0+(y1-y0)*f; const w = k==='no'?Math.sin(i*1.7)*2.2:(k==='over'?(i%2?2.5:-2.5):0); i?ctx.lineTo(x+nx*(gap+w),y+ny*(gap+w)):ctx.moveTo(x+nx*(gap+w),y+ny*(gap+w));}
+    for(let i=steps;i>=0;i--){const f=i/steps; const x=x0+(x1-x0)*f, y=y0+(y1-y0)*f; const w = k==='no'?Math.cos(i*1.9)*2.2:(k==='over'?(i%2?-2.5:2.5):0); ctx.lineTo(x-nx*(gap+w),y-ny*(gap+w));}
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    if(k==='over'){ctx.fillStyle='#fffaf0'; for(let i=0;i<10;i++){const f=Math.random()*p; ctx.fillRect(x0+(x1-x0)*f+nx*(Math.random()*14-7), y0+(y1-y0)*f+ny*(Math.random()*14-7),3,3);}}
+  }
+  // cuchillo
+  ctx.save(); ctx.translate(x1,y1); ctx.rotate(a);
+  ctx.fillStyle='#cbd5e1'; ctx.strokeStyle='#64748b'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-38,-5); ctx.lineTo(-38,5); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#334155'; ctx.fillRect(-62,-4,24,8);
+  ctx.restore();
+}
+
+/* Animación de corte → reposo → agitación → desuerado */
+function startCutAnim(){
+  const sp={0.5:9,1:15,2:26}[S.grain];
+  const grains=[];
+  for(let gx=VX-VR; gx<VX+VR; gx+=sp) for(let gy=VY-VR; gy<VY+VR; gy+=sp){
+    const x=gx+sp/2, y=gy+sp/2, r=Math.hypot(x-VX,y-VY);
+    if(r<VR-sp*0.6) grains.push({r, th:Math.atan2(y-VY,x-VX), s:sp-1.5, x, y, rot:0, jit:Math.random()});
+  }
+  const R=S.result;
+  const fines=[]; const nf=Math.round(R.fatLoss*6);
+  for(let i=0;i<nf;i++) fines.push({r:Math.random()*VR*0.95, th:Math.random()*6.28, show:Math.random()});
+  S.anim={p:0, dur:9.5, sp, grains, fines, label:''};
+}
+function drawCutAnim(dt){
+  const A=S.anim, R=S.result;
+  A.p=Math.min(1,A.p+dt/A.dur);
+  const p=A.p;
+  const finalWhey = WHEY[R.wheyKey];
+  const shrinkF = 0.55+((R.M-38)/(72-38))*0.35;
+  const omega={suave:0.35,moderada:0.75,fuerte:1.4}[S.agit];
+  if(p<0.22){
+    A.label='1 · Corte con lira ('+S.grain+' cm)';
+    ctx.fillStyle='#f8f2df'; ctx.fillRect(VX-VR,VY-VR,VR*2,VR*2);
+    const v=clamp(p/0.11,0,1), hp=clamp((p-0.11)/0.11,0,1);
+    ctx.strokeStyle='rgba(140,120,70,.7)'; ctx.lineWidth=1.3;
+    for(let x=VX-VR;x<VX-VR+VR*2*v;x+=A.sp){ctx.beginPath();ctx.moveTo(x,VY-VR);ctx.lineTo(x,VY+VR);ctx.stroke();}
+    for(let y=VY-VR;y<VY-VR+VR*2*hp;y+=A.sp){ctx.beginPath();ctx.moveTo(VX-VR,y);ctx.lineTo(VX+VR,y);ctx.stroke();}
+    return;
+  }
+  // fondo de suero
+  const q1=clamp((p-0.22)/0.2,0,1);
+  ctx.fillStyle=mix('#f3edd6',finalWhey,Math.min(1,q1*0.6+clamp((p-0.42)/0.4,0,1)*0.4)); ctx.fillRect(VX-VR,VY-VR,VR*2,VR*2);
+  let size=1, corner=0.08, gather=0;
+  if(p<0.42){ A.label = S.rest>0 ? `2 · Reposo ${S.rest} min: los granos «cicatrizan»` : '2 · Sin reposo: granos frágiles con bordes abiertos'; size=1-0.08*q1; corner=0.08+0.1*q1*(S.rest>0?1:0.2); }
+  else if(p<0.85){
+    const q=(p-0.42)/0.43; A.label='3 · Agitación '+S.agit+' y sinéresis'; size=0.92-(0.92-shrinkF)*q; corner=0.18+0.27*q;
+    A.grains.forEach(g=>{ g.th += omega*(0.55+0.45*(1-g.r/VR))*dt; g.rot+=omega*dt*(0.5+g.jit); });
+    A.fines.forEach(f=>{ f.th += omega*0.8*dt; });
+  } else {
+    const q=(p-0.85)/0.15; A.label='4 · Desuerado: se separa el lactosuero'; size=shrinkF; corner=0.45; gather=q;
+  }
+  // finos
+  if(p>0.42){
+    ctx.fillStyle='rgba(255,252,240,.95)';
+    A.fines.forEach(f=>{ if(f.show<clamp((p-0.42)/0.3,0,1)){ ctx.beginPath(); ctx.arc(VX+Math.cos(f.th)*f.r, VY+Math.sin(f.th)*f.r, 1.4,0,7); ctx.fill(); }});
+  }
+  // granos
+  ctx.fillStyle='#fffaf0'; ctx.strokeStyle='#e3d6b5'; ctx.lineWidth=0.8;
+  A.grains.forEach(g=>{
+    const rr=g.r*(1-0.55*gather);
+    const x=VX+Math.cos(g.th)*rr, y=VY+Math.sin(g.th)*rr, s=g.s*size;
+    ctx.save(); ctx.translate(x,y); ctx.rotate(g.rot);
+    ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(-s/2,-s/2,s,s,s*corner); else ctx.rect(-s/2,-s/2,s,s);
+    ctx.fill(); if(s>5) ctx.stroke();
+    ctx.restore();
+  });
+  if(p>=1){ S.anim=null; finishLot(); }
+}
+
+function drawFinal(){
+  const R=S.result;
+  const bg=ctx.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#f4f7fb'); bg.addColorStop(1,'#e3e9f1');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+  // mesa
+  ctx.fillStyle='#c9b18a'; ctx.fillRect(0,330,W,90);
+  ctx.fillStyle='#b89c72'; ctx.fillRect(0,330,W,6);
+  if(R.noCurd){
+    ctx.fillStyle='#334155'; ctx.font='600 16px Segoe UI, system-ui, sans-serif';
+    ctx.fillText('No se formó una cuajada cortable: casi todo pasó al suero.',150,180);
+  } else {
+    // queso
+    const cx=250, top=190, rx=125, ry=34, hgt=Math.max(60, Math.min(120, R.kg100*7));
+    const wet=R.M>61, dry=R.M<47;
+    const side=ctx.createLinearGradient(cx-rx,0,cx+rx,0);
+    side.addColorStop(0,'#efe5c9'); side.addColorStop(.5, wet?'#fffdf6':'#fbf4e1'); side.addColorStop(1,'#e8dcbd');
+    ctx.fillStyle=side; ctx.beginPath(); ctx.ellipse(cx,top+hgt,rx,ry,0,0,Math.PI); ctx.lineTo(cx-rx,top); ctx.ellipse(cx,top,rx,ry,0,Math.PI,0,true); ctx.closePath(); ctx.fill();
+    ctx.fillStyle= wet?'#fffef9':(dry?'#f5ecd2':'#fdf8ea'); ctx.beginPath(); ctx.ellipse(cx,top,rx,ry,0,0,7); ctx.fill();
+    ctx.strokeStyle='#dacb9f'; ctx.lineWidth=1.2; ctx.stroke();
+    // marcas de molde (canasta)
+    ctx.strokeStyle='rgba(200,185,145,.45)'; ctx.lineWidth=1;
+    for(let k=-5;k<=5;k++){const x=cx+k*rx/6; ctx.beginPath(); ctx.moveTo(x,top+ry*Math.sqrt(1-Math.pow(k/6,2))); ctx.lineTo(x,top+hgt+ry*Math.sqrt(1-Math.pow(k/6,2))); ctx.stroke();}
+    if(dry){ ctx.strokeStyle='#cdb98a'; ctx.lineWidth=1.4; [[cx-50,top-5,cx-20,top+8,cx-5,top+2],[cx+20,top-10,cx+45,top+3,cx+70,top-4],[cx-90,top+40,cx-70,top+70,cx-80,top+95]].forEach(c=>{ctx.beginPath();ctx.moveTo(c[0],c[1]);ctx.lineTo(c[2],c[3]);ctx.lineTo(c[4],c[5]);ctx.stroke();}); }
+    if(wet){ ctx.fillStyle='rgba(223,230,166,.9)'; [[cx-30,top+hgt+ry+6],[cx+40,top+hgt+ry+4],[cx+90,top+hgt+ry-2]].forEach(d=>{ctx.beginPath();ctx.ellipse(d[0],d[1],14,4,0,0,7);ctx.fill();}); ctx.fillStyle='rgba(255,255,255,.7)'; ctx.beginPath(); ctx.ellipse(cx-40,top-8,40,7,-.2,0,7); ctx.fill(); }
+    ctx.fillStyle='#1e293b'; ctx.font='700 15px Segoe UI, system-ui, sans-serif';
+    ctx.fillText(`Queso fresco: ${fmt(R.kgLot,2)} kg  (lote de ${S.vol} L)`, cx-120, 120);
+    ctx.font='13px Segoe UI, system-ui, sans-serif'; ctx.fillStyle='#475569';
+    ctx.fillText(`Humedad ${fmt(R.M,1)} % · ${wet?'pasta muy húmeda y blanda':dry?'pasta seca, tiende a desmoronarse':'textura firme y húmeda'}`, cx-120, 140);
+  }
+  // vaso de suero
+  const gx=530, gy=150, gw=90, gh=170;
+  ctx.fillStyle=WHEY[R.wheyKey]; ctx.fillRect(gx+4,gy+40,gw-8,gh-44);
+  if(R.wheyKey!=='claro'){ ctx.fillStyle='rgba(255,255,255,.9)'; for(let i=0;i<Math.min(40,R.fatLoss*2);i++) ctx.fillRect(gx+8+Math.random()*(gw-16), gy+44+Math.random()*(gh-52), 2,2); }
+  ctx.strokeStyle='#94a3b8'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(gx,gy); ctx.lineTo(gx+4,gy+gh); ctx.lineTo(gx+gw-4,gy+gh); ctx.lineTo(gx+gw,gy); ctx.stroke();
+  ctx.fillStyle='#1e293b'; ctx.font='700 14px Segoe UI, system-ui, sans-serif'; ctx.fillText('Lactosuero',gx+8,gy-26);
+  ctx.font='13px Segoe UI, system-ui, sans-serif'; ctx.fillStyle='#475569'; ctx.fillText(R.wheyTxt,gx-10,gy-8);
+}
+
+/* ============================================================
+   Gráfica de cinética
+   ============================================================ */
+function drawChart(){
+  const c=cx2, x0=50, x1=CW-52, y0=CH-32, y1=16;
+  const X=t=>x0+(t/90)*(x1-x0), YG=g=>y0-(Math.min(g,110)/110)*(y0-y1), YH=h=>y0-h*(y0-y1);
+  c.clearRect(0,0,CW,CH); c.fillStyle='#fff'; c.fillRect(0,0,CW,CH);
+  c.font='11px Segoe UI, system-ui, sans-serif';
+  // fases (hasta el tiempo actual)
+  if(S.started && S.P){
+    const P=S.P, tg=Math.min(90,P.tg), tF=timeTo(CUT_LO,P)??90, now=S.t;
+    const bands=[[0,tg,'rgba(139,92,246,.07)','Fase enzimática'],[tg,Math.max(tg,tF),'rgba(245,158,11,.08)','Agregación y gelificación'],[Math.max(tg,tF),90,'rgba(22,163,74,.06)','Fortalecimiento del gel']];
+    bands.forEach(b=>{ const e=Math.min(b[1],now); if(e>b[0]){ c.fillStyle=b[2]; c.fillRect(X(b[0]),y1,X(e)-X(b[0]),y0-y1); if(X(e)-X(b[0])>70){c.fillStyle='#64748b'; c.fillText(b[3],X(b[0])+5,y1+12);} }});
+  }
+  // zona de corte
+  if(S.sensor){
+    c.fillStyle='rgba(22,163,74,.12)'; c.fillRect(x0,YG(CUT_HI),x1-x0,YG(CUT_LO)-YG(CUT_HI));
+    c.fillStyle='#15803d'; c.fillText('Zona de corte (30–65 Pa)',x1-150,YG(CUT_HI)+13);
+  }
+  // rejilla
+  c.strokeStyle='#eef2f7'; c.lineWidth=1;
+  for(let t=0;t<=90;t+=10){c.beginPath();c.moveTo(X(t),y1);c.lineTo(X(t),y0);c.stroke(); c.fillStyle='#64748b'; c.fillText(t,X(t)-6,y0+14);}
+  for(let g=0;g<=100;g+=20){c.beginPath();c.moveTo(x0,YG(g));c.lineTo(x1,YG(g));c.stroke(); if(S.sensor){c.fillStyle='#12306b'; c.fillText(g,x0-24,YG(g)+4);} }
+  for(let h=0;h<=1;h+=0.25){c.fillStyle='#7c3aed'; c.fillText(Math.round(h*100)+'%',x1+6,YH(h)+4);}
+  c.strokeStyle='#94a3b8'; c.beginPath(); c.moveTo(x0,y1); c.lineTo(x0,y0); c.lineTo(x1,y0); c.lineTo(x1,y1); c.stroke();
+  c.fillStyle='#475569'; c.fillText('Tiempo desde la adición del cuajo (min)',CW/2-95,CH-4);
+  c.save(); c.translate(12,CH/2+30); c.rotate(-Math.PI/2); c.fillStyle='#12306b'; c.fillText(S.sensor?'Firmeza (Pa)':'Firmeza (sensor apagado)',0,0); c.restore();
+  c.save(); c.translate(CW-6,CH/2-50); c.rotate(Math.PI/2); c.fillStyle='#7c3aed'; c.fillText('κ-caseína hidrolizada',0,0); c.restore();
+  // lotes anteriores
+  if(S.compare && S.sensor){
+    const prev=S.lots.slice(-4);
+    prev.forEach(L=>{
+      c.strokeStyle='rgba(100,116,139,.45)'; c.lineWidth=1.5; c.beginPath();
+      L.curve.forEach((pt,i)=>{ i?c.lineTo(X(pt.t),YG(pt.G)):c.moveTo(X(pt.t),YG(pt.G)); }); c.stroke();
+      const last=L.curve[L.curve.length-1]; if(last){c.fillStyle='#64748b'; c.fillText('L'+L.n,X(last.t)+3,YG(last.G)-3);}
+    });
+  }
+  if(!S.started){ c.fillStyle='#94a3b8'; c.font='13px Segoe UI, system-ui, sans-serif'; c.fillText('La curva aparecerá cuando añadas el cuajo (paso 2).',x0+120,(y0+y1)/2); return; }
+  // tg
+  const P=S.P;
+  if(P.tg<90 && S.t>=P.tg){
+    c.strokeStyle='#7c3aed'; c.setLineDash([3,3]); c.beginPath(); c.moveTo(X(P.tg),y1); c.lineTo(X(P.tg),y0); c.stroke(); c.setLineDash([]);
+  }
+  // hidrólisis
+  c.strokeStyle='#8b5cf6'; c.lineWidth=2; c.setLineDash([6,4]); c.beginPath();
+  S.curve.forEach((pt,i)=>{ i?c.lineTo(X(pt.t),YH(pt.h)):c.moveTo(X(pt.t),YH(pt.h)); }); c.stroke(); c.setLineDash([]);
+  // firmeza
+  if(S.sensor){
+    c.strokeStyle='#12306b'; c.lineWidth=3; c.beginPath();
+    S.curve.forEach((pt,i)=>{ i?c.lineTo(X(pt.t),YG(pt.G)):c.moveTo(X(pt.t),YG(pt.G)); }); c.stroke();
+  }
+  // pruebas y corte
+  S.tests.forEach(tst=>{ c.fillStyle=tst.cls.fg; c.beginPath(); c.arc(X(tst.t),S.sensor?YG(tst.G):y0-6,4,0,7); c.fill(); });
+  if(S.cut){ c.strokeStyle='#d61f5c'; c.lineWidth=2; c.beginPath(); c.moveTo(X(S.cut.t),y1); c.lineTo(X(S.cut.t),y0); c.stroke(); c.fillStyle='#d61f5c'; c.font='700 11px Segoe UI, system-ui, sans-serif'; c.fillText('Corte',X(S.cut.t)+4,y1+26); }
+  if(S.pred){ c.strokeStyle='#f05a28'; c.setLineDash([2,3]); c.lineWidth=1.5; c.beginPath(); c.moveTo(X(S.pred),y1); c.lineTo(X(S.pred),y0); c.stroke(); c.setLineDash([]); c.fillStyle='#c2410c'; c.font='11px Segoe UI, system-ui, sans-serif'; c.fillText('Tu predicción',X(S.pred)+3,y0-6); }
+}
+
+/* ============================================================
+   Resultados y diagnóstico
+   ============================================================ */
+function computeResult(){
+  const P=S.P, F=S.cut.G, T=S.T, pH=S.pH;
+  const ag={suave:0,moderada:1,fuerte:2}[S.agit];
+  const weak=Math.max(0,(CUT_LO-F)/CUT_LO), over=Math.max(0,(F-CUT_HI)/35);
+  let fat = 6 + 22*weak + ag*(1.5+8*weak) + ({0:2.5,5:0.8,10:0})[S.rest] + (S.grain==0.5?1.5:0) + over*4 + (S.hetero?4:0) + Math.max(0,6.3-pH)*15 + Math.max(0,T-40)*1.2;
+  let cas = 1.5 + 0.55*(fat-6);
+  const noCurd = F<10;
+  if(noCurd){ fat=80-F*3; cas=75-F*3; }
+  fat=clamp(fat,4,90); cas=clamp(cas,1,85);
+  let M = 55 + ({0.5:-4,1:0,2:5})[S.grain] + ({suave:2,moderada:0,fuerte:-3})[S.agit] + ({ligero:3,medio:0,fuerte:-4})[S.press]
+        - (T-32)*0.35 - (6.6-pH)*8 - (P.caEff-1.18)*6 - (S.dose==2?1.5:0) + weak*3 + (S.hetero?1:0);
+  M=clamp(M,38,72);
+  const fatR=S.fat*(1-fat/100), casR=P.casein*(1-cas/100)*1.1;
+  const kg100=(fatR+casR)/(1-M/100-0.05);
+  const wheyKey = fat<9?'claro':(fat<14?'turbio':'blanco');
+  const wheyTxt = {claro:'claro, amarillo-verdoso', turbio:'ligeramente turbio', blanco:'blanco y lechoso'}[wheyKey];
+  return {F, fatLoss:fat, casLoss:cas, M, kg100, kgLot:kg100*S.vol/100, wheyKey, wheyTxt, noCurd, fatRec:100-fat, casRec:100-cas, weak, over};
+}
+
+function diagnose(R){
+  const D=[], P=S.P, F=R.F;
+  const causes=[];
+  if(S.heat==='UHT') causes.push('la leche UHT tiene proteínas del suero desnaturalizadas unidas a la κ-caseína, que dificultan la acción del cuajo y la agregación');
+  if(P.caEff<1.0) causes.push('faltó CaCl₂ (o la dosis fue baja) para compensar el calcio que se pierde con la pasteurización');
+  if(S.T<28) causes.push('la temperatura de cuajado fue baja (agregación lenta)');
+  if(S.T>40) causes.push('la temperatura fue alta: la red se forma rápido pero queda más débil y frágil');
+  if(S.dose==0.5) causes.push('la dosis de cuajo fue baja');
+  if(S.pH>6.75) causes.push('el pH alto mantiene a las micelas muy estables');
+  if(S.hetero) causes.push('la tina se movió durante la gelificación y rompió la red');
+  const tReady=timeTo(CUT_LO,P);
+  if(R.noCurd){
+    D.push({sev:'bad', t:'No se formó una cuajada cortable', st:'Acondicionamiento y coagulación', why: causes.length?causes.join('; '):'se cortó demasiado pronto', fix:'Revisa el tratamiento térmico, la temperatura de cuajado, el CaCl₂ y la dosis de cuajo; espera a que la prueba de corte muestre fractura limpia.'});
+  } else if(F<CUT_LO){
+    let why = causes.length?causes.join('; '):'';
+    if(tReady && tReady>S.cut.t) why += (why?'; además, ':'')+`se cortó antes de tiempo (la cuajada habría estado en punto hacia el minuto ${Math.round(tReady)})`;
+    D.push({sev:'bad', t:'Cuajada débil al corte', st:'Coagulación → punto de corte', why: why||'la red aún no tenía resistencia suficiente', fix:'Controlar la materia prima y las condiciones de coagulación; cortar solo con fractura limpia y suero claro.'});
+  }
+  if(F>CUT_HI) D.push({sev:'warn', t:'Corte tardío (sobrecoagulación)', st:'Punto de corte', why:'la cuajada estaba muy firme: los bordes se desmoronan al cortar', fix:'Hacer pruebas de corte periódicas y cortar dentro de la zona de firmeza adecuada.'});
+  if(!R.noCurd && R.wheyKey==='blanco') D.push({sev:'bad', t:'Suero blanco/turbio', st:'Corte, reposo y agitación', why:`se perdió ${fmt(R.fatLoss,0)} % de la grasa y ${fmt(R.casLoss,0)} % de la caseína como finos de cuajada${S.agit==='fuerte'?' (la agitación fuerte fragmentó granos)':''}${S.rest===0?'; sin reposo, los granos no cicatrizaron':''}`, fix:'Esperar la firmeza adecuada, dejar reposar tras el corte y agitar suavemente.'});
+  else if(!R.noCurd && R.wheyKey==='turbio') D.push({sev:'warn', t:'Suero ligeramente turbio', st:'Corte y agitación', why:`pérdida de grasa al suero de ${fmt(R.fatLoss,0)} %`, fix:'Revisa el reposo tras el corte y la intensidad de agitación.'});
+  if(!R.noCurd && R.M>61) D.push({sev:'warn', t:'Queso demasiado húmedo', st:'Desuerado y prensado', why:'desuerado limitado (grano grande, agitación suave o prensado ligero)', fix:'Ajustar el desuerado al producto: tamaño de grano, tiempo de agitación y prensado.'});
+  if(!R.noCurd && R.M<47) D.push({sev:'warn', t:'Queso seco / desmoronable', st:'Desuerado y prensado', why:'desuerado muy intenso (grano fino, agitación fuerte, prensado fuerte o temperatura alta)', fix:'Reducir la intensidad del desuerado o del prensado, o aumentar el tamaño de grano.'});
+  if(S.pH<6.3) D.push({sev:'warn', t:'Leche acidificada', st:'Recepción de la leche', why:'a pH bajo la cuajada se forma rápido pero es granular y frágil, con menor rendimiento', fix:'Rechazar o segregar leche con acidez fuera de especificación en la recepción.'});
+  if(S.cacl2>0.20) D.push({sev:'warn', t:'CaCl₂ por encima de la referencia', st:'Acondicionamiento', why:'la referencia tecnológica es 0.05–0.20 g/L; el exceso puede dar sabor amargo y cuajada demasiado dura', fix:'Dosificar CaCl₂ según la formulación institucional.'});
+  if(S.dose==2) D.push({sev:'warn', t:'Dosis alta de cuajo', st:'Adición de cuajo', why:'coagula rápido pero da cuajada más frágil, mayor sinéresis y riesgo de amargor', fix:'Usar la dosis de la formulación.'});
+  if(D.length===0) D.push({sev:'ok', t:'Proceso dentro de control', st:'Todo el proceso', why:'cuajada en punto, suero claro y humedad acorde a un queso fresco', fix:'Registra estas condiciones como tu lote de referencia.'});
+  return D;
+}
+
+/* Retos */
+const RETOS = {
+  libre:{title:'', preset:null},
+  ranchero:{title:'🎯 Reto: Ranchero/Botanero en punto', text:'Con leche LTLT, obtén un queso fresco con <b>corte en punto</b>, <b>suero claro</b>, <b>humedad 50–58 %</b> y <b>rendimiento ≥ 14.5 kg/100 L</b>.',
+    preset:{heat:'LTLT',T:32,cacl2:0.15,pH:6.6,dose:1,fat:3.5,prot:3.3},
+    checks:R=>[['Corte en punto (30–65 Pa)',R.F>=CUT_LO&&R.F<=CUT_HI],['Suero claro',R.wheyKey==='claro'],['Humedad 50–58 %',R.M>=50&&R.M<=58],['Rendimiento ≥ 14.5 kg/100 L',R.kg100>=14.5]]},
+  caso31:{title:'🕵️ Caso de la p. 31', text:'Un equipo pasteuriza bien y enfría a <b>36 °C</b>, agrega el cuajo pero <b>olvida el CaCl₂</b>. (1) Reprodúcelo: corta a los <b>35 min</b> con <b>agitación fuerte</b>. (2) Después corrige el lote cambiando <b>una sola variable a la vez</b>. ¿Qué opción (A–D) del CECYBOOK explica lo que viste?',
+    preset:{heat:'LTLT',T:36,cacl2:0,pH:6.6,dose:1,fat:3.5,prot:3.3},
+    checks:R=>[['Corte en punto (30–65 Pa)',R.F>=CUT_LO&&R.F<=CUT_HI],['Suero claro (sin finos)',R.wheyKey==='claro'],['Rendimiento ≥ 14.5 kg/100 L',R.kg100>=14.5]]},
+  humedo:{title:'💧 Reto: queso fresco más húmedo (Salida rápida, p. 28)', text:'Obtén un queso con <b>humedad ≥ 60 %</b> sin perder sólidos: <b>corte en punto</b> y <b>suero que no sea blanco</b>. ¿Qué variables del desuerado modificaste?',
+    preset:{heat:'LTLT',T:32,cacl2:0.15,pH:6.6,dose:1,fat:3.5,prot:3.3},
+    checks:R=>[['Humedad ≥ 60 %',R.M>=60],['Corte en punto',R.F>=CUT_LO&&R.F<=CUT_HI],['Suero no blanco',R.wheyKey!=='blanco']]},
+  uht:{title:'🥛 Reto: ¿se puede hacer queso con leche UHT?', text:'Intenta elaborar el queso con leche <b>UHT</b> (140 °C · 4 s). Prueba subir el CaCl₂ o la temperatura. Observa la vista microscópica: ¿qué son las partículas grises sobre las micelas? Relaciónalo con la Tabla 2 (p. 9).',
+    preset:{heat:'UHT',T:32,cacl2:0.15,pH:6.6,dose:1,fat:3.5,prot:3.3},
+    checks:R=>[['Intentaste coagular leche UHT',true],['¿Alcanzaste el punto de corte?',R.F>=CUT_LO]]}
+};
+
+/* ============================================================
+   UI: paso 1
+   ============================================================ */
+function zoneT(T){
+  if(T<25) return ['Baja: coagulación muy lenta o incompleta','#2563eb'];
+  if(T<30) return ['Algo baja: coagulación lenta','#0891b2'];
+  if(T<=37) return ['Óptima (30–37 °C): cuajada firme','#16a34a'];
+  if(T<=40) return ['Alta: coagulación rápida','#d97706'];
+  if(T<=55) return ['Alta (>40 °C): cuajada débil y frágil','#ea580c'];
+  return ['Muy alta: se inactiva la quimosina','#dc2626'];
+}
+function zonePH(p){
+  if(p>6.75) return ['Alto: micelas muy estables, coagulación lenta','#2563eb'];
+  if(p>=6.4) return ['Óptimo (6.4–6.7)','#16a34a'];
+  if(p>=6.2) return ['Ligeramente ácido: coagulación más rápida','#d97706'];
+  return ['Bajo (<6.2): leche acidificada, cuajada frágil','#dc2626'];
+}
+function readInputs(){
+  S.fat=parseFloat($('#fat').value); S.prot=parseFloat($('#prot').value);
+  S.T=parseInt($('#T').value); S.cacl2=parseFloat($('#ca').value); S.pH=parseFloat($('#pH').value);
+}
+function writeInputs(){
+  $('#fat').value=S.fat; $('#prot').value=S.prot; $('#T').value=S.T; $('#ca').value=S.cacl2; $('#pH').value=S.pH;
+  ['heat','dose','vol','grain','rest','agit','press','speed'].forEach(k=>{
+    $$(`.seg[data-key="${k}"] button`).forEach(b=>b.classList.toggle('on', b.dataset.v==String(S[k])));
+  });
+}
+function refreshConditions(){
+  $('#v-fat').textContent=fmt(S.fat)+' %'; $('#v-prot').textContent=fmt(S.prot)+' %';
+  $('#v-T').textContent=S.T+' °C'; const zt=zoneT(S.T); $('#z-T').textContent=zt[0]; $('#z-T').style.color=zt[1];
+  $('#v-ca').textContent=fmt(S.cacl2,2)+' g/L';
+  $('#ca-mark').style.left=(S.cacl2/0.30*100)+'%';
+  const inRef=S.cacl2>=0.05&&S.cacl2<=0.20;
+  $('#s-ca').innerHTML=`= <b>${fmt(S.cacl2*S.vol,2)} g</b> de CaCl₂ para ${S.vol} L · referencia 0.05–0.20 g/L <span style="color:${inRef?'#16a34a':'#d97706'}">${inRef?'✓':(S.cacl2<0.05?'(por debajo)':'(por encima)')}</span>`;
+  $('#v-pH').textContent=fmt(S.pH,2); const zp=zonePH(S.pH); $('#z-pH').textContent=zp[0]; $('#z-pH').style.color=zp[1];
+  syncSol();
+  if(S.step===1) explain();
+}
+$$('#fat,#prot,#T,#ca,#pH').forEach(el=>el.addEventListener('input',()=>{readInputs(); refreshConditions();}));
+$$('.seg[data-key]').forEach(seg=>{
+  seg.addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b||b.disabled) return;
+    const k=seg.dataset.key, v=b.dataset.v;
+    S[k] = isNaN(parseFloat(v)) ? v : parseFloat(v);
+    seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+    if(k==='heat') setView(S.view);
+    refreshConditions(); if(S.step===3) explain();
+  });
+});
+
+/* Vistas */
+$('#viewSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; setView(b.dataset.view); });
+function setView(v){
+  S.view=v; $$('#viewSeg button').forEach(x=>x.classList.toggle('on',x.dataset.view===v));
+  const L=$('#legend');
+  if(v==='micro') L.innerHTML=`<span><i class="lg" style="background:radial-gradient(circle at 35% 35%,#a9c8ff,#2f63c9)"></i>Micela de caseína</span><span><i class="lg" style="background:#8b5cf6;height:3px;border-radius:0"></i>κ-caseína</span><span><i class="lg" style="background:#a855f7;width:10px;height:3px;border-radius:0"></i>GMP (al suero)</span><span><i class="lg" style="background:#f59e0b"></i>Ca²⁺ asociado / puente</span><span><i class="lg" style="background:#22c55e"></i>Ca²⁺ soluble</span><span><i class="lg" style="background:#d61f5c"></i>Quimosina</span><span><i class="lg" style="background:#f6dc8c"></i>Glóbulo de grasa</span>${S.heat==='UHT'?'<span><i class="lg" style="background:#9ca3af"></i>Proteína del suero desnaturalizada</span>':''}`;
+  else L.innerHTML=`<span><i class="lg" style="background:#fbf7ea;border:1px solid #cbd5e1"></i>Leche / gel</span><span><i class="lg" style="background:${WHEY.claro}"></i>Suero claro</span><span><i class="lg" style="background:${WHEY.blanco};border:1px solid #cbd5e1"></i>Suero lechoso</span><span><i class="lg" style="background:#fffaf0;border:1px solid #e3d6b5;border-radius:3px"></i>Grano de cuajada</span>`;
+}
+
+/* ============================================================
+   Navegación de pasos
+   ============================================================ */
+function setStep(n){
+  S.step=n;
+  $$('.panel').forEach(p=>p.classList.toggle('show', +p.dataset.panel===n));
+  $$('.st-item').forEach(it=>{ const s=+it.dataset.s; it.classList.toggle('on',s===n); it.classList.toggle('done',s<n); });
+  explain();
+}
+function resetCoag(){
+  S.started=false; S.running=false; S.t=0; S.damage=1; S.hetero=false; S.P=null; S.curve=[]; S.tests=[]; S.cut=null; S.result=null; S.anim=null; S.testAnim=null;
+  $('#addRennet').disabled=false; $('#play').disabled=true; $('#play').textContent='⏸ Pausa';
+  ['#cutTest','#stir','#go3'].forEach(s=>$(s).disabled=true);
+  $('#testlog').innerHTML='<div style="color:var(--muted)">Aquí se registran tus pruebas de corte.</div>';
+  updateReadouts(0,0);
+  initMicro();
+}
+$('#go2').addEventListener('click',()=>{ const pv=parseFloat($('#pred').value); S.pred = isNaN(pv)?null:clamp(pv,1,90); resetCoag(); setStep(2); setView('micro'); });
+$('#back1').addEventListener('click',()=>{ resetCoag(); setStep(1); });
+$('#addRennet').addEventListener('click',()=>{
+  S.P=params(); S.started=true; S.running=true; S.t=0; S.curve=[{t:0,h:0,G:0}];
+  $('#addRennet').disabled=true; $('#play').disabled=false;
+  ['#cutTest','#stir','#go3'].forEach(s=>$(s).disabled=false);
+  explain();
+});
+$('#play').addEventListener('click',()=>{ if(S.t>=90) return; S.running=!S.running; $('#play').textContent=S.running?'⏸ Pausa':'▶ Continuar'; });
+$('#sensor').addEventListener('change',e=>{ S.sensor=e.target.checked; $('#ro-G').style.display=S.sensor?'':'none'; });
+$('#compare').addEventListener('change',e=>{ S.compare=e.target.checked; });
+$('#stir').addEventListener('click',()=>{
+  const G=firm(S.t,S.P);
+  let msg;
+  if(S.t<2){ msg='Mezclar al inicio (30–60 s) es correcto para distribuir el cuajo.'; }
+  else { S.damage*=0.72; S.hetero=true; damageGel(); msg = G>1 ? '⚠️ Moviste un gel en formación: se rompió parte de la red y quedará heterogénea.' : '⚠️ La leche ya debía permanecer inmóvil: la red que comienza a formarse será heterogénea.'; }
+  logTest(`<b>${fmt(S.t)} min</b> · ${msg}`);
+});
+$('#cutTest').addEventListener('click',()=>{
+  const G=firm(S.t,S.P), cls=gelState(G);
+  S.tests.push({t:S.t,G,cls});
+  S.testAnim={t0:performance.now(), cls, ang:-0.5+Math.random()*1.0};
+  setView('tina');
+  const msg={liq:'el cuchillo no encuentra resistencia: sigue líquida.',inc:'aumentó la viscosidad, pero no hay gel cortable.',no:'los bordes se cierran y el suero sale lechoso: <b>no lista</b>.',ok:'fractura limpia y suero claro amarillo-verdoso: <b>en punto</b>.',over:'muy firme; los bordes pueden desmoronarse: <b>pasada</b>.'}[cls.k];
+  logTest(`<b>${fmt(S.t)} min</b> · 🔪 ${msg}`);
+});
+function logTest(html){ const L=$('#testlog'); if(L.firstChild && L.firstChild.style && L.firstChild.style.color) L.innerHTML=''; const d=document.createElement('div'); d.innerHTML=html; L.prepend(d); }
+$('#go3').addEventListener('click',()=>{
+  const G=firm(S.t,S.P); S.cut={t:S.t,G,cls:gelState(G)}; S.running=false;
+  $('#cutinfo').innerHTML=`Cortaste a los <b>${fmt(S.t)} min</b> · firmeza <b>${fmt(G,0)} Pa</b> · <span class="state-pill" style="background:${S.cut.cls.bg};color:${S.cut.cls.fg}">${S.cut.cls.txt}</span>`;
+  setStep(3); setView('tina');
+});
+$('#exec').addEventListener('click',()=>{
+  if(S.anim) return;
+  S.result=computeResult(); S.result.D=diagnose(S.result);
+  $('#exec').disabled=true; $$('.panel[data-panel="3"] .seg button').forEach(b=>b.disabled=true);
+  setView('tina'); startCutAnim();
+});
+function finishLot(){
+  const R=S.result; S.lotCount++;
+  const thin=S.curve.filter((p,i)=>i%3===0);
+  S.lots.push({n:S.lotCount, heat:S.heat, T:S.T, cacl2:S.cacl2, pH:S.pH, dose:S.dose, vol:S.vol, fat:S.fat, prot:S.prot, tcut:S.cut.t, F:R.F, grain:S.grain, rest:S.rest, agit:S.agit, press:S.press, whey:R.wheyTxt, M:R.M, kg100:R.kg100, kgLot:R.kgLot, diag:R.D[0].t, curve:thin});
+  renderLog(); renderResults(); setStep(4);
+  $('#exec').disabled=false; $$('.panel[data-panel="3"] .seg button').forEach(b=>b.disabled=false);
+}
+$('#newLot').addEventListener('click',()=>{ resetCoag(); setStep(1); setView('micro'); window.scrollTo({top:0,behavior:'smooth'}); });
+
+/* Retos */
+$$('.chip').forEach(c=>c.addEventListener('click',()=>{
+  $$('.chip').forEach(x=>x.classList.toggle('on',x===c));
+  S.reto=c.dataset.reto; const R=RETOS[S.reto];
+  if(R.preset){ Object.assign(S,R.preset); writeInputs(); }
+  resetCoag(); setStep(1); setView('micro'); refreshConditions(); renderGoal();
+}));
+function renderGoal(R){
+  const G=$('#goal'), cfg=RETOS[S.reto];
+  if(S.reto==='libre'){ G.classList.remove('show'); return; }
+  let html=`<h4>${cfg.title}</h4><div>${cfg.text}</div>`;
+  if(R && cfg.checks){
+    const ch=cfg.checks(R), ok=ch.every(c=>c[1]);
+    html+='<ul>'+ch.map(c=>`<li><span class="st" style="color:${c[1]?'#16a34a':'#dc2626'}">${c[1]?'✓':'✗'}</span>${c[0]}</li>`).join('')+'</ul>';
+    html+= ok ? '<div style="margin-top:6px;font-weight:700;color:#166534">🏆 ¡Reto cumplido! Registra en tu bitácora qué decisiones lo hicieron posible.</div>' : '<div style="margin-top:6px;color:#9a3412">Aún no. Revisa el diagnóstico y prueba un nuevo lote cambiando una variable.</div>';
+    if(S.reto==='uht') html+='<div style="margin-top:6px">💡 <b>Explicación:</b> el calentamiento intenso desnaturaliza la β-lactoglobulina, que se une a la κ-caseína de la micela. Eso estorba a la quimosina y, sobre todo, impide que las micelas se agreguen en una red firme: por eso la Tabla 2 indica que la UHT es poco común en quesería.</div>';
+  }
+  G.innerHTML=html; G.classList.add('show');
+}
+
+/* Resultados */
+function renderResults(){
+  const R=S.result;
+  $('#lotN').textContent='L'+S.lotCount;
+  $('#kpis').innerHTML=`
+    <div class="kpi big"><div class="k">Rendimiento</div><div class="v">${R.noCurd?'≈ '+fmt(R.kg100,1):fmt(R.kg100,1)} <small>kg / 100 L</small></div><div style="font-size:12.5px;color:#c7d4f5">${fmt(R.kgLot,2)} kg de queso en el lote de ${S.vol} L</div></div>
+    <div class="kpi"><div class="k">Humedad</div><div class="v">${fmt(R.M,1)} <small>%</small></div></div>
+    <div class="kpi"><div class="k">Suero</div><div class="v" style="font-size:15px;padding-top:4px"><span class="swatch" style="background:${WHEY[R.wheyKey]}"></span>${R.wheyTxt}</div></div>
+    <div class="kpi"><div class="k">Grasa recuperada</div><div class="v">${fmt(R.fatRec,0)} <small>%</small></div></div>
+    <div class="kpi"><div class="k">Caseína recuperada</div><div class="v">${fmt(R.casRec,0)} <small>%</small></div></div>
+    <div class="kpi" style="grid-column:1/-1"><div class="k">Firmeza al corte</div><div class="v" style="font-size:16px">${fmt(R.F,0)} Pa · <span class="state-pill" style="background:${S.cut.cls.bg};color:${S.cut.cls.fg}">${S.cut.cls.txt}</span> a los ${fmt(S.cut.t)} min</div></div>`;
+  renderGoal(R);
+}
+
+/* Bitácora */
+function renderLog(){
+  const tb=$('#tbody');
+  if(!S.lots.length){ tb.innerHTML='<tr><td colspan="16" class="empty">Aún no hay lotes. Completa tu primer lote para registrarlo.</td></tr>'; return; }
+  tb.innerHTML=S.lots.map(L=>`<tr><td><b>L${L.n}</b></td><td>${L.heat}</td><td>${L.T}</td><td>${fmt(L.cacl2,2)}</td><td>${fmt(L.pH,2)}</td><td>${DOSE[L.dose].name}</td><td>${fmt(L.tcut)}</td><td>${fmt(L.F,0)}</td><td>${L.grain} cm</td><td>${L.rest} min</td><td>${L.agit}</td><td>${L.press}</td><td>${L.whey}</td><td>${fmt(L.M,1)} %</td><td><b>${fmt(L.kg100,1)}</b></td><td>${L.diag}</td></tr>`).join('');
+}
+$('#csv').addEventListener('click',()=>{
+  if(!S.lots.length) return;
+  const head=['Lote','Tratamiento','T_C','CaCl2_gL','pH','Cuajo','Grasa_leche','Proteina_leche','Corte_min','Firmeza_Pa','Grano_cm','Reposo_min','Agitacion','Prensado','Suero','Humedad_pct','Rend_kg100L','Volumen_L','Queso_kg','Diagnostico'];
+  const rows=S.lots.map(L=>[ 'L'+L.n,L.heat,L.T,L.cacl2,L.pH,DOSE[L.dose].name,L.fat,L.prot,fmt(L.tcut),fmt(L.F,0),L.grain,L.rest,L.agit,L.press,L.whey,fmt(L.M,1),fmt(L.kg100,2),L.vol,fmt(L.kgLot,2),L.diag]);
+  const csv='﻿'+[head,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='bitacora_lotes_semana14.csv'; document.body.appendChild(a); a.click(); a.remove();
+});
+$('#clearLog').addEventListener('click',()=>{ if(!S.lots.length) return; if(confirm('¿Borrar todos los lotes de la bitácora?')){ S.lots=[]; S.lotCount=0; renderLog(); } });
+
+/* ============================================================
+   Explicaciones dinámicas
+   ============================================================ */
+function explain(h,G){
+  const A=$('#exA-body'), B=$('#exB-body');
+  if(S.step===1){
+    const P=params(), parts=[];
+    parts.push(`<p>La quimosina trabaja según la <b>temperatura</b>, el <b>pH</b> y la <b>dosis</b>; la agregación posterior depende además del <b>Ca²⁺ disponible</b> y del contenido de caseína.</p>`);
+    if(S.heat==='UHT') parts.push('<p>⚠️ <b>UHT:</b> el calor intenso desnaturaliza proteínas del suero (gris en la vista microscópica) que se adhieren a la κ-caseína y bloquean la coagulación.</p>');
+    else parts.push(`<p>🌡️ <b>${S.heat}:</b> la pasteurización desplaza parte del calcio soluble hacia la fase coloidal; por eso se repone con CaCl₂.</p>`);
+    if(S.cacl2<0.05) parts.push('<p>🟢 Hay poco Ca²⁺ soluble (puntos verdes): espera una cuajada más lenta y débil.</p>');
+    if(S.T>55) parts.push('<p>🔥 A esta temperatura la quimosina se desnaturaliza.</p>');
+    A.innerHTML=parts.join('')+'<p style="color:#475569">✍️ Antes de continuar, escribe tu predicción del minuto de corte.</p>';
+    B.innerHTML='<p><b>Tabla 2</b> (p. 9): condiciones de pasteurización. <b>Figuras 10 y 11</b> (pp. 11–12): distribución del calcio y su papel como puente. <b>Tabla 3</b> (p. 15): variables que controlan la coagulación. Dosis de referencia de CaCl₂: 0.05–0.20 g/L (p. 12).</p>';
+    return;
+  }
+  if(S.step===2){
+    if(!S.started){
+      A.innerHTML='<p>Las micelas de caseína están estables: la <b>κ-caseína</b> (pelos morados) forma una capa hidrofílica que las mantiene separadas por <b>repulsión estérica</b>. Añade el cuajo para iniciar la coagulación.</p>';
+      B.innerHTML='<p><b>Figura 13</b> (p. 14): la quimosina corta el enlace Phe105–Met106 de la κ-caseína.</p>'; return;
+    }
+    h = h ?? hyd(S.t,S.P); G = G ?? firm(S.t,S.P);
+    const P=S.P; let txt;
+    if(P.inact<0.3) txt='<p><b>Quimosina inactivada:</b> la temperatura es tan alta que la enzima perdió su estructura. Casi no hay hidrólisis de κ-caseína: la leche no cuajará.</p>';
+    else if(h<0.85) txt=`<p><b>Fase enzimática:</b> la quimosina hidroliza la κ-caseína y libera el <b>glicomacropéptido (GMP)</b> al suero. Ya va <b>${Math.round(h*100)} %</b> hidrolizado, aunque a simple vista la leche sigue líquida.</p>`;
+    else if(G<CUT_LO) txt='<p><b>Agregación y gelificación:</b> con ~85 % de κ-caseína hidrolizada las micelas pierden la repulsión estérica. El <b>Ca²⁺</b> forma puentes entre ellas y aparece una red tridimensional que atrapa agua y grasa.'+(S.P.caEff<1?' Con poco calcio, los puentes se forman lentamente.':'')+'</p>';
+    else if(G<=CUT_HI) txt='<p><b>Fortalecimiento del gel:</b> la red sigue reorganizándose y ganando resistencia. Haz una <b>prueba de corte</b>: si la fractura es limpia y el suero sale claro, la cuajada está lista.</p>';
+    else txt='<p><b>Sobrecoagulación:</b> el gel está muy firme. Si esperas más, los bordes pueden desmoronarse al cortar y cambia la respuesta del gel durante el desuerado.</p>';
+    if(S.hetero) txt+='<p>⚠️ La red quedó <b>heterogénea</b> porque se movió la tina durante la gelificación.</p>';
+    A.innerHTML=txt;
+    B.innerHTML='<p><b>Figura 14</b> (p. 16): las tres fases en el tiempo. <b>Figura 15</b> (p. 17): efecto de la temperatura. <b>Figura 16</b> (p. 18): evaluación del punto de corte. <b>Figura 17</b> (p. 19): sensores de reología y retrodispersión.</p><p><i>Idea clave:</i> se corta cuando la cuajada tiene firmeza suficiente, no cuando termina el tiempo de la receta.</p>';
+    return;
+  }
+  if(S.step===3){
+    const g={0.5:'granos finos: más superficie, desuerado rápido, menor humedad (más finos si la cuajada es frágil)',1:'granos medianos: desuerado intermedio, típico del Ranchero/Botanero',2:'granos grandes: desuerado lento, mayor humedad'}[S.grain];
+    A.innerHTML=`<p><b>Grano de ${S.grain} cm</b> → ${g}.</p><p><b>Reposo de ${S.rest} min</b> → ${S.rest===0?'sin cicatrización, los bordes abiertos liberan finos de cuajada':'los bordes de los granos «cicatrizan» y se reducen las pérdidas'}. <b>Agitación ${S.agit}</b> → ${S.agit==='fuerte'?'mucha sinéresis, pero puede fragmentar granos frágiles':S.agit==='suave'?'protege los granos; sale menos suero':'equilibrio entre sinéresis y protección de los granos'}. <b>Prensado ${S.press}</b> → ${S.press==='fuerte'?'pasta más seca y compacta':S.press==='ligero'?'pasta más húmeda':'humedad intermedia'}.</p>`;
+    $('#s-grain').innerHTML='¿Qué esperas si otro equipo usa cubos de 2 cm y otro de 0.5 cm? (Pregunta de proceso, p. 20)';
+    B.innerHTML='<p><b>Figura 18</b> (p. 20): tamaño de grano. <b>Figura 19</b> (p. 21): etapas de la sinéresis. <b>Figuras 20–21</b> (pp. 22–23): reposo, agitación y cicatrización.</p><p><i>Idea clave:</i> el suero cuenta una historia: si sale turbio y lechoso se está llevando componentes que debían quedar en el queso.</p>';
+    return;
+  }
+  if(S.step===4 && S.result){
+    const R=S.result;
+    let html=R.D.map(d=>`<div class="diag ${d.sev}"><div class="t">${d.sev==='ok'?'✅':d.sev==='bad'?'❌':'⚠️'} ${d.t}</div><div class="m"><b>Etapa de origen:</b> ${d.st}<br><b>Por qué:</b> ${d.why}<br><b>Prevención:</b> ${d.fix}</div></div>`).join('');
+    const tR=timeTo(CUT_LO,S.P);
+    if(S.pred) html+=`<p>🤔 Predijiste el corte al minuto <b>${S.pred}</b>; la cuajada alcanzó firmeza de corte ${tR?`al minuto <b>${fmt(tR,0)}</b>`:'<b>nunca</b> dentro de 90 min'}.</p>`;
+    A.innerHTML=html;
+    B.innerHTML=`<p><b>Tabla 4</b> (p. 26): guía de diagnóstico de defectos. <b>Resumen</b> y <b>Salida rápida</b> (p. 28).</p><p>Recuerda: un rendimiento alto por <b>exceso de humedad</b> no equivale a recuperar más sólidos. Compara la <b>grasa y caseína recuperadas</b> entre lotes en la bitácora.</p>`;
+  }
+}
+
+/* ============================================================
+   Lecturas paso 2
+   ============================================================ */
+let lastPhase='';
+function updateReadouts(h,G){
+  $('#r-t').innerHTML=`${fmt(S.t)} <small>min</small>`;
+  $('#r-h').innerHTML=`${Math.round(h*100)} <small>%</small>`; $('#b-h').style.width=(h*100)+'%';
+  $('#r-G').innerHTML=`${fmt(G,0)} <small>Pa</small>`; $('#b-G').style.width=Math.min(100,G/110*100)+'%';
+  const st=S.started?gelState(G):{txt:'Leche sin cuajo',bg:'#e2e8f0',fg:'#334155'};
+  $('#r-state').innerHTML=`<span class="state-pill" style="background:${st.bg};color:${st.fg}">${S.sensor||!S.started?st.txt:'Usa la prueba de corte'}</span>`;
+  $('#clock').textContent=`t = ${fmt(S.t)} min`;
+  const ph = !S.started?'pre':(h<0.85?'enz':(G<CUT_LO?'agg':(G<=CUT_HI?'ok':'over')));
+  if(ph!==lastPhase){ lastPhase=ph; explain(h,G); }
+  else if(ph==='enz' && Math.random()<0.05) explain(h,G);
+}
+
+/* ============================================================
+   Bucle principal
+   ============================================================ */
+let last=performance.now(), frame=0;
+function loop(now){
+  requestAnimationFrame(loop);
+  try{ tick(now); }catch(err){ console.error(err); }
+}
+function tick(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now; frame++;
+  let dtSim=0;
+  if(S.step===2 && S.started && S.running){
+    dtSim=dt*S.speed; S.t=Math.min(90,S.t+dtSim);
+    if(S.t>=90){ S.running=false; $('#play').textContent='▶ Continuar'; $('#play').disabled=true; }
+    const lp=S.curve[S.curve.length-1];
+    if(!lp || S.t-lp.t>=0.25) S.curve.push({t:S.t,h:hyd(S.t,S.P),G:firm(S.t,S.P)});
+  }
+  const h=S.started?hyd(S.t,S.P):0, G=S.started?firm(S.t,S.P):0;
+  updateMicro(dt, dtSim, h, G);
+  if(S.view==='micro') drawMicro(h,G); else drawMacro(dt,G);
+  if(S.step===2) updateReadouts(h,G);
+  if(frame%3===0) drawChart();
+}
+
+/* Inicio */
+initMicro(); writeInputs(); refreshConditions(); setView('micro'); setStep(1); drawChart();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
