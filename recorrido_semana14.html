@@ -112,9 +112,57 @@ details.teacher summary{cursor:pointer;font-weight:700;color:var(--navy)}
 details.teacher li{margin:3px 0}
 footer{padding:0 24px 18px;font-size:11.5px;color:var(--muted)}
 @media print{
-  body{background:#fff;padding:0} .app{box-shadow:none} .back,.prods,.left,.nav,details,footer,.topbar,.noprint{display:none!important}
+  body{background:#fff;padding:0} .app{box-shadow:none} .back,.prods,.left,.nav,details,footer,.topbar,.noprint,.certbtn{display:none!important}
   .main{display:block;padding:0} .panel{border:0}
 }
+
+.tagbox{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.certbtn{border:1.5px solid var(--line);background:#fff;color:var(--navy);font:inherit;font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px;cursor:pointer}
+.certbtn small{font-weight:700;color:var(--muted);margin-left:4px}
+.certbtn.ready{background:linear-gradient(90deg,var(--orange),var(--magenta));color:#fff;border-color:transparent}.certbtn.ready small{color:#ffe4d6}
+.tip{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:8px 10px;font-size:13.5px}
+.certcall{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:10px 0;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,#fff7ed,#fdf2f8);border:1.5px solid #fdba74}
+.certcall b{display:block;color:#9a3412;font-size:15px}.certcall span{font-size:12.5px;color:#7c2d12}
+.cert{display:none;position:fixed;inset:0;background:rgba(15,27,51,.55);z-index:50;overflow:auto;padding:18px}
+.cert.on{display:block}
+.cert-in{max-width:980px;margin:0 auto}
+.cbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.cbar b{color:var(--navy);margin-right:auto}
+.cbar input{padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;font:inherit;font-size:13.5px;flex:1;min-width:140px}
+.cbar input.need{border-color:var(--bad);background:#fef2f2}
+.sheet{background:#fff;border-radius:6px;padding:34px 40px;position:relative;border:10px solid #fff;outline:3px solid #12306b;outline-offset:-18px;box-shadow:0 20px 50px rgba(0,0,0,.3);font-family:Georgia,"Times New Roman",serif;color:#0f1b33}
+.sheet::before{content:"";position:absolute;inset:14px;border:1.2px solid #f05a28;border-radius:2px;pointer-events:none}
+.sh-top{display:flex;justify-content:space-between;align-items:center;gap:12px;font-family:"Segoe UI",system-ui,sans-serif}
+.sh-logo{font-weight:900;color:#12306b;font-size:20px;line-height:1;border-left:6px solid #f05a28;padding-left:8px}.sh-logo small{font-size:11px;font-weight:700;color:#64748b}
+.sh-head{text-align:center;font-size:12px;color:#334155;display:grid}.sh-head span:first-child{font-weight:800;color:#12306b}
+.sh-folio{text-align:right;font-size:10.5px;color:#64748b}.sh-folio b{font-family:monospace;font-size:13px;color:#0f1b33}
+.sh-title{text-align:center;font-size:40px;letter-spacing:.25em;color:#12306b;margin-top:18px;font-weight:700}
+.sh-sub{text-align:center;font-size:15px;color:#475569;margin-top:2px}
+.sh-to{text-align:center;margin-top:18px;font-size:14px;color:#64748b;font-style:italic}
+.sh-name{text-align:center;font-size:30px;font-weight:700;margin:4px auto 0;padding-bottom:4px;border-bottom:1.5px solid #cbd5e1;max-width:620px;min-height:44px}
+.sh-name .ph{color:#cbd5e1;font-weight:400;font-size:20px}
+.sh-meta{text-align:center;font-size:13px;color:#475569;margin-top:4px;min-height:18px;font-family:"Segoe UI",system-ui,sans-serif}
+.sh-txt{text-align:center;font-size:14.5px;max-width:700px;margin:12px auto}
+.sh-tab{width:100%;border-collapse:collapse;font-family:"Segoe UI",system-ui,sans-serif;font-size:12.5px;margin:8px 0}
+.sh-tab th{background:#12306b;color:#fff;padding:6px 8px;font-size:11.5px;text-align:left}.sh-tab td{padding:6px 8px;border-bottom:1px solid #e2e8f0}
+.sh-res{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0;font-family:"Segoe UI",system-ui,sans-serif}
+.sh-res div{border:1.5px solid #e2e8f0;border-radius:10px;padding:8px 10px;text-align:center}.sh-res small{display:block;color:#64748b;font-size:11px}.sh-res b{font-size:17px;color:#12306b}
+.sh-leg{font-family:"Segoe UI",system-ui,sans-serif;font-size:10.5px;color:#64748b;text-align:center}
+.sh-empty{text-align:center;margin:26px 0;padding:18px;border:2px dashed #fdba74;border-radius:12px;color:#9a3412;font-family:"Segoe UI",system-ui,sans-serif;font-size:14px}
+.sh-sign{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin:40px 40px 6px;text-align:center;font-family:"Segoe UI",system-ui,sans-serif;font-size:12px;color:#475569}
+.sh-sign span{display:block;border-top:1.5px solid #334155;margin-bottom:4px}
+.sh-foot{text-align:center;font-size:10.5px;color:#94a3b8;margin-top:10px;font-family:"Segoe UI",system-ui,sans-serif}
+@media (max-width:640px){.sheet{padding:24px 16px}.sh-title{font-size:28px}.sh-name{font-size:22px}.sh-res{grid-template-columns:1fr}.sh-sign{margin:30px 0 6px;gap:20px}.sh-tab{font-size:10.5px}.sh-tab th,.sh-tab td{padding:4px}}
+@media print{
+  @page{size:letter landscape;margin:10mm}
+  body.cert-on{padding:0;background:#fff}
+  body.cert-on .app{display:none!important}
+  body.cert-on .cert{position:static;display:block;background:#fff;padding:0;overflow:visible}
+  body.cert-on .cbar{display:none!important}
+  body.cert-on .sheet{box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sh-tab th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+.acgrid .acbox{min-width:0}
 </style>
 </head>
 <body>
@@ -127,7 +175,7 @@ footer{padding:0 24px 18px;font-size:11.5px;color:var(--muted)}
         <h1>🧭 Recorrido guiado por la planta</h1>
         <div class="subtitle">Elige un producto, sigue su ruta por la planta y toma en cada etapa la decisión que tomaría un técnico en procesamiento de lácteos.</div>
       </div>
-      <div class="week-tag">Semana 14 · <b>A.C.5, A.C.6 y A.C.7</b></div>
+      <div class="tagbox"><div class="week-tag">Semana 14 · <b>A.C.5, A.C.6 y A.C.7</b></div><button class="certbtn" id="certBtn">🎓 Constancia</button></div>
     </div>
   </header>
 
@@ -151,12 +199,14 @@ footer{padding:0 24px 18px;font-size:11.5px;color:var(--muted)}
     <summary>👩‍🏫 Notas para el docente</summary>
     <ul>
       <li><b>Cómo funciona:</b> cada etapa tiene una <b>tarea</b> (decidir, ajustar un parámetro o actuar en el momento justo) y una <b>pregunta</b>. Cada una vale 1 punto si se acierta al primer intento. El alumno puede reintentar la tarea para aprender, pero el punto solo cuenta la primera vez.</li>
-      <li><b>Competencias:</b> cada etapa está vinculada con A.C.5 (acondiciona leches), A.C.6 (transforma la leche) o A.C.7 (acondiciona el producto terminado), tal como aparecen en la p. 2 del CECYBOOK. Al final se genera una constancia que se puede imprimir o guardar en PDF.</li>
+      <li><b>Competencias:</b> cada etapa está vinculada con A.C.5 (acondiciona leches), A.C.6 (transforma la leche) o A.C.7 (acondiciona el producto terminado), tal como aparecen en la p. 2 del CECYBOOK. </li>
+      <li><b>Constancia:</b> al terminar un producto aparece el botón «🎓 Generar constancia»; también está siempre arriba a la derecha («🎓 Constancia», con los productos completados). El alumno escribe nombre, grupo y plantel y la guarda en PDF o la imprime en una hoja carta horizontal. Si completa los tres productos, aparecen todos en la misma constancia, con su desglose por A.C.5, A.C.6 y A.C.7. Los resultados se guardan solo en ese navegador.</li>
       <li><b>Ajustes respecto a la versión anterior:</b> (1) en la versión anterior la respuesta correcta siempre era la opción A; ahora las opciones se barajan y los distractores son errores reales de proceso; (2) cada opción incorrecta explica por qué lo es; (3) los escenarios de recepción y liberación cambian en cada recorrido; (4) los límites microbiológicos de liberación del queso fresco son los de la Figura 24 (p. 27); para el yogurt se usa una ficha técnica de ejemplo.</li>
     </ul>
   </details>
   <footer>Recurso didáctico complementario · CECYBOOK Semana 14 · Unidad 7: Procesos de transformación para la obtención de derivados de la leche.</footer>
 </div>
+<div id="cert" class="cert"></div>
 
 <script>
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
@@ -337,7 +387,7 @@ function render(){
   if(step<0){
     R.innerHTML=`<div class="hd"><b>${D.name}</b><span class="pill">${D.steps.length} etapas</span></div>
      <div class="lesson"><p>Vas a recorrer la ruta de <b>${D.name.toLowerCase()}</b> por la planta. En cada etapa harás una <b>tarea</b> (decidir, ajustar o actuar en el momento justo) y responderás una <b>pregunta</b>. Cada acierto al primer intento vale un punto.</p>
-     <p>Observa en el mapa que cada producto sigue su propia ruta: ${P==='yogurt'?'el yogurt pasa del tratamiento térmico directo a su línea, sin entrar a las tinas queseras.':P==='hilado'?'la cuajada del Oaxaca pasa de la tina al área de pasta hilada, sin pasar por las prensas.':'la cuajada del queso fresco pasa de la tina a moldeo y prensado, sin pasar por el hilado.'}</p></div>
+     <p>Observa en el mapa que cada producto sigue su propia ruta: ${P==='yogurt'?'el yogurt pasa del tratamiento térmico directo a su línea, sin entrar a las tinas queseras.':P==='hilado'?'la cuajada del Oaxaca pasa de la tina al área de pasta hilada, sin pasar por las prensas.':'la cuajada del queso fresco pasa de la tina a moldeo y prensado, sin pasar por el hilado.'}</p><p class="tip">🎓 Al terminar las ${D.steps.length} etapas podrás <b>generar tu constancia</b> con tu nombre y guardarla en PDF. Si completas los tres productos, aparecen todos en la misma constancia.</p></div>
      <div class="nav"><span></span><button class="btn btn-accent" id="go">▶ Comenzar recorrido</button></div>`;
     $('#go').onclick=()=>{ step=0; rec=D.steps.map(()=>null); render(); };
     return;
@@ -424,34 +474,73 @@ function render_dots(){ const D=C[P]; $('#dots').innerHTML=D.steps.map((s,i)=>{ 
   const pts=rec.reduce((a,x)=>a+(x?(x.task?1:0)+(x.q?1:0):0),0); $('#pts').textContent=`${pts} / ${D.steps.length*2} puntos`; $('#pbar').style.width=(rec.filter(x=>x&&x.done).length/D.steps.length*100)+'%'; }
 
 /* ===================== Resumen ===================== */
+const KEYS=['fresco','hilado','yogurt'], EMO={fresco:'🧀',hilado:'🧵',yogurt:'🥛'};
+const ACN={5:'Acondiciona leches y sus derivados',6:'Transforma leche y sus derivados',7:'Acondiciona el producto terminado'};
+const LS={get(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
+const RES=Object.assign({},LS.get('rg_s14_res')||{});
+const fecha=()=>new Date().toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'});
 function summary(){
   const D=C[P], acs={5:[0,0],6:[0,0],7:[0,0]};
   D.steps.forEach((s,i)=>{ const x=rec[i]; acs[s.ac][0]+=(x.task||0)+(x.q||0); acs[s.ac][1]+=2; });
   const pts=Object.values(acs).reduce((a,v)=>a+v[0],0), max=D.steps.length*2, pct=Math.round(pts/max*100);
+  RES[P]={pts,max,pct,acs,date:fecha()}; LS.set('rg_s14_res',RES); updCertBtn();
   const miss=D.steps.flatMap((s,i)=>rec[i].miss.map(m=>`<div class="miss"><b>Etapa ${i+1} · ${s.t}</b><br>${m}</div>`));
   $('#pbar').style.width='100%';
-  const date=new Date().toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'});
+  const left=KEYS.filter(k=>!RES[k]).map(k=>C[k].name);
   $('#right').innerHTML=`<div class="summary">
-    <div class="eyebrow">Constancia de recorrido · CECYBOOK Semana 14</div>
+    <div class="eyebrow">Resultado del recorrido · CECYBOOK Semana 14</div>
     <h2>${D.name}: ${pts} de ${max} puntos (${pct} %)</h2>
-    <div class="namebox noprint"><input id="who" placeholder="Escribe tu nombre para la constancia"><button class="btn btn-ghost" id="print">🖨️ Imprimir / guardar PDF</button></div>
-    <div id="whoOut" style="font-weight:700;color:var(--navy)"></div><div style="font-size:12.5px;color:var(--muted)">${date}</div>
-    <div class="acgrid">
-      <div class="acbox"><b>${acs[5][0]}/${acs[5][1]}</b>A.C.5 · Acondiciona leches y sus derivados</div>
-      <div class="acbox"><b>${acs[6][0]}/${acs[6][1]}</b>A.C.6 · Transforma leche y sus derivados</div>
-      <div class="acbox"><b>${acs[7][0]}/${acs[7][1]}</b>A.C.7 · Acondiciona el producto terminado</div>
-    </div>
+    <div class="certcall"><div><b>🎓 Tu constancia está lista</b><span>Escribe tu nombre y grupo, y guárdala en PDF o imprímela.${left.length?` Si completas también ${left.join(' y ')}, aparecerán en la misma constancia.`:' Incluye los tres productos que completaste.'}</span></div><button class="btn btn-accent" id="genCert">🎓 Generar constancia</button></div>
+    <div class="acgrid">${[5,6,7].map(k=>`<div class="acbox"><b>${acs[k][1]?acs[k][0]+'/'+acs[k][1]:'—'}</b>A.C.${k} · ${ACN[k]}${acs[k][1]?'':' <i>(no aplica en esta ruta)</i>'}</div>`).join('')}</div>
     <p>${pct>=85?'🏆 Excelente dominio del proceso.':pct>=60?'👍 Buen trabajo; repasa las etapas marcadas abajo.':'📘 Repasa el CECYBOOK y repite el recorrido.'}</p>
     ${miss.length?'<h3 style="font-size:14.5px;color:var(--navy)">Para repasar</h3>'+miss.join(''):'<p>✅ Sin errores al primer intento.</p>'}
     <div class="nav noprint" style="padding:12px 0 0;border:0"><button class="btn btn-ghost" id="again">↺ Repetir este recorrido</button><button class="btn btn-primary" id="other">Elegir otro producto</button></div></div>`;
-  $('#who').oninput=e=>$('#whoOut').textContent=e.target.value?('Alumno(a): '+e.target.value):'';
-  $('#print').onclick=()=>window.print();
+  $('#genCert').onclick=openCert;
   $('#again').onclick=()=>{ step=0; rec=D.steps.map(()=>null); render(); };
   $('#other').onclick=()=>{ step=-1; render(); window.scrollTo({top:0,behavior:'smooth'}); };
 }
 
+/* ===================== Constancia ===================== */
+function updCertBtn(){ const n=KEYS.filter(k=>RES[k]).length; const b=$('#certBtn'); if(b){ b.innerHTML=`🎓 Constancia <small>${n}/3 productos</small>`; b.classList.toggle('ready',n>0); } }
+function folio(s){ let h=7; for(const ch of s) h=(h*31+ch.charCodeAt(0))>>>0; return 'RG-S14-'+h.toString(36).toUpperCase().slice(0,6).padStart(6,'0'); }
+function nivel(p){ return p>=85?'Excelente':p>=70?'Satisfactorio':p>=60?'Suficiente':'En desarrollo'; }
+const esc=v=>String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+function openCert(){
+  const who=LS.get('rg_s14_who')||{};
+  $('#cert').innerHTML=`<div class="cert-in">
+    <div class="cbar noprint"><b>🎓 Constancia del recorrido</b>
+      <input id="cName" placeholder="Nombre completo del alumno(a)" value="${esc(who.n)}">
+      <input id="cGroup" placeholder="Grupo" value="${esc(who.g)}" style="max-width:110px">
+      <input id="cSchool" placeholder="Plantel" value="${esc(who.s)}" style="max-width:170px">
+      <button class="btn btn-accent" id="cPrint">🖨️ Imprimir / guardar PDF</button><button class="btn btn-ghost" id="cClose">✕ Cerrar</button></div>
+    <div class="sheet" id="sheet"></div></div>`;
+  $('#cert').classList.add('on'); document.body.classList.add('cert-on');
+  const draw=()=>{ const n=$('#cName').value.trim(), g=$('#cGroup').value.trim(), sc=$('#cSchool').value.trim(); LS.set('rg_s14_who',{n,g,s:sc});
+    const done=KEYS.filter(k=>RES[k]);
+    const tp=done.reduce((a,k)=>a+RES[k].pts,0), tm=done.reduce((a,k)=>a+RES[k].max,0), pc=tm?Math.round(tp/tm*100):0;
+    $('#sheet').innerHTML=`<div class="sh-top"><div class="sh-logo">CECyTE<br><small>Guanajuato</small></div><div class="sh-head"><span>Módulo II · Semana 14 · Unidad 7</span><span>Procesos de transformación para la obtención de derivados de la leche</span></div><div class="sh-folio">Folio<br><b>${folio(n+g+tp+done.join(''))}</b></div></div>
+     <div class="sh-title">CONSTANCIA</div><div class="sh-sub">de recorrido guiado · <i>Planta de quesos y derivados lácteos</i></div>
+     <div class="sh-to">Se otorga a</div><div class="sh-name">${n?esc(n):'<span class="ph">Escribe tu nombre arriba</span>'}</div>
+     <div class="sh-meta">${esc(g?'Grupo '+g:'')}${g&&sc?' · ':''}${esc(sc)}</div>
+     ${done.length?`<p class="sh-txt">Por completar el recorrido guiado por la planta de derivados lácteos, tomando en cada etapa las decisiones técnicas del proceso: de la recepción de la leche a la liberación del producto terminado.</p>
+     <table class="sh-tab"><tr><th>Producto</th><th>A.C.5</th><th>A.C.6</th><th>A.C.7</th><th>Puntos</th><th>Fecha</th></tr>
+      ${done.map(k=>{const x=RES[k];return `<tr><td>${EMO[k]} ${C[k].name}</td>${[5,6,7].map(b=>`<td>${x.acs[b][1]?x.acs[b][0]+'/'+x.acs[b][1]:'—'}</td>`).join('')}<td><b>${x.pts}/${x.max}</b> (${x.pct} %)</td><td>${x.date}</td></tr>`;}).join('')}</table>
+     <div class="sh-res"><div><small>Resultado global</small><b>${tp}/${tm} · ${pc} %</b></div><div><small>Nivel de desempeño</small><b>${nivel(pc)}</b></div><div><small>Productos completados</small><b>${done.length} de 3</b></div></div>
+     <div class="sh-leg">A.C.5 · ${ACN[5]} &nbsp;·&nbsp; A.C.6 · ${ACN[6]} &nbsp;·&nbsp; A.C.7 · ${ACN[7]}</div>`
+     :`<div class="sh-empty">Aún no completas ningún producto.<br>Termina al menos un recorrido (queso fresco, Oaxaca o yogurt) y vuelve a abrir la constancia.</div>`}
+     <div class="sh-sign"><div><span></span>Alumno(a)</div><div><span></span>Docente</div></div>
+     <div class="sh-foot">Expedida el ${fecha()} · Recurso didáctico complementario · CECYBOOK Semana 14</div>`;
+  };
+  ['#cName','#cGroup','#cSchool'].forEach(id=>$(id).oninput=draw); draw();
+  $('#cPrint').onclick=()=>{ if(!$('#cName').value.trim()){ $('#cName').focus(); $('#cName').classList.add('need'); return; } window.print(); };
+  $('#cClose').onclick=closeCert; $('#cert').onclick=e=>{ if(e.target.id==='cert') closeCert(); };
+  $('#cName').focus();
+}
+function closeCert(){ $('#cert').classList.remove('on'); document.body.classList.remove('cert-on'); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('#cert').classList.contains('on')) closeCert(); });
+
 $$('.prod').forEach(b=>b.addEventListener('click',()=>{ stopTimer(); P=b.dataset.p; $$('.prod').forEach(x=>x.classList.toggle('on',x===b)); step=-1; rec=[]; render(); }));
-buildMap(); render();
+buildMap(); render(); updCertBtn(); $('#certBtn').onclick=openCert;
 </script>
 </body>
 </html>
